@@ -7,6 +7,7 @@ import 'explore_screen.dart';
 import 'theme_controller.dart';
 import 'profile_screen.dart';
 import 'saved_screen.dart';
+import 'trip_details.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String userName;
@@ -302,6 +303,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 navy: navy,
                                 gold: gold,
                                 isDark: isDark,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => TripDetailsScreen(
+                                            trip: TripDetailsData(
+                                              image: "assets/bali.jpg",
+                                              title: "Bali Paradise",
+                                              price: "\$1,299",
+                                              subtitle: "7 days • 2 people",
+                                              days: "7 Days",
+                                              rating: "4.8",
+                                              people: "2 people",
+                                              highlights: [
+                                                "Visit iconic temples and rice terraces",
+                                                "Relax on Bali's pristine beaches",
+                                                "Enjoy local cuisine and cultural shows",
+                                                "Optional spa and wellness experiences",
+                                              ],
+                                            ),
+                                          ),
+                                    ),
+                                  );
+                                },
                               ),
                               RecommendationCard(
                                 title: "Alpine Escape",
@@ -313,6 +339,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 navy: navy,
                                 gold: gold,
                                 isDark: isDark,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => TripDetailsScreen(
+                                            trip: TripDetailsData(
+                                              image: "assets/alps.jpg",
+                                              title: "Alpine Escape",
+                                              price: "\$1,099",
+                                              subtitle: "5 days • 2 people",
+                                              days: "5 Days",
+                                              rating: "4.7",
+                                              people: "2 people",
+                                              highlights: [
+                                                "Explore the beautiful Alps",
+                                                "Enjoy mountain adventures",
+                                                "Stay in cozy alpine lodges",
+                                              ],
+                                            ),
+                                          ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -520,14 +570,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.bookmark_rounded,
+              Icons.shopping_cart_rounded,
               color: isDark ? Colors.white70 : navy,
             ),
             activeIcon: Icon(
-              Icons.bookmark_rounded,
+              Icons.shopping_cart_rounded,
               color: isDark ? gold : gold,
             ),
-            label: "Saved",
+            label: "Cart",
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -568,6 +618,8 @@ class RecommendationCard extends StatelessWidget {
   final Color navy;
   final Color gold;
   final bool isDark;
+  final VoidCallback? onTap;
+
   const RecommendationCard({
     super.key,
     required this.title,
@@ -579,132 +631,143 @@ class RecommendationCard extends StatelessWidget {
     required this.navy,
     required this.gold,
     required this.isDark,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final cardColor = isDark ? navy : Colors.white;
     final textColor = isDark ? Colors.white : navy;
-    return Container(
-      width: 260,
-      margin: const EdgeInsets.only(right: 18),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(22),
-        image: DecorationImage(
-          image: AssetImage(image),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.18),
-            BlendMode.darken,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 260,
+        margin: const EdgeInsets.only(right: 18),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(22),
+          image: DecorationImage(
+            image: AssetImage(image),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.18),
+              BlendMode.darken,
+            ),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: navy.withOpacity(0.12),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: navy.withOpacity(0.12),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Glass overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                color: Colors.black.withOpacity(0.25),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.13),
-                  width: 1.2,
+        child: Stack(
+          children: [
+            // Glass overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  color: Colors.black.withOpacity(0.25),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.13),
+                    width: 1.2,
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (tag.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: gold,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tag,
-                      style: GoogleFonts.inter(
-                        color: navy,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (tag.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
                       ),
-                    ),
-                  ),
-                const Spacer(),
-                Text(
-                  title,
-                  style: GoogleFonts.playfairDisplay(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.star, color: gold, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      rating,
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      price,
-                      style: GoogleFonts.inter(
+                      decoration: BoxDecoration(
                         color: gold,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        tag,
+                        style: GoogleFonts.inter(
+                          color: navy,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 2),
-                    Text(
-                      "per person",
-                      style: GoogleFonts.inter(
-                        color: Colors.white70,
-                        fontSize: 11,
-                      ),
+                  const Spacer(),
+                  Text(
+                    title,
+                    style: GoogleFonts.playfairDisplay(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
-                  ],
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.star, color: gold, size: 18),
+                      const SizedBox(width: 4),
+                      Text(
+                        rating,
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        price,
+                        style: GoogleFonts.inter(
+                          color: gold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        "per person",
+                        style: GoogleFonts.inter(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Heart icon
+            Positioned(
+              top: 12,
+              right: 12,
+              child: CircleAvatar(
+                backgroundColor: Colors.white.withOpacity(0.7),
+                radius: 16,
+                child: Icon(
+                  Icons.favorite_border_rounded,
+                  color: navy,
+                  size: 18,
                 ),
-              ],
+              ),
             ),
-          ),
-          // Heart icon
-          Positioned(
-            top: 12,
-            right: 12,
-            child: CircleAvatar(
-              backgroundColor: Colors.white.withOpacity(0.7),
-              radius: 16,
-              child: Icon(Icons.favorite_border_rounded, color: navy, size: 18),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

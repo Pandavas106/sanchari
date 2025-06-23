@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'theme_controller.dart';
+import 'trip_details.dart';
 
 class AiSuggestedTripsScreen extends StatelessWidget {
   const AiSuggestedTripsScreen({super.key});
@@ -321,7 +322,29 @@ class AiSuggestedTripsScreen extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                // View details logic
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TripDetailsScreen(
+                                      trip: TripDetailsData(
+                                        image: "assets/bali.jpg",
+                                        title: "Bali Adventure",
+                                        price: "\$1,899",
+                                        subtitle:
+                                            "Temples, beaches & cultural experiences in paradise",
+                                        days: "7 Days",
+                                        rating: "4.9",
+                                        people: "2 people",
+                                        highlights: [
+                                          "Visit iconic temples and rice terraces",
+                                          "Relax on Bali's pristine beaches",
+                                          "Enjoy local cuisine and cultural shows",
+                                          "Optional spa and wellness experiences",
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
                               },
                               child: Text(
                                 "View Details",
@@ -358,6 +381,29 @@ class AiSuggestedTripsScreen extends StatelessWidget {
               rating: "4.8",
               isDark: isDark,
               navy: navy,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TripDetailsScreen(
+                      trip: TripDetailsData(
+                        image: "assets/tokyo.jpg",
+                        title: "Tokyo Explorer",
+                        price: "\$2,299",
+                        subtitle: "5 days • Urban adventure",
+                        days: "5 Days",
+                        rating: "4.8",
+                        people: "2 people",
+                        highlights: [
+                          "Explore Tokyo's vibrant city life",
+                          "Experience Japanese culture",
+                          "Visit famous landmarks",
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 10),
             _SuggestionCard(
@@ -368,6 +414,29 @@ class AiSuggestedTripsScreen extends StatelessWidget {
               rating: "4.9",
               isDark: isDark,
               navy: navy,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TripDetailsScreen(
+                      trip: TripDetailsData(
+                        image: "assets/iceland.jpg",
+                        title: "Iceland Northern Lights",
+                        price: "\$2,499",
+                        subtitle: "6 days • Nature & adventure",
+                        days: "6 Days",
+                        rating: "4.9",
+                        people: "2 people",
+                        highlights: [
+                          "Chase the Northern Lights",
+                          "Explore Reykjavik's culture",
+                          "Relax in natural hot springs",
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 10),
             _SuggestionCard(
@@ -378,6 +447,29 @@ class AiSuggestedTripsScreen extends StatelessWidget {
               rating: "4.7",
               isDark: isDark,
               navy: navy,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TripDetailsScreen(
+                      trip: TripDetailsData(
+                        image: "assets/paris.jpg",
+                        title: "Romantic Paris",
+                        price: "\$1,799",
+                        subtitle: "4 days • Romance & culture",
+                        days: "4 Days",
+                        rating: "4.7",
+                        people: "2 people",
+                        highlights: [
+                          "Visit the Eiffel Tower",
+                          "Explore the Louvre Museum",
+                          "Enjoy a Seine River cruise",
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
             // ...rest of your code...
           ],
@@ -395,6 +487,7 @@ class _SuggestionCard extends StatelessWidget {
   final String rating;
   final bool isDark;
   final Color navy;
+  final VoidCallback? onTap;
 
   const _SuggestionCard({
     required this.image,
@@ -404,6 +497,7 @@ class _SuggestionCard extends StatelessWidget {
     required this.rating,
     required this.isDark,
     required this.navy,
+    this.onTap,
   });
 
   @override
@@ -411,100 +505,116 @@ class _SuggestionCard extends StatelessWidget {
     final gold = const Color(0xFFF4CA5E);
     final subTextColor = isDark ? Colors.white70 : Colors.black54;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? navy.withOpacity(0.85) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: navy.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? navy.withOpacity(0.85) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: navy.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(18),
               topRight: Radius.circular(18),
-            ),
-            child: Image.asset(
+              ),
+              child: Image.asset(
               image,
               height: 120,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder:
-                  (context, error, stackTrace) => Container(
-                    height: 120,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0E0E0),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(18),
-                        topRight: Radius.circular(18),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: Colors.grey,
-                      size: 40,
-                    ),
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 120,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                color: Color(0xFFE0E0E0),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
+                ),
+                ),
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                  Icons.image_not_supported_outlined,
+                  color: Colors.grey,
+                  size: 40,
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                  "Image not found",
+                  style: GoogleFonts.inter(
+                    color: navy,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                  ),
+                ],
+                ),
+              ),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: GoogleFonts.playfairDisplay(
-                    color: isDark ? Colors.white : navy,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                title,
+                style: GoogleFonts.playfairDisplay(
+                  color: isDark ? Colors.white : navy,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  subtitle,
-                  style: GoogleFonts.inter(color: subTextColor, fontSize: 14),
+                subtitle,
+                style: GoogleFonts.inter(color: subTextColor, fontSize: 14),
                 ),
                 const SizedBox(height: 10),
                 Row(
+                children: [
+                  Text(
+                  price,
+                  style: GoogleFonts.playfairDisplay(
+                    color: gold,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  ),
+                  const Spacer(),
+                  Row(
                   children: [
+                    Icon(Icons.star, color: gold, size: 16),
+                    const SizedBox(width: 4),
                     Text(
-                      price,
-                      style: GoogleFonts.playfairDisplay(
-                        color: gold,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    rating,
+                    style: GoogleFonts.inter(
+                      color: isDark ? Colors.white : navy,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: gold, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          rating,
-                          style: GoogleFonts.inter(
-                            color: isDark ? Colors.white : navy,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
+                  ),
+                ],
                 ),
               ],
+              ),
             ),
-          ),
-        ],
+            ],
+        ),
       ),
     );
   }

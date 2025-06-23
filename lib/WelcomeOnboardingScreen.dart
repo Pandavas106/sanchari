@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -59,22 +61,20 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
     final theme = ThemeController.of(context);
     final isDark = theme.isDark;
     final setTheme = theme.setTheme;
-    final bgGradient = LinearGradient(
-      colors:
-          isDark
-              ? [
-                const Color.fromARGB(255, 244, 202, 94),
-                const Color.fromARGB(255, 255, 255, 255),
-                const Color.fromARGB(255, 169, 177, 246),
-              ]
-              : [
-                const Color(0xFFF5F6FA),
-                const Color(0xFFEDE7F6),
-                const Color(0xFFD1C4E9),
-              ],
+
+    // Add your gradients here
+    final welcomeGradient = const LinearGradient(
+      colors: [Color(0xFFF4E2B8), Color(0xFFF5F6FA), Color(0xFFD1D9F6)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
+    final darkGradient = const LinearGradient(
+      colors: [Color(0xFF232946), Color(0xFF181A2A), Color(0xFF2D3250)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+
+    final bgGradient = isDark ? darkGradient : welcomeGradient;
 
     return Scaffold(
       body: Container(
@@ -114,10 +114,27 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
                             final baseStyle = GoogleFonts.playfairDisplay(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color:
-                                  isDark
-                                      ? const Color.fromARGB(255, 0, 0, 0)
-                                      : const Color.fromARGB(255, 0, 0, 0),
+                              foreground: Paint()
+                                ..shader = (isDark
+                                    ? const LinearGradient(
+                                        colors: [
+                                          Color(0xFFF4E2B8),
+                                          Color(0xFFF5F6FA),
+                                          Color(0xFFD1D9F6),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : const LinearGradient(
+                                        colors: [
+                                          Color(0xFF232946),
+                                          Color(0xFF181A2A),
+                                          Color(0xFF2D3250),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ))
+                                    .createShader(const Rect.fromLTWH(0, 0, 400, 40)),
                               letterSpacing: 0.5,
                             );
                             final text = page.title.replaceAllMapped(
@@ -138,30 +155,20 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
                                     text: part,
                                     style: baseStyle.copyWith(
                                       fontWeight: FontWeight.w900,
-                                      color:
-                                          isDark
-                                              ? const Color.fromARGB(
-                                                255,
-                                                68,
-                                                93,
-                                                245,
-                                              )
-                                              : const Color.fromARGB(
-                                                255,
-                                                68,
-                                                93,
-                                                245,
-                                              ),
+                                      foreground: Paint()
+                                        ..shader = const LinearGradient(
+                                          colors: [
+                                            Color(0xFFF4CA5E),
+                                            Color(0xFF445DF5),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ).createShader(const Rect.fromLTWH(0, 0, 400, 40)),
                                       shadows: [
                                         Shadow(
-                                          color:
-                                              isDark
-                                                  ? Colors.black.withOpacity(
-                                                    0.4,
-                                                  )
-                                                  : Colors.amber.withOpacity(
-                                                    0.3,
-                                                  ),
+                                          color: isDark
+                                              ? Colors.black.withOpacity(0.4)
+                                              : Colors.white.withOpacity(0.3),
                                           blurRadius: 12,
                                           offset: const Offset(0, 2),
                                         ),
@@ -191,8 +198,9 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
                               fontSize: 16,
                               color:
                                   isDark
-                                      ? const Color.fromARGB(255, 0, 0, 0)
-                                      : Colors.black54,
+                                      ?const Color.fromARGB(255, 255, 255, 255)
+                                      :Colors.black
+                                      ,
                               letterSpacing: 0.2,
                             ),
                           ),

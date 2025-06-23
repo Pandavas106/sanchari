@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'theme_controller.dart';
 import 'my_bookings_screen.dart';
 import 'settings_screen.dart';
+import 'saved_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -321,6 +322,14 @@ class ProfileScreen extends StatelessWidget {
                 isDark: isDark,
                 navy: navy,
                 iconColor: Colors.red,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SavedScreen(),
+                    ),
+                  );
+                },
               ),
               // Payment Methods
               _ProfileMenuTile(
