@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'theme_controller.dart';
@@ -1369,11 +1371,12 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
+                      final trips = await _sendTripData() ?? [];
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AiSuggestedTripsScreen(),
+                          builder: (context) => AiSuggestedTripsScreen(trips: trips),
                         ),
                       );
                     },
@@ -1385,5 +1388,44 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
         ),
       ),
     );
+  }
+
+  Future<List<TripCardData>> _sendTripData() async {
+    final url = Uri.parse(
+      'https://sirajmohammad.app.n8n.cloud/webhook/generateTripCard',
+    );
+    final data = {
+      "budget": budget,
+      "budgetType": budgetType,
+      "selectedDays": selectedDays,
+      "selectedType": selectedType,
+      "selectedCompanion": selectedCompanion,
+      "adults": adults,
+      "children": children,
+      "autoLocation": autoLocation,
+      "currentLocation": currentLocation,
+    };
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+      print('Webhook response: ${response.statusCode} ${response.body}');
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        final decoded = json.decode(response.body);
+        if (decoded is List) {
+          return decoded
+              .map<TripCardData>((e) => TripCardData.fromJson(e))
+              .toList();
+        } else if (decoded is Map) {
+          return [TripCardData.fromJson(decoded as Map<String, dynamic>)];
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error sending trip data: $e');
+      return [];
+    }
   }
 }
