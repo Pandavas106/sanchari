@@ -69,7 +69,7 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
       end: Alignment.bottomRight,
     );
     final darkGradient = const LinearGradient(
-      colors: [Color(0xFF232946), Color(0xFF181A2A), Color(0xFF2D3250)],
+      colors: [Color(0xFF232946), Color(0xFF181A2A), Color.fromARGB(255, 77, 88, 148)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
@@ -155,20 +155,16 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
                                     text: part,
                                     style: baseStyle.copyWith(
                                       fontWeight: FontWeight.w900,
+                                      fontFamily: 'bold',
                                       foreground: Paint()
-                                        ..shader = const LinearGradient(
-                                          colors: [
-                                            Color(0xFFF4CA5E),
-                                            Color(0xFF445DF5),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ).createShader(const Rect.fromLTWH(0, 0, 400, 40)),
+                                        ..color = isDark
+                                            ? Colors.amber
+                                            : Color.fromARGB(255, 68, 93, 245),
                                       shadows: [
                                         Shadow(
                                           color: isDark
-                                              ? Colors.black.withOpacity(0.4)
-                                              : Colors.white.withOpacity(0.3),
+                                              ? Colors.black
+                                              : Colors.white,
                                           blurRadius: 12,
                                           offset: const Offset(0, 2),
                                         ),
@@ -239,12 +235,8 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                            255,
-                            68,
-                            93,
-                            245,
-                          ),
+                          backgroundColor:isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
                           ),
@@ -255,8 +247,9 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
                           _currentPage == _pages.length - 1
                               ? "Get Started"
                               : "Next",
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: isDark ? Colors.black
+                            : Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
                             letterSpacing: 1.1,
@@ -271,7 +264,8 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
                       effect: ExpandingDotsEffect(
                         dotHeight: 8,
                         dotWidth: 24,
-                        activeDotColor: const Color.fromARGB(255, 68, 93, 245),
+                        activeDotColor: isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
                         dotColor: isDark ? Colors.white24 : Colors.black12,
                       ),
                     ),

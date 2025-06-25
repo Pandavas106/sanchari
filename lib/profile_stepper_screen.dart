@@ -63,6 +63,7 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
 
   Widget _stepContent(BuildContext context, int step) {
     final navy = const Color.fromARGB(255, 68, 93, 245);
+    final isDark = ThemeController.of(context).isDark;
     switch (step) {
       case 0:
         return Column(
@@ -72,7 +73,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: navy,
+                color: isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -96,7 +98,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: navy,
+                color: isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -121,7 +124,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: navy,
+                color: isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -146,7 +150,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: navy,
+                color: isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -207,7 +212,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: navy,
+                color: isDark ? Colors.amber
+                            :  Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -220,7 +226,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                     return FilterChip(
                       label: Text(pref),
                       selected: selected,
-                      selectedColor: navy.withOpacity(0.15),
+                      selectedColor: isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
                       checkmarkColor: navy,
                       onSelected: (val) {
                         setState(() {
@@ -271,21 +278,6 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Theme toggle button (top right)
-              Positioned(
-                top: 16,
-                right: 16,
-                child: IconButton(
-                  icon: Icon(
-                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                    color:
-                        isDark ? const Color.fromARGB(255, 244, 202, 94) : navy,
-                  ),
-                  tooltip:
-                      isDark ? "Switch to Light Mode" : "Switch to Dark Mode",
-                  onPressed: () => setTheme(!isDark),
-                ),
-              ),
               PageView.builder(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
@@ -307,20 +299,27 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                             if (_currentStep > 0)
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.grey.shade200,
-                                  foregroundColor: navy,
+                                  backgroundColor:isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
+                                  foregroundColor: isDark ? Colors.black
+                            : Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                 ),
                                 onPressed: _prevStep,
-                                child: const Text("Back"),
+                                child: const Text("Back",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               )
                             else
                               const SizedBox(width: 80),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: navy,
+                                backgroundColor: isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
@@ -329,7 +328,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                               child: Text(
                                 _currentStep == 4 ? "Finish" : "Next",
                                 style: GoogleFonts.inter(
-                                  color: Colors.white,
+                                  color: isDark ? Colors.black : Colors.white,
+                            
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -346,6 +346,24 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                   });
                 },
               ),
+              // Theme toggle button (top right) - place this after PageView.builder
+              Positioned(
+                top: 16,
+                right: 16,
+                child: IconButton(
+                  icon: Icon(
+                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                    color:
+                        isDark ? const Color.fromARGB(255, 244, 202, 94) : navy,
+                  ),
+                  tooltip:
+                      isDark ? "Switch to Light Mode" : "Switch to Dark Mode",
+                  onPressed: () {
+                    print('Theme toggle pressed');
+                    setTheme(!isDark);
+                  },
+                ),
+              ),
               // Stepper indicator at the bottom
               Positioned(
                 left: 0,
@@ -361,7 +379,8 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                       width: _currentStep == i ? 32 : 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: _currentStep == i ? navy : Colors.grey.shade300,
+                        color: _currentStep == i ? isDark ? Colors.amber
+                            : const Color.fromARGB(255, 68, 93, 245) : Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),

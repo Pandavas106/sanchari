@@ -8,6 +8,7 @@ import 'theme_controller.dart';
 import 'profile_screen.dart';
 import 'saved_screen.dart';
 import 'trip_details.dart';
+import 'cart_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String userName;
@@ -133,14 +134,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       width: 18,
                                       height: 18,
                                       decoration: BoxDecoration(
-                                        color: gold,
+                                        color:
+                                            isDark
+                                                ? Colors.amber
+                                                : Color.fromARGB(
+                                                  255,
+                                                  68,
+                                                  93,
+                                                  245,
+                                                ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Center(
                                         child: Text(
                                           "3",
                                           style: GoogleFonts.inter(
-                                            color: navy,
+                                            color:
+                                                isDark
+                                                    ? Colors.black
+                                                    : Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 11,
                                           ),
@@ -177,7 +189,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Icon(
                               Icons.location_on_rounded,
-                              color: gold,
+                              color:
+                                  isDark
+                                      ? Colors.amber
+                                      : Color.fromARGB(255, 68, 93, 245),
                               size: 20,
                             ),
                             const SizedBox(width: 4),
@@ -206,7 +221,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             horizontal: 20,
                           ),
                           decoration: BoxDecoration(
-                            color: gold,
+                            color:
+                                isDark
+                                    ? Colors.amber
+                                    : Color.fromARGB(255, 68, 93, 245),
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: Row(
@@ -218,7 +236,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Text(
                                       "Plan Your Dream Trip",
                                       style: GoogleFonts.playfairDisplay(
-                                        color: navy,
+                                        color:
+                                            isDark
+                                                ? Colors.black
+                                                : Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
                                       ),
@@ -227,7 +248,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Text(
                                       "Let AI create the perfect itinerary for you",
                                       style: GoogleFonts.inter(
-                                        color: navy.withOpacity(0.8),
+                                        color:
+                                            isDark
+                                                ? Colors.black
+                                                : Colors.white,
                                         fontSize: 14,
                                       ),
                                     ),
@@ -247,12 +271,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: navy,
+                                    color: isDark ? Colors.black : Colors.white,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
                                     Icons.arrow_forward_rounded,
-                                    color: Colors.white,
+                                    color: isDark ? Colors.white : Colors.black,
                                     size: 28,
                                   ),
                                 ),
@@ -276,10 +300,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             TextButton(
                               onPressed: () {},
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    !isDark
+                                        ? Color.fromARGB(255, 68, 93, 245)
+                                        : Colors.amber,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                               child: Text(
                                 "View All",
                                 style: GoogleFonts.inter(
-                                  color: gold,
+                                  color: !isDark ? Colors.white : Colors.black,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
@@ -430,10 +467,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             TextButton(
                               onPressed: () {},
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    !isDark
+                                        ? Color.fromARGB(255, 68, 93, 245)
+                                        : Colors.amber,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                               child: Text(
                                 "Clear All",
                                 style: GoogleFonts.inter(
-                                  color: gold,
+                                  color: !isDark ? Colors.white : Colors.black,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
@@ -520,7 +570,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: navBarColor,
-        selectedItemColor: gold,
+        selectedItemColor:
+            isDark ? Colors.amber : Color.fromARGB(255, 68, 93, 245),
         unselectedItemColor: isDark ? Colors.white70 : navy,
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
@@ -529,7 +580,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         selectedLabelStyle: GoogleFonts.inter(
           fontWeight: FontWeight.bold,
           fontSize: 14,
-          color: gold,
+          color: isDark ? Colors.amber : Color.fromARGB(255, 68, 93, 245),
         ),
         unselectedLabelStyle: GoogleFonts.inter(
           fontWeight: FontWeight.w500,
@@ -540,29 +591,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.home_rounded,
-              color: isDark ? Colors.white70 : navy,
+              color:
+                  _selectedIndex == 0
+                      ? (isDark
+                          ? Colors.amber
+                          : Color.fromARGB(255, 68, 93, 245))
+                      : (isDark ? Colors.white70 : navy),
             ),
-            activeIcon: Icon(Icons.home_rounded, color: isDark ? gold : gold),
             label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.explore_rounded,
-              color: isDark ? Colors.white70 : navy,
-            ),
-            activeIcon: Icon(
-              Icons.explore_rounded,
-              color: isDark ? gold : gold,
+              color:
+                  _selectedIndex == 1
+                      ? (isDark
+                          ? Colors.amber
+                          : Color.fromARGB(255, 68, 93, 245))
+                      : (isDark ? Colors.white70 : navy),
             ),
             label: "Explore",
           ),
           BottomNavigationBarItem(
             icon: Container(
-              decoration: BoxDecoration(color: gold, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.amber : Color.fromARGB(255, 68, 93, 245),
+                shape: BoxShape.circle,
+              ),
               padding: const EdgeInsets.all(10),
               child: Icon(
                 Icons.auto_fix_high_rounded,
-                color: isDark ? navy : Colors.white,
+                color:
+                    _selectedIndex == 2
+                        ? (isDark ? navy : Color.fromARGB(255, 68, 93, 245))
+                        : (isDark ? Colors.black : Colors.white),
                 size: 28,
               ),
             ),
@@ -571,30 +633,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.shopping_cart_rounded,
-              color: isDark ? Colors.white70 : navy,
-            ),
-            activeIcon: Icon(
-              Icons.shopping_cart_rounded,
-              color: isDark ? gold : gold,
+              color:
+                  _selectedIndex == 3
+                      ? (isDark
+                          ? Colors.amber
+                          : Color.fromARGB(255, 68, 93, 245))
+                      : (isDark ? Colors.white70 : navy),
             ),
             label: "Cart",
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.person_rounded,
-              color: isDark ? Colors.white70 : navy,
+              color:
+                  _selectedIndex == 4
+                      ? (isDark
+                          ? Colors.amber
+                          : Color.fromARGB(255, 68, 93, 245))
+                      : (isDark ? Colors.white70 : navy),
             ),
-            activeIcon: Icon(Icons.person_rounded, color: isDark ? gold : gold),
             label: "Profile",
           ),
         ],
         onTap: (index) {
           if (index == 2) {
-            // Plan Trip tapped
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const TripPlannerScreen(),
+              ),
+            );
+          } else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        const CartScreen(), // <-- Navigate to CartScreen
               ),
             );
           } else {
@@ -689,13 +764,16 @@ class RecommendationCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: gold,
+                        color:
+                            isDark
+                                ? Colors.amber
+                                : Color.fromARGB(255, 68, 93, 245),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         tag,
                         style: GoogleFonts.inter(
-                          color: navy,
+                          color: isDark ? Colors.black : Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -705,7 +783,10 @@ class RecommendationCard extends StatelessWidget {
                   Text(
                     title,
                     style: GoogleFonts.playfairDisplay(
-                      color: textColor,
+                      color:
+                          isDark
+                              ? Colors.amber
+                              : Color.fromARGB(255, 68, 93, 245),
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -713,19 +794,32 @@ class RecommendationCard extends StatelessWidget {
                   Text(
                     subtitle,
                     style: GoogleFonts.inter(
-                      color: Colors.white70,
+                      color:
+                          isDark
+                              ? Colors.amber
+                              : Color.fromARGB(255, 68, 93, 245),
                       fontSize: 13,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.star, color: gold, size: 18),
+                      Icon(
+                        Icons.star,
+                        color:
+                            isDark
+                                ? Colors.amber
+                                : Color.fromARGB(255, 68, 93, 245),
+                        size: 18,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         rating,
                         style: GoogleFonts.inter(
-                          color: Colors.white,
+                          color:
+                              isDark
+                                  ? Colors.amber
+                                  : Color.fromARGB(255, 68, 93, 245),
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
@@ -734,16 +828,22 @@ class RecommendationCard extends StatelessWidget {
                       Text(
                         price,
                         style: GoogleFonts.inter(
-                          color: gold,
+                          color:
+                              isDark
+                                  ? Colors.amber
+                                  : Color.fromARGB(255, 68, 93, 245),
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
                       const SizedBox(width: 2),
                       Text(
-                        "per person",
+                        "per person", // <-- label restored as before
                         style: GoogleFonts.inter(
-                          color: Colors.white70,
+                          color:
+                              isDark
+                                  ? Colors.amber
+                                  : Color.fromARGB(255, 68, 93, 245),
                           fontSize: 11,
                         ),
                       ),
@@ -847,12 +947,16 @@ class RecentSearchTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
       decoration: BoxDecoration(
-        color: isDark ? navy.withOpacity(0.85) : Colors.blue.shade100,
+        color: isDark ? navy.withOpacity(0.85) : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          Icon(Icons.location_on_rounded, color: gold, size: 22),
+          Icon(
+            Icons.location_on_rounded,
+            color: isDark ? Colors.amber : Color.fromARGB(255, 68, 93, 245),
+            size: 22,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -916,7 +1020,11 @@ class QuickActionTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min, // <-- Add this line
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: gold, size: 28),
+          Icon(
+            icon,
+            color: isDark ? Colors.amber : Color.fromARGB(255, 68, 93, 245),
+            size: 28,
+          ),
           const SizedBox(height: 6),
           Text(
             label,
