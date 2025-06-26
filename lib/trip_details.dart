@@ -36,7 +36,10 @@ class TripDetailsScreen extends StatelessWidget {
     final isDark = theme.isDark;
     final setTheme = theme.setTheme;
     final navy = const Color(0xFF232946);
-    final gold = const Color(0xFFF4CA5E);
+    final gold =
+        isDark
+            ? const Color(0xFFF4CA5E)
+            : const Color.fromARGB(255, 68, 93, 245);
 
     final welcomeGradient = const LinearGradient(
       colors: [Color(0xFFF4E2B8), Color(0xFFF5F6FA), Color(0xFFD1D9F6)],

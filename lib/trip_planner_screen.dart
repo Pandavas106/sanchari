@@ -31,7 +31,10 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
     final isDark = theme.isDark;
     final setTheme = theme.setTheme;
     final navy = const Color(0xFF232946);
-    final gold = const Color(0xFFF4CA5E);
+    final gold =
+        isDark
+            ? const Color(0xFFF4CA5E)
+            : const Color.fromARGB(255, 68, 93, 245); // <-- updated
     final darkGradient = const LinearGradient(
       colors: [Color(0xFF232946), Color(0xFF181A2A), Color(0xFF2D3250)],
       begin: Alignment.topLeft,
@@ -1376,7 +1379,8 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AiSuggestedTripsScreen(trips: trips),
+                          builder:
+                              (context) => AiSuggestedTripsScreen(trips: trips),
                         ),
                       );
                     },
@@ -1392,7 +1396,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
 
   Future<List<TripCardData>> _sendTripData() async {
     final url = Uri.parse(
-      'https://sirajmohammad.app.n8n.cloud/webhook/generateTripCard',
+      'https://n8n-190p.onrender.com/webhook/generateTripCard',
     );
     final data = {
       "budget": budget,

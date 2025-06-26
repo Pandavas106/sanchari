@@ -8,6 +8,7 @@ class ExploreScreen extends StatelessWidget {
   final bool isDark;
   final Color navy;
   final Color gold;
+  final Color blue = const Color.fromARGB(255, 68, 93, 245);
 
   const ExploreScreen({
     super.key,
@@ -23,25 +24,16 @@ class ExploreScreen extends StatelessWidget {
     final setTheme = theme.setTheme;
 
     final welcomeGradient = const LinearGradient(
-      colors: [
-        Color(0xFFF4E2B8),
-        Color(0xFFF5F6FA),
-        Color(0xFFD1D9F6),
-      ],
+      colors: [Color(0xFFF4E2B8), Color(0xFFF5F6FA), Color(0xFFD1D9F6)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
 
     final darkGradient = const LinearGradient(
-      colors: [
-        Color(0xFF232946),
-        Color(0xFF181A2A),
-        Color(0xFF2D3250),
-      ],
+      colors: [Color(0xFF232946), Color(0xFF181A2A), Color(0xFF2D3250)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
-
 
     return Scaffold(
       body: Container(
@@ -68,10 +60,15 @@ class ExploreScreen extends StatelessWidget {
                     const Spacer(),
                     IconButton(
                       icon: Icon(
-                        isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                        color: isDark ? gold : navy,
+                        isDark
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        color: isDark ? gold : blue, // <-- changed
                       ),
-                      tooltip: isDark ? "Switch to Light Mode" : "Switch to Dark Mode",
+                      tooltip:
+                          isDark
+                              ? "Switch to Light Mode"
+                              : "Switch to Dark Mode",
                       onPressed: () {
                         setTheme(!isDark);
                       },
@@ -82,7 +79,10 @@ class ExploreScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.tune_rounded, color: isDark ? gold : navy),
+                        icon: Icon(
+                          Icons.tune_rounded,
+                          color: isDark ? gold : blue,
+                        ), // <-- changed
                         onPressed: () {},
                       ),
                     ),
@@ -93,7 +93,10 @@ class ExploreScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.notifications_none_rounded, color: isDark ? gold : navy),
+                        icon: Icon(
+                          Icons.notifications_none_rounded,
+                          color: isDark ? gold : blue,
+                        ), // <-- changed
                         onPressed: () {},
                       ),
                     ),
@@ -106,23 +109,33 @@ class ExploreScreen extends StatelessWidget {
                     color: isDark ? navy.withOpacity(0.7) : Colors.white,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
-                      Icon(Icons.search_rounded, color: isDark ? gold : navy.withOpacity(0.7)),
+                      Icon(
+                        Icons.search_rounded,
+                        color: isDark ? gold : navy.withOpacity(0.7),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            hintText: "Search destinations, hotels, activities...",
+                            hintText:
+                                "Search destinations, hotels, activities...",
                             hintStyle: GoogleFonts.inter(
-                              color: isDark ? Colors.white54 : navy.withOpacity(0.5),
+                              color:
+                                  isDark
+                                      ? Colors.white54
+                                      : navy.withOpacity(0.5),
                               fontSize: 15,
                             ),
                             border: InputBorder.none,
                           ),
                           style: GoogleFonts.inter(
-                            color: isDark ? Colors.white : navy,
+                            color: isDark ?  navy:Colors.white,
                             fontSize: 15,
                           ),
                         ),
@@ -140,12 +153,18 @@ class ExploreScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(right: 10),
                         child: ChoiceChip(
-                          label: Text("All", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                          label: Text(
+                            "All",
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           selected: true,
-                          selectedColor: navy,
-                          backgroundColor: isDark ? navy.withOpacity(0.08) : Colors.white,
+                          selectedColor: isDark ? gold : blue, // <-- changed
+                          backgroundColor:
+                              isDark ? navy.withOpacity(0.08) : Colors.white,
                           labelStyle: TextStyle(
-                            color: Colors.white,
+                            color: isDark ?  navy: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                           onSelected: (_) {},
@@ -160,7 +179,8 @@ class ExploreScreen extends StatelessWidget {
                           label: Text("Hotels", style: GoogleFonts.inter()),
                           selected: false,
                           selectedColor: navy,
-                          backgroundColor: isDark ? navy.withOpacity(0.08) : Colors.white,
+                          backgroundColor:
+                              isDark ? navy.withOpacity(0.08) : Colors.white,
                           labelStyle: TextStyle(
                             color: isDark ? Colors.white : navy,
                           ),
@@ -176,7 +196,8 @@ class ExploreScreen extends StatelessWidget {
                           label: Text("Activities", style: GoogleFonts.inter()),
                           selected: false,
                           selectedColor: navy,
-                          backgroundColor: isDark ? navy.withOpacity(0.08) : Colors.white,
+                          backgroundColor:
+                              isDark ? navy.withOpacity(0.08) : Colors.white,
                           labelStyle: TextStyle(
                             color: isDark ? Colors.white : navy,
                           ),
@@ -189,10 +210,14 @@ class ExploreScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(right: 10),
                         child: ChoiceChip(
-                          label: Text("Restaurants", style: GoogleFonts.inter()),
+                          label: Text(
+                            "Restaurants",
+                            style: GoogleFonts.inter(),
+                          ),
                           selected: false,
                           selectedColor: navy,
-                          backgroundColor: isDark ? navy.withOpacity(0.08) : Colors.white,
+                          backgroundColor:
+                              isDark ? navy.withOpacity(0.08) : Colors.white,
                           labelStyle: TextStyle(
                             color: isDark ? Colors.white : navy,
                           ),
@@ -242,15 +267,18 @@ class ExploreScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: gold,
+                                color: isDark ? gold : blue, // <-- changed
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 "Featured",
                                 style: GoogleFonts.inter(
-                                  color: navy,
+                                  color: isDark ? navy : Colors.white, // <-- changed
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -274,7 +302,7 @@ class ExploreScreen extends StatelessWidget {
                             ),
                             Row(
                               children: [
-                                Icon(Icons.star, color: gold, size: 16),
+                                Icon(Icons.star, color: isDark?gold:blue, size: 16),
                                 const SizedBox(width: 4),
                                 Text(
                                   "4.9",
@@ -316,7 +344,7 @@ class ExploreScreen extends StatelessWidget {
                     Text(
                       "See All",
                       style: GoogleFonts.inter(
-                        color: gold,
+                        color: isDark ? gold : blue, // <-- changed
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -337,6 +365,7 @@ class ExploreScreen extends StatelessWidget {
                         isDark: isDark,
                         navy: navy,
                         gold: gold,
+                        blue: blue,
                       ),
                       const SizedBox(width: 12),
                       _TrendingCard(
@@ -347,6 +376,7 @@ class ExploreScreen extends StatelessWidget {
                         isDark: isDark,
                         navy: navy,
                         gold: gold,
+                        blue: blue,
                       ),
                       // Add more cards as needed
                     ],
@@ -368,7 +398,7 @@ class ExploreScreen extends StatelessWidget {
                     Text(
                       "See All",
                       style: GoogleFonts.inter(
-                        color: gold,
+                        color: isDark ? gold : blue, // <-- changed
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -416,7 +446,7 @@ class ExploreScreen extends StatelessWidget {
                     Text(
                       "See All",
                       style: GoogleFonts.inter(
-                        color: gold,
+                        color: isDark ? gold : blue, // <-- changed
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -470,24 +500,28 @@ class ExploreScreen extends StatelessWidget {
                       image: "assets/marco.jpg",
                       name: "Marco Rodriguez",
                       badge: "Local Guide",
-                      text: "\"Best pasta in Rome is at this hidden gem near the Pantheon. Trust me, I’ve lived here for 20 years!\"",
+                      text:
+                          "\"Best pasta in Rome is at this hidden gem near the Pantheon. Trust me, I’ve lived here for 20 years!\"",
                       location: "Rome, Italy",
                       likes: "24",
                       isDark: isDark,
                       navy: navy,
                       gold: gold,
+                      blue: blue,
                     ),
                     const SizedBox(height: 16),
                     _RecommendationCard(
                       image: "assets/yuki.jpg",
                       name: "Yuki Tanaka",
                       badge: "Local Guide",
-                      text: "\"Skip the crowded temples in the morning. Visit Fushimi Inari at sunset for magical photos!\"",
+                      text:
+                          "\"Skip the crowded temples in the morning. Visit Fushimi Inari at sunset for magical photos!\"",
                       location: "Kyoto, Japan",
                       likes: "38",
                       isDark: isDark,
                       navy: navy,
                       gold: gold,
+                      blue: blue,
                     ),
                   ],
                 ),
@@ -508,6 +542,7 @@ class _TrendingCard extends StatelessWidget {
   final bool isDark;
   final Color navy;
   final Color gold;
+  final Color blue;
 
   const _TrendingCard({
     required this.image,
@@ -517,6 +552,7 @@ class _TrendingCard extends StatelessWidget {
     required this.isDark,
     required this.navy,
     required this.gold,
+    required this.blue,
   });
 
   @override
@@ -543,13 +579,13 @@ class _TrendingCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: gold,
+                color: isDark ? gold : blue, // <-- changed
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 tag,
                 style: GoogleFonts.inter(
-                  color: navy,
+                  color: isDark ? navy : Colors.white, // <-- changed
                   fontWeight: FontWeight.bold,
                   fontSize: 11,
                 ),
@@ -573,10 +609,7 @@ class _TrendingCard extends StatelessWidget {
             bottom: 10,
             child: Text(
               properties,
-              style: GoogleFonts.inter(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
             ),
           ),
         ],
@@ -621,12 +654,13 @@ class _HotelCard extends StatelessWidget {
               width: 80,
               height: 80,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 80,
-                height: 80,
-                color: Colors.grey[300],
-                child: Icon(Icons.hotel, color: navy, size: 32),
-              ),
+              errorBuilder:
+                  (context, error, stackTrace) => Container(
+                    width: 80,
+                    height: 80,
+                    color: Colors.grey[300],
+                    child: Icon(Icons.hotel, color: navy, size: 32),
+                  ),
             ),
           ),
           const SizedBox(width: 10),
@@ -667,7 +701,7 @@ class _HotelCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      Icon(Icons.star, color: Colors.amber, size: 18),
+                      Icon(Icons.star, color: isDark?Colors.amber:Color.fromARGB(255, 68, 93, 245), size: 18),
                       Text(
                         rating,
                         style: GoogleFonts.inter(
@@ -681,9 +715,12 @@ class _HotelCard extends StatelessWidget {
                         height: 32,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: navy,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                            backgroundColor: isDark ? Colors.amber : Color.fromARGB(255, 68, 93, 245), // <-- changed
+                            foregroundColor: isDark ? navy : Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 0,
+                            ),
                             minimumSize: const Size(0, 32),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -752,26 +789,30 @@ class _ActivityCard extends StatelessWidget {
                   width: 150,
                   height: 80,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 150,
-                    height: 80,
-                    color: Colors.grey[300],
-                    child: Icon(Icons.image, color: navy, size: 32),
-                  ),
+                  errorBuilder:
+                      (context, error, stackTrace) => Container(
+                        width: 150,
+                        height: 80,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.image, color: navy, size: 32),
+                      ),
                 ),
               ),
               Positioned(
                 top: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.star, color: Colors.amber, size: 14),
+                      Icon(Icons.star, color:isDark?Colors.amber:Color.fromARGB(255, 68, 93, 245), size: 14),
                       const SizedBox(width: 2),
                       Text(
                         rating,
@@ -847,7 +888,7 @@ class _ActivityCard extends StatelessWidget {
 class _RecommendationCard extends StatelessWidget {
   final String image, name, badge, text, location, likes;
   final bool isDark;
-  final Color navy, gold;
+  final Color navy, gold, blue;
 
   const _RecommendationCard({
     required this.image,
@@ -859,6 +900,7 @@ class _RecommendationCard extends StatelessWidget {
     required this.isDark,
     required this.navy,
     required this.gold,
+    required this.blue,
   });
 
   @override
@@ -881,12 +923,13 @@ class _RecommendationCard extends StatelessWidget {
               width: 44,
               height: 44,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 44,
-                height: 44,
-                color: Colors.grey[300],
-                child: Icon(Icons.person, color: navy, size: 28),
-              ),
+              errorBuilder:
+                  (context, error, stackTrace) => Container(
+                    width: 44,
+                    height: 44,
+                    color: Colors.grey[300],
+                    child: Icon(Icons.person, color: navy, size: 28),
+                  ),
             ),
           ),
           const SizedBox(width: 12),
@@ -910,15 +953,18 @@ class _RecommendationCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: gold,
+                        color: isDark ? gold : blue, // <-- changed
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         badge,
                         style: GoogleFonts.inter(
-                          color: navy,
+                          color: isDark ? navy : Colors.white, // <-- changed
                           fontWeight: FontWeight.bold,
                           fontSize: 11,
                         ),

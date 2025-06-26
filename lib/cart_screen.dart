@@ -12,7 +12,10 @@ class CartScreen extends StatelessWidget {
     final setTheme = theme.setTheme;
 
     final navy = const Color(0xFF232946);
-    final gold = const Color(0xFFF4CA5E);
+    final gold =
+        isDark
+            ? const Color(0xFFF4CA5E)
+            : const Color.fromARGB(255, 68, 93, 245);
 
     final cardBg = isDark ? navy.withOpacity(0.85) : Colors.white;
     final bgGradient = LinearGradient(
