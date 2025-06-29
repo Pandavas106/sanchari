@@ -1,7 +1,8 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dashboard_screen.dart';
 import 'theme_controller.dart';
 
@@ -14,6 +15,7 @@ class ProfileStepperScreen extends StatefulWidget {
 
 class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
   int _currentStep = 0;
+  bool isLoading = false; // Add this at the top of your State class
 
   // Profile fields
   String name = '';
@@ -31,9 +33,70 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
     "Culture",
     "Food",
   ];
+  // GitHub Copilot Prompt:
+  // On final step of the stepper, save the profile data to Supabase.
+  // Use Supabase Flutter client to insert the data into 'profiles' table.
+  // Get current user's UID using Supabase auth.
+  // Parse the DOB string (DD/MM/YYYY) to a DateTime object.
+  // Store preferences as a text array.
+  // After successful insertion, navigate to DashboardScreen.
 
   final PageController _pageController = PageController();
 
+  Future<void> _saveProfileAndNavigate() async {
+    setState(() {
+      isLoading = true;
+    });
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+    if (user == null) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('User not logged in!')));
+      return;
+    }
+    try {
+      // Parse DOB string (DD/MM/YYYY) to DateTime
+      DateTime? dobDate;
+      if (dob.isNotEmpty) {
+        final parts = dob.split('/');
+        if (parts.length == 3) {
+          final isoString =
+              '${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}';
+          dobDate = DateTime.tryParse(isoString);
+        }
+      }
+      await supabase.from('profiles').insert({
+        'id': user.id,
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'gender': gender,
+        'dob': dobDate?.toIso8601String(),
+        'preferences': preferences,
+      });
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      );
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save profile: $e')));
+    }
+  }
+
+  // ignore: unused_element
   void _nextStep() {
     if (_currentStep < 4) {
       setState(() => _currentStep += 1);
@@ -42,12 +105,7 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
         curve: Curves.ease,
       );
     } else {
-      // Example: Save profile data here before navigating
-      // saveProfile(name, email, phone, gender, dob, preferences);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+      _saveProfileAndNavigate(); // <-- Save to Supabase on last step
     }
   }
 
@@ -73,8 +131,10 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245),
+                color:
+                    isDark
+                        ? Colors.amber
+                        : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -98,8 +158,10 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245),
+                color:
+                    isDark
+                        ? Colors.amber
+                        : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -124,8 +186,10 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245),
+                color:
+                    isDark
+                        ? Colors.amber
+                        : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -150,8 +214,10 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245),
+                color:
+                    isDark
+                        ? Colors.amber
+                        : const Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -212,8 +278,7 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: isDark ? Colors.amber
-                            :  Color.fromARGB(255, 68, 93, 245),
+                color: isDark ? Colors.amber : Color.fromARGB(255, 68, 93, 245),
               ),
               textAlign: TextAlign.center,
             ),
@@ -226,8 +291,10 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                     return FilterChip(
                       label: Text(pref),
                       selected: selected,
-                      selectedColor: isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245),
+                      selectedColor:
+                          isDark
+                              ? Colors.amber
+                              : const Color.fromARGB(255, 68, 93, 245),
                       checkmarkColor: navy,
                       onSelected: (val) {
                         setState(() {
@@ -299,40 +366,66 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                             if (_currentStep > 0)
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245),
-                                  foregroundColor: isDark ? Colors.black
-                            : Colors.white,
+                                  backgroundColor:
+                                      isDark
+                                          ? Colors.amber
+                                          : const Color.fromARGB(
+                                            255,
+                                            68,
+                                            93,
+                                            245,
+                                          ),
+                                  foregroundColor:
+                                      isDark ? Colors.black : Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                 ),
                                 onPressed: _prevStep,
-                                child: const Text("Back",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: const Text(
+                                  "Back",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               )
                             else
                               const SizedBox(width: 80),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245),
+                                backgroundColor:
+                                    isDark
+                                        ? Colors.amber
+                                        : const Color.fromARGB(
+                                          255,
+                                          68,
+                                          93,
+                                          245,
+                                        ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              onPressed: _nextStep,
-                              child: Text(
-                                _currentStep == 4 ? "Finish" : "Next",
-                                style: GoogleFonts.inter(
-                                  color: isDark ? Colors.black : Colors.white,
-                            
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              onPressed:
+                                  isLoading ? null : _saveProfileAndNavigate,
+                              child:
+                                  isLoading
+                                      ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : Text(
+                                        _currentStep == 4 ? "Finish" : "Next",
+                                        style: GoogleFonts.inter(
+                                          color:
+                                              isDark
+                                                  ? Colors.black
+                                                  : Colors.white,
+
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                             ),
                           ],
                         ),
@@ -359,7 +452,6 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                   tooltip:
                       isDark ? "Switch to Light Mode" : "Switch to Dark Mode",
                   onPressed: () {
-                    print('Theme toggle pressed');
                     setTheme(!isDark);
                   },
                 ),
@@ -379,8 +471,12 @@ class _ProfileStepperScreenState extends State<ProfileStepperScreen> {
                       width: _currentStep == i ? 32 : 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: _currentStep == i ? isDark ? Colors.amber
-                            : const Color.fromARGB(255, 68, 93, 245) : Colors.grey.shade300,
+                        color:
+                            _currentStep == i
+                                ? isDark
+                                    ? Colors.amber
+                                    : const Color.fromARGB(255, 68, 93, 245)
+                                : Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),

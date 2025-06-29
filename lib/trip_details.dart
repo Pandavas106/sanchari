@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'theme_controller.dart';
+import 'trip_plan_screen.dart';
 
 class TripDetailsData {
   final String image;
@@ -507,7 +508,10 @@ class TripDetailsScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  // TODO: Add booking logic
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TripPlanScreen()),
+                  );
                 },
               ),
             ),

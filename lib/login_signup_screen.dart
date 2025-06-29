@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'profile_stepper_screen.dart';
 import 'theme_controller.dart';
+import 'dashboard_screen.dart'; // <-- Import DashboardScreen
 
 class LoginSignupScreen extends StatefulWidget {
   const LoginSignupScreen({super.key});
@@ -75,7 +76,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
           color: isDark ? Colors.white : navy,
         ),
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: isDark ? Colors.amber : const Color(0xFF445DF5)),
+          prefixIcon: Icon(
+            icon,
+            color: isDark ? Colors.amber : const Color(0xFF445DF5),
+          ),
           hintText: hint,
           hintStyle: GoogleFonts.inter(
             color: isDark ? Colors.white54 : Colors.grey.shade500,
@@ -100,14 +104,17 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: color ?? (isDark ? navy : Colors.white),
-          foregroundColor: color == null
-              ? (isDark ? Colors.white : const Color(0xFF232946))
-              : Colors.white,
+          foregroundColor:
+              color == null
+                  ? (isDark ? Colors.white : const Color(0xFF232946))
+                  : Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: color ?? (isDark ? navy.withOpacity(0.3) : Colors.grey.shade200),
+              color:
+                  color ??
+                  (isDark ? navy.withOpacity(0.3) : Colors.grey.shade200),
               width: 1.2,
             ),
           ),
@@ -180,17 +187,18 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
     final gold = const Color(0xFFF4CA5E);
 
     final bgGradient = LinearGradient(
-      colors: isDark
-          ? [
-              const Color(0xFF232946),
-              const Color(0xFF181A2A),
-              const Color(0xFF2D3250),
-            ]
-          : [
-              const Color(0xFFF5F6FA),
-              const Color(0xFFEDE7F6),
-              const Color(0xFFD1C4E9),
-            ],
+      colors:
+          isDark
+              ? [
+                const Color(0xFF232946),
+                const Color(0xFF181A2A),
+                const Color(0xFF2D3250),
+              ]
+              : [
+                const Color(0xFFF5F6FA),
+                const Color(0xFFEDE7F6),
+                const Color(0xFFD1C4E9),
+              ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
@@ -255,7 +263,8 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                     indicatorSize: TabBarIndicatorSize.tab,
                     labelPadding: const EdgeInsets.symmetric(horizontal: 32),
                     labelColor: isDark ? navy : Colors.white,
-                    unselectedLabelColor: isDark ? gold : const Color(0xFF445DF5),
+                    unselectedLabelColor:
+                        isDark ? gold : const Color(0xFF445DF5),
                     labelStyle: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -289,7 +298,8 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                 navy: navy,
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
@@ -298,13 +308,19 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                         onChanged: (val) {
                                           setState(() => useBiometric = val);
                                         },
-                                        activeColor: isDark ? gold : const Color(0xFF445DF5),
+                                        activeColor:
+                                            isDark
+                                                ? gold
+                                                : const Color(0xFF445DF5),
                                       ),
                                       Text(
                                         "Biometric Login",
                                         style: GoogleFonts.inter(
                                           fontWeight: FontWeight.w500,
-                                          color: isDark ? Colors.white70 : Colors.grey.shade700,
+                                          color:
+                                              isDark
+                                                  ? Colors.white70
+                                                  : Colors.grey.shade700,
                                         ),
                                       ),
                                     ],
@@ -314,7 +330,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                     child: Text(
                                       "Forgot Password?",
                                       style: GoogleFonts.inter(
-                                        color: isDark ? gold : const Color(0xFF445DF5),
+                                        color:
+                                            isDark
+                                                ? gold
+                                                : const Color(0xFF445DF5),
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -327,7 +346,8 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                 height: 48,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: isDark ? gold : const Color(0xFF445DF5),
+                                    backgroundColor:
+                                        isDark ? gold : const Color(0xFF445DF5),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(18),
                                     ),
@@ -338,7 +358,9 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => const ProfileStepperScreen(),
+                                        builder:
+                                            (_) =>
+                                                DashboardScreen(), // <-- Navigate to DashboardScreen
                                       ),
                                     );
                                   },
@@ -361,7 +383,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                   height: 44,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: isDark ? gold : const Color(0xFF445DF5),
+                                      backgroundColor:
+                                          isDark
+                                              ? gold
+                                              : const Color(0xFF445DF5),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),
@@ -414,7 +439,8 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                 height: 48,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: isDark ? gold : const Color(0xFF445DF5),
+                                    backgroundColor:
+                                        isDark ? gold : const Color(0xFF445DF5),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(18),
                                     ),
@@ -442,7 +468,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                   height: 44,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: isDark ? gold : const Color(0xFF445DF5),
+                                      backgroundColor:
+                                          isDark
+                                              ? gold
+                                              : const Color(0xFF445DF5),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),

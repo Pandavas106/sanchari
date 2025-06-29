@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'theme_controller.dart';
@@ -17,7 +19,6 @@ class CartScreen extends StatelessWidget {
             ? const Color(0xFFF4CA5E)
             : const Color.fromARGB(255, 68, 93, 245);
 
-    final cardBg = isDark ? navy.withOpacity(0.85) : Colors.white;
     final bgGradient = LinearGradient(
       colors:
           isDark

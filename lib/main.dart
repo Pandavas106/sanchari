@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme_controller.dart';
 import 'WelcomeOnboardingScreen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://dcijlrzttcyovimjbnvw.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjaWpscnp0dGN5b3ZpbWpibnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NTI2OTUsImV4cCI6MjA2NjUyODY5NX0.NWIzUUuqHlmbVPkML5TtHlraGD7cbYMcVKk2nad4HsM',
+  );
   runApp(const MyApp());
 }
 
@@ -27,13 +33,17 @@ class _MyAppState extends State<MyApp> {
       isDark: isDark,
       setTheme: setTheme,
       child: Builder(
-        builder: (context) => MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
-          themeMode: ThemeController.of(context).isDark ? ThemeMode.dark : ThemeMode.light,
-          home: const WelcomeOnboarding(),
-        ),
+        builder:
+            (context) => MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData.light(),
+              darkTheme: ThemeData.dark(),
+              themeMode:
+                  ThemeController.of(context).isDark
+                      ? ThemeMode.dark
+                      : ThemeMode.light,
+              home: const WelcomeOnboarding(),
+            ),
       ),
     );
   }

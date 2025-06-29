@@ -712,6 +712,7 @@ class RecommendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardColor = isDark ? navy : Colors.white;
+    // ignore: unused_local_variable
     final textColor = isDark ? Colors.white : navy;
     return GestureDetector(
       onTap: onTap,

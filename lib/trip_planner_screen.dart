@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -1375,7 +1375,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
                       ),
                     ),
                     onPressed: () async {
-                      final trips = await _sendTripData() ?? [];
+                      final trips = await _sendTripData();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
