@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:ui'; // Add this import at the top
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'profile_stepper_screen.dart';
 import 'theme_controller.dart';
 
@@ -21,6 +23,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -34,6 +37,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
     emailController.dispose();
     phoneController.dispose();
     otpController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -75,7 +79,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
           color: isDark ? Colors.white : navy,
         ),
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: isDark ? Colors.amber : const Color(0xFF445DF5)),
+          prefixIcon: Icon(
+            icon,
+            color: isDark ? Colors.amber : const Color(0xFF445DF5),
+          ),
           hintText: hint,
           hintStyle: GoogleFonts.inter(
             color: isDark ? Colors.white54 : Colors.grey.shade500,
@@ -90,33 +97,41 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
 
   Widget socialButton({
     required String label,
-    required IconData icon,
+    required Widget icon, // <-- Change to Widget
     required VoidCallback onTap,
     Color? color,
+    Color? iconColor,
     required bool isDark,
     required Color navy,
   }) {
+    final isGoogle = label == "Google";
     return Expanded(
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: color ?? (isDark ? navy : Colors.white),
-          foregroundColor: color == null
-              ? (isDark ? Colors.white : const Color(0xFF232946))
-              : Colors.white,
+          foregroundColor: isGoogle
+              ? Colors.black87
+              : color == null
+                  ? (isDark ? Colors.white : const Color(0xFF232946))
+                  : Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: color ?? (isDark ? navy.withOpacity(0.3) : Colors.grey.shade200),
+              color: isGoogle
+                  ? Colors.grey.shade300
+                  : color ?? (isDark ? navy.withOpacity(0.3) : Colors.grey.shade200),
               width: 1.2,
             ),
           ),
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),
-        icon: Icon(icon, size: 22),
+        icon: icon, // <-- Use the widget directly
         label: Text(
           label,
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         onPressed: onTap,
       ),
@@ -177,8 +192,9 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
     final isDark = theme.isDark;
     final setTheme = theme.setTheme;
     final navy = const Color(0xFF232946);
-    final gold = const Color(0xFFF4CA5E);
+    final gold = const Color(0xFFF4CA5E); // <-- Add this line
 
+    // Use the same gradient as ProfileStepperScreen
     final bgGradient = LinearGradient(
       colors: isDark
           ? [
@@ -187,9 +203,9 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
               const Color(0xFF2D3250),
             ]
           : [
-              const Color(0xFFF5F6FA),
-              const Color(0xFFEDE7F6),
-              const Color(0xFFD1C4E9),
+              const Color.fromARGB(255, 244, 202, 94),
+              const Color.fromARGB(255, 237, 231, 246),
+              const Color.fromARGB(255, 169, 177, 246),
             ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
@@ -197,20 +213,6 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
 
     return Scaffold(
       backgroundColor: isDark ? navy : null,
-      appBar: AppBar(
-        backgroundColor: isDark ? navy : Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-              color: isDark ? gold : navy,
-            ),
-            tooltip: isDark ? "Switch to Light Mode" : "Switch to Dark Mode",
-            onPressed: () => setTheme(!isDark),
-          ),
-        ],
-      ),
       body: Container(
         decoration: BoxDecoration(gradient: bgGradient),
         child: SafeArea(
@@ -218,279 +220,351 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(height: 32),
-                  Text(
-                    "Sanchari",
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? gold : const Color(0xFF445DF5),
-                      letterSpacing: 1.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                  // AppBar replacement: theme toggle
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: Icon(
+                        isDark
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        color: isDark ? gold : navy,
+                      ),
+                      tooltip:
+                          isDark
+                              ? "Switch to Light Mode"
+                              : "Switch to Dark Mode",
+                      onPressed: () => setTheme(!isDark),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Travel. Discover. Live.",
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: isDark ? Colors.white70 : Colors.grey.shade700,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  TabBar(
-                    controller: _tabController,
-                    indicator: BoxDecoration(
-                      color: isDark ? gold : const Color(0xFF445DF5),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 32),
-                    labelColor: isDark ? navy : Colors.white,
-                    unselectedLabelColor: isDark ? gold : const Color(0xFF445DF5),
-                    labelStyle: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    tabs: const [Tab(text: "Sign In"), Tab(text: "Sign Up")],
                   ),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    height: 420,
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        // Sign In State
-                        SingleChildScrollView(
+                  // Card
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(32),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 32,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? navy.withOpacity(0.45)
+                                : Colors.white.withOpacity(0.38), // slightly more transparent for glassy look
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.22),
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 24,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
+                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              neumorphicField(
-                                hint: "Email",
-                                icon: Icons.email_outlined,
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                isDark: isDark,
-                                navy: navy,
+                              // Logo
+                              CircleAvatar(
+                                radius: 40,
+                                backgroundColor:
+                                    isDark ? gold : const Color(0xFF445DF5),
+                                child: Icon(
+                                  Icons.airplanemode_active,
+                                  color: isDark ? navy : Colors.white,
+                                  size: 40,
+                                ),
                               ),
-                              neumorphicField(
-                                hint: "Password",
-                                icon: Icons.lock_outline,
-                                obscure: true,
-                                isDark: isDark,
-                                navy: navy,
+                              const SizedBox(height: 18),
+                              Text(
+                                "Sanchari",
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      isDark ? gold : const Color(0xFF445DF5),
+                                  letterSpacing: 1.5,
+                                ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Switch(
-                                        value: useBiometric,
-                                        onChanged: (val) {
-                                          setState(() => useBiometric = val);
-                                        },
-                                        activeColor: isDark ? gold : const Color(0xFF445DF5),
-                                      ),
-                                      Text(
-                                        "Biometric Login",
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w500,
-                                          color: isDark ? Colors.white70 : Colors.grey.shade700,
-                                        ),
-                                      ),
-                                    ],
+                              const SizedBox(height: 6),
+                              Text(
+                                "Travel. Discover. Live.",
+                                style: GoogleFonts.inter(
+                                  fontSize: 15,
+                                  color:
+                                      isDark
+                                          ? Colors.white70
+                                          : Colors.grey.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              // TabBar
+                              Container(
+                                decoration: BoxDecoration(
+                                  color:
+                                      isDark ? navy : const Color(0xFFF5F6FA),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: TabBar(
+                                  controller: _tabController,
+                                  indicator: BoxDecoration(
+                                    color:
+                                        isDark ? gold : const Color(0xFF445DF5),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                  TextButton(
-                                    onPressed: () {},
-                                    child: Text(
-                                      "Forgot Password?",
-                                      style: GoogleFonts.inter(
-                                        color: isDark ? gold : const Color(0xFF445DF5),
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  labelColor: isDark ? navy : Colors.white,
+                                  unselectedLabelColor:
+                                      isDark ? gold : const Color(0xFF445DF5),
+                                  labelStyle: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  tabs: const [
+                                    Tab(text: "Sign In"),
+                                    Tab(text: "Sign Up"),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                height: 340,
+                                child: TabBarView(
+                                  controller: _tabController,
+                                  children: [
+                                    // Sign In
+                                    _buildSignIn(context, isDark, navy, gold),
+                                    // Sign Up
+                                    _buildSignUp(context, isDark, navy, gold),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                children: [
+                                  socialButton(
+                                    label: "Google",
+                                    icon: Image.asset(
+                                      'assets/google_logo.png',
+                                      height: 22,
+                                      width: 22,
                                     ),
+                                    onTap: () {},
+                                    isDark: isDark,
+                                    navy: navy,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  socialButton(
+                                    label: "Facebook",
+                                    icon: Icon(Icons.facebook, color: Colors.white),
+                                    color: const Color(0xFF1877F3),
+                                    onTap: () {},
+                                    isDark: isDark,
+                                    navy: navy,
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 48,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isDark ? gold : const Color(0xFF445DF5),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    elevation: 4,
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  socialButton(
+                                    label: "iPhone",
+                                    icon: Icon(Icons.apple, color: Colors.white), // ✅ This is a Widget
+                                    color: Colors.black,
+                                    onTap: () {
+                                      // Handle Apple sign in/up
+                                    },
+                                    isDark: isDark,
+                                    navy: navy,
                                   ),
-                                  onPressed: () {
-                                    setState(() => showOtpSignIn = true);
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const ProfileStepperScreen(),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    "Sign In",
-                                    style: GoogleFonts.inter(
-                                      color: isDark ? navy : Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
+                                ],
                               ),
-                              if (showOtpSignIn) ...[
-                                const SizedBox(height: 18),
-                                otpFields(isDark, navy),
-                                const SizedBox(height: 10),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 44,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isDark ? gold : const Color(0xFF445DF5),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                    ),
-                                    onPressed: () {},
-                                    child: Text(
-                                      "Verify OTP",
-                                      style: GoogleFonts.inter(
-                                        color: isDark ? navy : Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                         ),
-                        // Sign Up State
-                        SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              neumorphicField(
-                                hint: "Email",
-                                icon: Icons.email_outlined,
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                isDark: isDark,
-                                navy: navy,
-                              ),
-                              neumorphicField(
-                                hint: "Phone",
-                                icon: Icons.phone_outlined,
-                                controller: phoneController,
-                                keyboardType: TextInputType.phone,
-                                isDark: isDark,
-                                navy: navy,
-                              ),
-                              neumorphicField(
-                                hint: "Password",
-                                icon: Icons.lock_outline,
-                                obscure: true,
-                                isDark: isDark,
-                                navy: navy,
-                              ),
-                              const SizedBox(height: 10),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 48,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isDark ? gold : const Color(0xFF445DF5),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    elevation: 4,
-                                  ),
-                                  onPressed: () {
-                                    setState(() => showOtpSignUp = true);
-                                  },
-                                  child: Text(
-                                    "Sign Up",
-                                    style: GoogleFonts.inter(
-                                      color: isDark ? navy : Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (showOtpSignUp) ...[
-                                const SizedBox(height: 18),
-                                otpFields(isDark, navy),
-                                const SizedBox(height: 10),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 44,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isDark ? gold : const Color(0xFF445DF5),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                    ),
-                                    onPressed: () {},
-                                    child: Text(
-                                      "Verify OTP",
-                                      style: GoogleFonts.inter(
-                                        color: isDark ? navy : Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      socialButton(
-                        label: "Google",
-                        icon: Icons.g_mobiledata,
-                        onTap: () {},
-                        isDark: isDark,
-                        navy: navy,
-                      ),
-                      const SizedBox(width: 12),
-                      socialButton(
-                        label: "Facebook",
-                        icon: Icons.facebook,
-                        color: const Color(0xFF1877F3),
-                        onTap: () {},
-                        isDark: isDark,
-                        navy: navy,
-                      ),
-                    ],
+                  const SizedBox(height: 24),
+                  Text(
+                    "Need help?",
+                    style: TextStyle(
+                      color: isDark ? Colors.white54 : Colors.grey,
+                      fontSize: 16,
+                    ),
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSignIn(
+    BuildContext context,
+    bool isDark,
+    Color navy,
+    Color gold,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        neumorphicField(
+          hint: "Email",
+          icon: Icons.email_outlined,
+          controller: emailController,
+          keyboardType: TextInputType.emailAddress,
+          isDark: isDark,
+          navy: navy,
+        ),
+        neumorphicField(
+          hint: "Password",
+          icon: Icons.lock_outline,
+          obscure: true,
+          controller: passwordController, // <-- Add this!
+          isDark: isDark,
+          navy: navy,
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark ? gold : const Color(0xFF445DF5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              elevation: 4,
+            ),
+            onPressed: () async {
+              try {
+                final response = await Supabase.instance.client.auth.signInWithPassword(
+                  email: emailController.text,
+                  password: passwordController.text,
+                );
+                if (response.user != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileStepperScreen()),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(e.toString())),
+                );
+              }
+            },
+            child: Text(
+              "Sign In",
+              style: GoogleFonts.inter(
+                color: isDark ? navy : Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignUp(
+    BuildContext context,
+    bool isDark,
+    Color navy,
+    Color gold,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        neumorphicField(
+          hint: "Email",
+          icon: Icons.email_outlined,
+          controller: emailController,
+          keyboardType: TextInputType.emailAddress,
+          isDark: isDark,
+          navy: navy,
+        ),
+        neumorphicField(
+          hint: "Phone",
+          icon: Icons.phone_outlined,
+          controller: phoneController,
+          keyboardType: TextInputType.phone,
+          isDark: isDark,
+          navy: navy,
+        ),
+        neumorphicField(
+          hint: "Password",
+          icon: Icons.lock_outline,
+          obscure: true,
+          isDark: isDark,
+          navy: navy,
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark ? gold : const Color(0xFF445DF5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              elevation: 4,
+            ),
+            onPressed: () async {
+              // Simple validation: check if fields are not empty
+              if (emailController.text.isNotEmpty &&
+                  phoneController.text.isNotEmpty &&
+                  passwordController.text.isNotEmpty) {
+                try {
+                  final response = await Supabase.instance.client.auth.signUp(
+                    email: emailController.text,
+                    password: passwordController.text,
+                    data: {
+                      'phone': phoneController.text, // This stores phone in user metadata
+                    },
+                  );
+                  if (response.user != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Sign up successful! Please sign in.')),
+                    );
+                    _tabController.animateTo(0); // Switch to Sign In tab
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString())),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill all fields')),
+                );
+              }
+            },
+            child: Text(
+              "Sign Up",
+              style: GoogleFonts.inter(
+                color: isDark ? navy : Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

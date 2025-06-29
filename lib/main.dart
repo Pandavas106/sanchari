@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme_controller.dart';
 import 'WelcomeOnboardingScreen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://dcijlrzttcyovimjbnvw.supabase.co', // <-- Replace with your Supabase URL
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjaWpscnp0dGN5b3ZpbWpibnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NTI2OTUsImV4cCI6MjA2NjUyODY5NX0.NWIzUUuqHlmbVPkML5TtHlraGD7cbYMcVKk2nad4HsM', // <-- Replace with your Supabase anon key
+  );
   runApp(const MyApp());
 }
 
@@ -39,6 +45,8 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+final supabase = Supabase.instance.client;
+
 // Remove the duplicate WelcomeOnboarding and MyHomePage classes from here if they exist elsewhere
 
 // --- WelcomeOnboardingScreen.dart ---
@@ -74,3 +82,5 @@ class _WelcomeOnboardingState extends State<WelcomeOnboarding> {
 */
 
 // Now, when the user clicks "Get Started" on the onboarding screen, they will be navigated to the login/signup screen.
+
+
