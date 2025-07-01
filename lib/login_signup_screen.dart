@@ -109,18 +109,23 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: color ?? (isDark ? navy : Colors.white),
-          foregroundColor: isGoogle
-              ? Colors.black87
-              : color == null
+          foregroundColor:
+              isGoogle
+                  ? Colors.black87
+                  : color == null
                   ? (isDark ? Colors.white : const Color(0xFF232946))
                   : Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: isGoogle
-                  ? Colors.grey.shade300
-                  : color ?? (isDark ? navy.withOpacity(0.3) : Colors.grey.shade200),
+              color:
+                  isGoogle
+                      ? Colors.grey.shade300
+                      : color ??
+                          (isDark
+                              ? navy.withOpacity(0.3)
+                              : Colors.grey.shade200),
               width: 1.2,
             ),
           ),
@@ -129,9 +134,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
         icon: icon, // <-- Use the widget directly
         label: Text(
           label,
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
         onPressed: onTap,
       ),
@@ -192,21 +195,22 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
     final isDark = theme.isDark;
     final setTheme = theme.setTheme;
     final navy = const Color(0xFF232946);
-    final gold = const Color(0xFFF4CA5E); // <-- Add this line
+    final gold = Colors.amber; // <-- Add this line
 
     // Use the same gradient as ProfileStepperScreen
     final bgGradient = LinearGradient(
-      colors: isDark
-          ? [
-              const Color(0xFF232946),
-              const Color(0xFF181A2A),
-              const Color(0xFF2D3250),
-            ]
-          : [
-              const Color.fromARGB(255, 244, 202, 94),
-              const Color.fromARGB(255, 237, 231, 246),
-              const Color.fromARGB(255, 169, 177, 246),
-            ],
+      colors:
+          isDark
+              ? [
+                const Color(0xFF232946),
+                const Color(0xFF181A2A),
+                const Color(0xFF2D3250),
+              ]
+              : [
+                const Color.fromARGB(255, 244, 202, 94),
+                const Color.fromARGB(255, 237, 231, 246),
+                const Color.fromARGB(255, 169, 177, 246),
+              ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
@@ -251,9 +255,12 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                             vertical: 32,
                           ),
                           decoration: BoxDecoration(
-                            color: isDark
-                                ? navy.withOpacity(0.45)
-                                : Colors.white.withOpacity(0.38), // slightly more transparent for glassy look
+                            color:
+                                isDark
+                                    ? navy.withOpacity(0.45)
+                                    : Colors.white.withOpacity(
+                                      0.38,
+                                    ), // slightly more transparent for glassy look
                             borderRadius: BorderRadius.circular(32),
                             border: Border.all(
                               color: Colors.white.withOpacity(0.22),
@@ -364,7 +371,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                   const SizedBox(width: 12),
                                   socialButton(
                                     label: "Facebook",
-                                    icon: Icon(Icons.facebook, color: Colors.white),
+                                    icon: Icon(
+                                      Icons.facebook,
+                                      color: Colors.white,
+                                    ),
                                     color: const Color(0xFF1877F3),
                                     onTap: () {},
                                     isDark: isDark,
@@ -377,7 +387,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                                 children: [
                                   socialButton(
                                     label: "iPhone",
-                                    icon: Icon(Icons.apple, color: Colors.white), // ✅ This is a Widget
+                                    icon: Icon(
+                                      Icons.apple,
+                                      color: Colors.white,
+                                    ), // ✅ This is a Widget
                                     color: Colors.black,
                                     onTap: () {
                                       // Handle Apple sign in/up
@@ -450,20 +463,23 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
             ),
             onPressed: () async {
               try {
-                final response = await Supabase.instance.client.auth.signInWithPassword(
-                  email: emailController.text,
-                  password: passwordController.text,
-                );
+                final response = await Supabase.instance.client.auth
+                    .signInWithPassword(
+                      email: emailController.text,
+                      password: passwordController.text,
+                    );
                 if (response.user != null) {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const ProfileStepperScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const ProfileStepperScreen(),
+                    ),
                   );
                 }
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.toString())),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(e.toString())));
               }
             },
             child: Text(
@@ -534,19 +550,23 @@ class _LoginSignupScreenState extends State<LoginSignupScreen>
                     email: emailController.text,
                     password: passwordController.text,
                     data: {
-                      'phone': phoneController.text, // This stores phone in user metadata
+                      'phone':
+                          phoneController
+                              .text, // This stores phone in user metadata
                     },
                   );
                   if (response.user != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Sign up successful! Please sign in.')),
+                      const SnackBar(
+                        content: Text('Sign up successful! Please sign in.'),
+                      ),
                     );
                     _tabController.animateTo(0); // Switch to Sign In tab
                   }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.toString())),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(e.toString())));
                 }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
