@@ -3,12 +3,14 @@ import { motion } from 'framer-motion'
 import { Star, Heart, Sun, Moon, MapPin, Calendar, Users, Filter, Search, Grid, List } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useNavigate } from 'react-router-dom'
+import Navbar from './Navbar'
 
 const Saved = () => {
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState('All')
   const [viewMode, setViewMode] = useState('grid')
+  const [notificationCount, setNotificationCount] = useState(3)
 
   const filters = ['All', 'Places', 'Hotels', 'Activities', 'Restaurants']
 
@@ -92,12 +94,24 @@ const Saved = () => {
 
   return (
     <div className={`min-h-screen ${bgGradient}`}>
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      {/* Navigation */}
+      <Navbar 
+        onSearchOpen={() => {}}
+        onNotificationOpen={() => {}}
+        notificationCount={notificationCount}
+        cartCount={2}
+      />
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Page Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className={`text-xl lg:text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+              <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
                 Saved Items
               </h1>
               <div className={`px-3 py-1 rounded-full ${
@@ -150,19 +164,10 @@ const Saved = () => {
               <button className={`p-2 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}>
                 <Filter className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
               </button>
-              <button onClick={toggleTheme} className="p-2">
-                {isDark ? (
-                  <Sun className="w-6 h-6 text-yellow-400" />
-                ) : (
-                  <Moon className="w-6 h-6 text-blue-600" />
-                )}
-              </button>
             </div>
           </div>
-        </div>
-      </header>
+        </motion.div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-9">

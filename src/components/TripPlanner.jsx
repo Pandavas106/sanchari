@@ -8,21 +8,21 @@ import {
   Users, 
   DollarSign, 
   Sparkles,
-  Sun,
-  Moon,
   Plus,
   Minus,
   Check,
   X
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import Navbar from './Navbar'
 import LoadingSpinner from './LoadingSpinner'
 
 const TripPlanner = () => {
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const [currentStep, setCurrentStep] = useState(0)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [notificationCount, setNotificationCount] = useState(3)
   const [formData, setFormData] = useState({
     destination: '',
     startDate: '',
@@ -489,57 +489,43 @@ const TripPlanner = () => {
 
   return (
     <div className={`min-h-screen ${bgGradient}`}>
-      {/* Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <motion.button 
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => navigate('/dashboard')}
-                className={`p-2 rounded-full ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm lg:hidden`}
-              >
-                <ArrowLeft className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-              </motion.button>
-              <div>
-                <h1 className={`text-xl lg:text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-                  Plan Your Dream Trip
-                </h1>
-                <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
-                </p>
-              </div>
+      {/* Navigation */}
+      <Navbar 
+        onSearchOpen={() => {}}
+        onNotificationOpen={() => {}}
+        notificationCount={notificationCount}
+        cartCount={2}
+      />
+
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        {/* Progress Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+                Plan Your Dream Trip
+              </h1>
+              <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
+              </p>
             </div>
-            <motion.button 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={toggleTheme} 
-              className="p-2"
-            >
-              {isDark ? (
-                <Sun className="w-6 h-6 text-yellow-400" />
-              ) : (
-                <Moon className="w-6 h-6 text-blue-600" />
-              )}
-            </motion.button>
           </div>
           
           {/* Progress Bar */}
-          <div className="mt-4">
-            <div className={`w-full h-2 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}>
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-                transition={{ duration: 0.5 }}
-                className={`h-2 rounded-full ${isDark ? 'bg-yellow-400' : 'bg-blue-600'}`}
-              />
-            </div>
+          <div className={`w-full h-2 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+              transition={{ duration: 0.5 }}
+              className={`h-2 rounded-full ${isDark ? 'bg-yellow-400' : 'bg-blue-600'}`}
+            />
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Form */}
           <div className="lg:col-span-8">

@@ -18,10 +18,12 @@ import {
   Truck
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import Navbar from './Navbar'
 
 const Cart = () => {
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
+  const [notificationCount, setNotificationCount] = useState(3)
 
   const cartItems = [
     {
@@ -52,40 +54,35 @@ const Cart = () => {
 
   return (
     <div className={`min-h-screen ${bgGradient}`}>
-      {/* Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => navigate('/dashboard')}
-                className={`p-2 rounded-full ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm lg:hidden`}
-              >
-                <ArrowLeft className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-              </button>
-              <h1 className={`text-xl lg:text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-                Shopping Cart
-              </h1>
-              <div className={`px-3 py-1 rounded-full ${
-                isDark ? 'bg-yellow-400' : 'bg-blue-600'
-              }`}>
-                <span className={`text-sm font-bold ${isDark ? 'text-navy' : 'text-white'}`}>
-                  {cartItems.length} items
-                </span>
-              </div>
-            </div>
-            <button onClick={toggleTheme} className="p-2">
-              {isDark ? (
-                <Sun className="w-6 h-6 text-yellow-400" />
-              ) : (
-                <Moon className="w-6 h-6 text-blue-600" />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Navigation */}
+      <Navbar 
+        onSearchOpen={() => {}}
+        onNotificationOpen={() => {}}
+        notificationCount={notificationCount}
+        cartCount={cartItems.length}
+      />
 
       <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Page Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center space-x-4">
+            <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+              Shopping Cart
+            </h1>
+            <div className={`px-3 py-1 rounded-full ${
+              isDark ? 'bg-yellow-400' : 'bg-blue-600'
+            }`}>
+              <span className={`text-sm font-bold ${isDark ? 'text-navy' : 'text-white'}`}>
+                {cartItems.length} items
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-8">

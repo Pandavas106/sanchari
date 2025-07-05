@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Calendar, Star, Edit, Sun, Moon, Filter, MapPin, Users, Plane, Search } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import Navbar from './Navbar'
 
 const AiSuggestedTrips = () => {
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const [trips, setTrips] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeFilter, setActiveFilter] = useState('All')
+  const [notificationCount, setNotificationCount] = useState(3)
 
   const filters = ['All', 'Beach', 'Mountains', 'City', 'Adventure', 'Luxury']
 
@@ -109,54 +111,29 @@ const AiSuggestedTrips = () => {
 
   return (
     <div className={`min-h-screen ${bgGradient}`}>
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => navigate('/dashboard')}
-                className={`p-2 rounded-full ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm lg:hidden`}
-              >
-                <ArrowLeft className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-              </button>
-              <h1 className={`text-xl lg:text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-                AI Suggested Trips
-              </h1>
-            </div>
-            
-            {/* Search and Actions */}
-            <div className="flex items-center space-x-4">
-              <div className="relative hidden lg:block">
-                <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`} />
-                <input
-                  type="text"
-                  placeholder="Search trips..."
-                  className={`pl-10 pr-4 py-2 rounded-xl border-0 w-64 ${
-                    isDark 
-                      ? 'bg-navy/50 text-white placeholder-gray-400' 
-                      : 'bg-white/50 text-navy placeholder-gray-500'
-                  } focus:ring-2 focus:ring-blue-500`}
-                />
-              </div>
-              <button className={`p-2 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}>
-                <Filter className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
-              </button>
-              <button onClick={toggleTheme} className="p-2">
-                {isDark ? (
-                  <Sun className="w-6 h-6 text-yellow-400" />
-                ) : (
-                  <Moon className="w-6 h-6 text-blue-600" />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <Navbar 
+        onSearchOpen={() => {}}
+        onNotificationOpen={() => {}}
+        notificationCount={notificationCount}
+        cartCount={2}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Page Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className={`text-3xl lg:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+            AI Suggested Trips
+          </h1>
+          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            Personalized travel recommendations powered by AI
+          </p>
+        </motion.div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-9">

@@ -3,12 +3,13 @@ import { motion } from 'framer-motion'
 import { Search, Filter, Bell, Star, Sun, Moon, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useNavigate, useLocation } from 'react-router-dom'
+import Navbar from './Navbar'
 import SearchModal from './SearchModal'
 import FilterModal from './FilterModal'
 import LoadingSpinner from './LoadingSpinner'
 
 const Explore = () => {
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const [activeFilter, setActiveFilter] = useState('All')
@@ -18,6 +19,7 @@ const Explore = () => {
   const [loading, setLoading] = useState(false)
   const [savedItems, setSavedItems] = useState(new Set())
   const [appliedFilters, setAppliedFilters] = useState({})
+  const [notificationCount, setNotificationCount] = useState(3)
 
   const filters = ['All', 'Hotels', 'Activities', 'Restaurants', 'Flights']
 
@@ -168,73 +170,58 @@ const Explore = () => {
 
   return (
     <div className={`min-h-screen ${bgGradient}`}>
-      {/* Header */}
-      <div className="sticky top-0 z-40 backdrop-blur-md bg-white/10 border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <motion.h1 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}
-            >
-              Explore Destinations
-              {searchQuery && (
-                <span className={`block text-lg font-normal ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Results for "{searchQuery}"
-                </span>
-              )}
-            </motion.h1>
-            
-            {/* Search and Actions */}
-            <div className="flex items-center space-x-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsSearchOpen(true)}
-                className="relative flex-1 lg:w-96"
-              >
-                <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl border-0 ${
-                  isDark 
-                    ? 'bg-navy/50 text-white' 
-                    : 'bg-white/50 text-navy'
-                } hover:bg-opacity-70 transition-all`}>
-                  <Search className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
-                  <span className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {searchQuery || 'Search destinations, hotels, activities...'}
-                  </span>
-                </div>
-              </motion.button>
-              
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsFilterOpen(true)}
-                className={`p-3 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm relative`}
-              >
-                <Filter className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
-                {Object.keys(appliedFilters).length > 0 && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
-                )}
-              </motion.button>
-              
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleTheme} 
-                className="p-3"
-              >
-                {isDark ? (
-                  <Sun className="w-6 h-6 text-yellow-400" />
-                ) : (
-                  <Moon className="w-6 h-6 text-blue-600" />
-                )}
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Navigation */}
+      <Navbar 
+        onSearchOpen={() => setIsSearchOpen(true)}
+        onNotificationOpen={() => {}}
+        notificationCount={notificationCount}
+        cartCount={2}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Page Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className={`text-3xl lg:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+            Explore Destinations
+            {searchQuery && (
+              <span className={`block text-lg font-normal mt-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Results for "{searchQuery}"
+              </span>
+            )}
+          </h1>
+          
+          {/* Quick Actions */}
+          <div className="flex items-center space-x-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsSearchOpen(true)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl ${
+                isDark ? 'bg-navy/50 text-white' : 'bg-white/50 text-navy'
+              } hover:bg-opacity-70 transition-all`}
+            >
+              <Search className="w-5 h-5" />
+              <span>{searchQuery || 'Search destinations...'}</span>
+            </motion.button>
+            
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsFilterOpen(true)}
+              className={`p-2 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm relative`}
+            >
+              <Filter className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
+              {Object.keys(appliedFilters).length > 0 && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+              )}
+            </motion.button>
+          </div>
+        </motion.div>
+
         {/* Filter Chips */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
