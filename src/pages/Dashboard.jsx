@@ -21,11 +21,11 @@ import {
   User
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import Navbar from './Navbar'
-import SearchModal from './SearchModal'
-import NotificationCenter from './NotificationCenter'
-import LoadingSpinner from './LoadingSpinner'
-import BottomNavbar from './BottomNavbar'
+import Navbar from '../components/Navbar'
+import SearchModal from '../components/SearchModal'
+import NotificationCenter from '../components/NotificationCenter'
+import LoadingSpinner from '../components/LoadingSpinner'
+import BottomNavbar from '../components/BottomNavbar'
 
 const Dashboard = () => {
   const navigate = useNavigate()
