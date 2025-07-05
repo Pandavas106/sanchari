@@ -3,11 +3,11 @@ import { motion } from 'framer-motion'
 import { Search, Filter, Bell, Star, Sun, Moon, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useNavigate, useLocation } from 'react-router-dom'
-import Navbar from './Navbar'
-import SearchModal from './SearchModal'
-import FilterModal from './FilterModal'
-import LoadingSpinner from './LoadingSpinner'
-import BottomNavbar from './BottomNavbar'
+import SearchModal from '../components/SearchModal'
+import FilterModal from '../components/FilterModal'
+import LoadingSpinner from '../components/LoadingSpinner'
+import Navbar from '../components/Navbar'
+import BottomNavbar from '../components/BottomNavbar'
 
 const Explore = () => {
   const { isDark } = useTheme()
