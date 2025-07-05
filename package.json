@@ -24,7 +24,7 @@
     "vite": "^5.0.8",
     "eslint": "^9.0.0",
     "eslint-plugin-react": "^7.37.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
