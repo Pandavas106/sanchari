@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Star, Sun, Moon, Calendar, MapPin, Users, Download, MessageCircle, Phone } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import Navbar from './Navbar'
-import BottomNavbar from './BottomNavbar'
+import BottomNavbar from '../components/BottomNavbar'
 
 const MyBookings = () => {
   const navigate = useNavigate()
