@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, Star, Edit, Sun, Moon } from 'lucide-react'
+import { ArrowLeft, Calendar, Star, Edit, Sun, Moon, Filter, MapPin, Users, Plane, Search } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 const AiSuggestedTrips = () => {
@@ -9,6 +9,9 @@ const AiSuggestedTrips = () => {
   const { isDark, toggleTheme } = useTheme()
   const [trips, setTrips] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [activeFilter, setActiveFilter] = useState('All')
+
+  const filters = ['All', 'Beach', 'Mountains', 'City', 'Adventure', 'Luxury']
 
   // Simulate API call
   useEffect(() => {
@@ -21,7 +24,9 @@ const AiSuggestedTrips = () => {
           price: "₹45,000",
           duration: "6 Days",
           rating: "4.8",
-          imageUrl: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=400&q=80"
+          imageUrl: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=400&q=80",
+          category: "Mountains",
+          highlights: ["Houseboat Stay", "Tea Plantations", "Ayurvedic Spa"]
         },
         {
           title: "Rajasthan Royal Heritage",
@@ -29,7 +34,9 @@ const AiSuggestedTrips = () => {
           price: "₹65,000", 
           duration: "8 Days",
           rating: "4.9",
-          imageUrl: "https://images.unsplash.com/photo-1599661046827-dacde6976549?auto=format&fit=crop&w=400&q=80"
+          imageUrl: "https://images.unsplash.com/photo-1599661046827-dacde6976549?auto=format&fit=crop&w=400&q=80",
+          category: "City",
+          highlights: ["Palace Hotels", "Desert Safari", "Cultural Shows"]
         },
         {
           title: "Himalayan Adventure",
@@ -37,7 +44,39 @@ const AiSuggestedTrips = () => {
           price: "₹35,000",
           duration: "5 Days", 
           rating: "4.7",
-          imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80"
+          imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80",
+          category: "Adventure",
+          highlights: ["Trekking", "Mountain Views", "Adventure Sports"]
+        },
+        {
+          title: "Goa Beach Paradise",
+          description: "Relax on pristine beaches and enjoy the vibrant nightlife of Goa with luxury beach resorts.",
+          price: "₹28,000",
+          duration: "4 Days",
+          rating: "4.6",
+          imageUrl: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=400&q=80",
+          category: "Beach",
+          highlights: ["Beach Resorts", "Water Sports", "Nightlife"]
+        },
+        {
+          title: "Dubai Luxury Experience",
+          description: "Experience the ultimate luxury in Dubai with world-class hotels and exclusive experiences.",
+          price: "₹85,000",
+          duration: "7 Days",
+          rating: "4.9",
+          imageUrl: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80",
+          category: "Luxury",
+          highlights: ["Luxury Hotels", "Shopping", "Fine Dining"]
+        },
+        {
+          title: "Bali Cultural Journey",
+          description: "Immerse yourself in Balinese culture with temple visits, traditional ceremonies, and local experiences.",
+          price: "₹55,000",
+          duration: "6 Days",
+          rating: "4.8",
+          imageUrl: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=400&q=80",
+          category: "City",
+          highlights: ["Temple Tours", "Cultural Shows", "Local Cuisine"]
         }
       ])
       setLoading(false)
@@ -50,10 +89,14 @@ const AiSuggestedTrips = () => {
     ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
     : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
 
+  const filteredTrips = trips?.filter(trip => 
+    activeFilter === 'All' || trip.category === activeFilter
+  )
+
   const ShimmerCard = () => (
-    <div className={`p-6 rounded-2xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm mb-4`}>
+    <div className={`p-6 rounded-2xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}>
       <div className="animate-pulse">
-        <div className={`h-32 rounded-xl mb-4 ${isDark ? 'bg-gray-700' : 'bg-gray-300'}`} />
+        <div className={`h-48 rounded-xl mb-4 ${isDark ? 'bg-gray-700' : 'bg-gray-300'}`} />
         <div className={`h-6 rounded mb-2 ${isDark ? 'bg-gray-700' : 'bg-gray-300'}`} />
         <div className={`h-4 rounded mb-4 w-3/4 ${isDark ? 'bg-gray-600' : 'bg-gray-200'}`} />
         <div className="flex justify-between items-center">
@@ -66,105 +109,298 @@ const AiSuggestedTrips = () => {
 
   return (
     <div className={`min-h-screen ${bgGradient}`}>
-      <div className="max-w-md mx-auto bg-white/5 backdrop-blur-sm min-h-screen">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 pt-12">
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className={`p-2 rounded-full ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}
-          >
-            <ArrowLeft className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-          </button>
-          <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-            AI Suggested Trips
-          </h1>
-          <button onClick={toggleTheme} className="p-2">
-            {isDark ? (
-              <Sun className="w-6 h-6 text-yellow-400" />
-            ) : (
-              <Moon className="w-6 h-6 text-blue-600" />
-            )}
-          </button>
-        </div>
-
-        {/* Budget Recommendation */}
-        <div className="px-6 mb-6">
-          <div className={`p-4 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className={`font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-                  Perfect for your budget
-                </h3>
-                <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Based on ₹50,000 budget preference
-                </p>
+      {/* Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className={`p-2 rounded-full ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm lg:hidden`}
+              >
+                <ArrowLeft className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
+              </button>
+              <h1 className={`text-xl lg:text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+                AI Suggested Trips
+              </h1>
+            </div>
+            
+            {/* Search and Actions */}
+            <div className="flex items-center space-x-4">
+              <div className="relative hidden lg:block">
+                <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                  isDark ? 'text-gray-400' : 'text-gray-600'
+                }`} />
+                <input
+                  type="text"
+                  placeholder="Search trips..."
+                  className={`pl-10 pr-4 py-2 rounded-xl border-0 w-64 ${
+                    isDark 
+                      ? 'bg-navy/50 text-white placeholder-gray-400' 
+                      : 'bg-white/50 text-navy placeholder-gray-500'
+                  } focus:ring-2 focus:ring-blue-500`}
+                />
               </div>
-              <button className={`p-2 rounded-full ${isDark ? 'bg-yellow-400' : 'bg-blue-600'}`}>
-                <Edit className={`w-5 h-5 ${isDark ? 'text-navy' : 'text-white'}`} />
+              <button className={`p-2 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}>
+                <Filter className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
+              </button>
+              <button onClick={toggleTheme} className="p-2">
+                {isDark ? (
+                  <Sun className="w-6 h-6 text-yellow-400" />
+                ) : (
+                  <Moon className="w-6 h-6 text-blue-600" />
+                )}
               </button>
             </div>
           </div>
         </div>
+      </header>
 
-        {/* Trip Cards */}
-        <div className="px-6 space-y-4">
-          {loading ? (
-            <>
-              <ShimmerCard />
-              <ShimmerCard />
-              <ShimmerCard />
-            </>
-          ) : (
-            trips?.map((trip, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                className={`rounded-2xl overflow-hidden ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm cursor-pointer`}
-                onClick={() => navigate('/trip-details')}
-              >
-                <img
-                  src={trip.imageUrl}
-                  alt={trip.title}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
-                    {trip.title}
-                  </h3>
-                  <p className={`text-sm mb-4 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {trip.description}
-                  </p>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className={`w-4 h-4 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
-                        <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
-                          {trip.duration}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
-                          {trip.rating}
-                        </span>
-                      </div>
-                    </div>
-                    <span className={`font-bold text-lg ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>
-                      {trip.price}
-                    </span>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-9">
+            {/* Budget Recommendation */}
+            <div className="mb-8">
+              <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}>
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                  <div className="mb-4 lg:mb-0">
+                    <h3 className={`font-bold text-xl ${isDark ? 'text-white' : 'text-navy'}`}>
+                      Perfect for your budget
+                    </h3>
+                    <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      Based on ₹50,000 budget preference and your travel interests
+                    </p>
                   </div>
-                  <button className={`w-full py-3 rounded-xl font-semibold ${
+                  <button className={`px-6 py-3 rounded-xl font-semibold flex items-center space-x-2 ${
                     isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                  } hover:opacity-90 transition-all`}>
-                    View Details
+                  } hover:opacity-90 transition-opacity`}>
+                    <Edit className="w-5 h-5" />
+                    <span>Edit Preferences</span>
                   </button>
                 </div>
-              </motion.div>
-            ))
-          )}
+              </div>
+            </div>
+
+            {/* Filter Chips */}
+            <div className="mb-8">
+              <div className="flex space-x-3 overflow-x-auto pb-2">
+                {filters.map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setActiveFilter(filter)}
+                    className={`px-6 py-3 rounded-full whitespace-nowrap font-semibold transition-all ${
+                      activeFilter === filter
+                        ? (isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white')
+                        : (isDark ? 'bg-navy/50 text-white hover:bg-navy/70' : 'bg-white/50 text-navy hover:bg-white/70')
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Trip Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {loading ? (
+                <>
+                  <ShimmerCard />
+                  <ShimmerCard />
+                  <ShimmerCard />
+                  <ShimmerCard />
+                  <ShimmerCard />
+                  <ShimmerCard />
+                </>
+              ) : (
+                filteredTrips?.map((trip, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    className={`rounded-2xl overflow-hidden ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm cursor-pointer group`}
+                    onClick={() => navigate('/trip-details')}
+                  >
+                    <div className="relative">
+                      <img
+                        src={trip.imageUrl}
+                        alt={trip.title}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute top-4 left-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                        }`}>
+                          AI Recommended
+                        </span>
+                      </div>
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Calendar className="w-4 h-4 text-white" />
+                          <span className="text-white text-sm font-semibold">
+                            {trip.duration}
+                          </span>
+                          <Star className="w-4 h-4 text-yellow-400 fill-current ml-2" />
+                          <span className="text-white text-sm font-semibold">
+                            {trip.rating}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className={`font-bold text-xl mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                        {trip.title}
+                      </h3>
+                      <p className={`text-sm mb-4 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {trip.description}
+                      </p>
+                      
+                      {/* Highlights */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {trip.highlights.map((highlight, idx) => (
+                          <span
+                            key={idx}
+                            className={`px-2 py-1 rounded-lg text-xs font-semibold ${
+                              isDark ? 'bg-gray-600 text-white' : 'bg-gray-200 text-navy'
+                            }`}
+                          >
+                            {highlight}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className={`font-bold text-2xl ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>
+                          {trip.price}
+                        </span>
+                        <button className={`px-6 py-3 rounded-xl font-semibold ${
+                          isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                        } hover:opacity-90 transition-all`}>
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="lg:col-span-3">
+            {/* AI Insights */}
+            <div className="mb-8">
+              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+                AI Insights
+              </h3>
+              <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm">🎯</span>
+                  </div>
+                  <div>
+                    <h4 className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                      Best Match
+                    </h4>
+                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      Kerala trip matches 95% of your preferences
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm">💰</span>
+                  </div>
+                  <div>
+                    <h4 className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                      Budget Friendly
+                    </h4>
+                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      3 trips within your ₹50,000 budget
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm">📅</span>
+                  </div>
+                  <div>
+                    <h4 className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                      Best Time
+                    </h4>
+                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      December is ideal for these destinations
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Filters */}
+            <div className="mb-8">
+              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+                Quick Filters
+              </h3>
+              <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
+                <div>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                    Duration
+                  </label>
+                  <div className="flex space-x-2">
+                    {['3-5 days', '6-8 days', '9+ days'].map((duration) => (
+                      <button
+                        key={duration}
+                        className={`px-3 py-2 rounded-lg text-sm font-semibold border ${
+                          isDark 
+                            ? 'border-gray-600 text-white hover:border-yellow-400' 
+                            : 'border-gray-300 text-navy hover:border-blue-600'
+                        } transition-colors`}
+                      >
+                        {duration}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                    Price Range
+                  </label>
+                  <div className="space-y-2">
+                    {['Under ₹30k', '₹30k - ₹60k', 'Above ₹60k'].map((range) => (
+                      <label key={range} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className={`ml-2 text-sm ${isDark ? 'text-white' : 'text-navy'}`}>
+                          {range}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Travel Tips */}
+            <div className="mb-8">
+              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+                Travel Tips
+              </h3>
+              <div className={`p-6 rounded-xl ${isDark ? 'bg-yellow-400' : 'bg-blue-600'}`}>
+                <h4 className={`font-bold text-lg mb-2 ${isDark ? 'text-navy' : 'text-white'}`}>
+                  💡 Pro Tip
+                </h4>
+                <p className={`text-sm ${isDark ? 'text-navy' : 'text-white'}`}>
+                  Book your Kerala trip 2 months in advance to get the best houseboat deals 
+                  and avoid peak season crowds.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
