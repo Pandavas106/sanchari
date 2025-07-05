@@ -9,7 +9,7 @@ import {
   Plus, 
   X, 
   Tag, 
-  Savings,
+  PiggyBank,
   Lock,
   Sun,
   Moon
@@ -196,7 +196,7 @@ const Cart = () => {
         {/* Savings Banner */}
         <div className="px-6 mb-6">
           <div className="bg-green-800/80 p-4 rounded-xl flex items-center space-x-3">
-            <Savings className="w-6 h-6 text-green-400" />
+            <PiggyBank className="w-6 h-6 text-green-400" />
             <span className="text-green-400 font-bold">You're saving ₹43,400!</span>
           </div>
         </div>
