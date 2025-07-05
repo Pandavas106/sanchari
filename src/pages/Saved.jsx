@@ -3,8 +3,8 @@ import { motion } from 'framer-motion'
 import { Star, Heart, Sun, Moon, MapPin, Calendar, Users, Filter, Search, Grid, List } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useNavigate } from 'react-router-dom'
-import Navbar from './Navbar'
-import BottomNavbar from './BottomNavbar'
+import Navbar from '../components/Navbar'
+import BottomNavbar from '../components/BottomNavbar'
 
 const Saved = () => {
   const { isDark } = useTheme()
