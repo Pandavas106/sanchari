@@ -14,9 +14,9 @@ import {
   X
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import Navbar from './Navbar'
-import LoadingSpinner from './LoadingSpinner'
-import BottomNavbar from './BottomNavbar'
+import Navbar from '../components/Navbar'
+import LoadingSpinner from '../components/LoadingSpinner'
+import BottomNavbar from '../components/BottomNavbar'
 
 const TripPlanner = () => {
   const navigate = useNavigate()
