@@ -18,13 +18,30 @@ const LoginSignup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    navigate('/profile-setup')
+    if (isLogin) {
+      // Sign in - go to dashboard
+      navigate('/dashboard')
+    } else {
+      // Sign up - go to profile setup
+      navigate('/profile-setup')
+    }
   }
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    })
+  }
+
+  const handleToggleMode = () => {
+    setIsLogin(!isLogin)
+    // Clear form data when switching modes
+    setFormData({
+      email: '',
+      password: '',
+      name: '',
+      phone: ''
     })
   }
 
@@ -208,7 +225,12 @@ const LoginSignup = () => {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {!isLogin && (
-                    <div className="relative">
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="relative"
+                    >
                       <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
                         isDark ? 'text-yellow-400' : 'text-blue-600'
                       }`} />
@@ -218,13 +240,14 @@ const LoginSignup = () => {
                         placeholder="Full Name"
                         value={formData.name}
                         onChange={handleInputChange}
+                        required={!isLogin}
                         className={`w-full pl-12 pr-4 py-4 rounded-xl border-0 ${
                           isDark 
                             ? 'bg-navy/50 text-white placeholder-gray-400' 
                             : 'bg-white/50 text-navy placeholder-gray-500'
                         } focus:ring-2 focus:ring-blue-500`}
                       />
-                    </div>
+                    </motion.div>
                   )}
 
                   <div className="relative">
@@ -237,6 +260,7 @@ const LoginSignup = () => {
                       placeholder="Email Address"
                       value={formData.email}
                       onChange={handleInputChange}
+                      required
                       className={`w-full pl-12 pr-4 py-4 rounded-xl border-0 ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
@@ -246,7 +270,12 @@ const LoginSignup = () => {
                   </div>
 
                   {!isLogin && (
-                    <div className="relative">
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="relative"
+                    >
                       <Phone className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
                         isDark ? 'text-yellow-400' : 'text-blue-600'
                       }`} />
@@ -256,13 +285,14 @@ const LoginSignup = () => {
                         placeholder="Phone Number"
                         value={formData.phone}
                         onChange={handleInputChange}
+                        required={!isLogin}
                         className={`w-full pl-12 pr-4 py-4 rounded-xl border-0 ${
                           isDark 
                             ? 'bg-navy/50 text-white placeholder-gray-400' 
                             : 'bg-white/50 text-navy placeholder-gray-500'
                         } focus:ring-2 focus:ring-blue-500`}
                       />
-                    </div>
+                    </motion.div>
                   )}
 
                   <div className="relative">
@@ -275,6 +305,7 @@ const LoginSignup = () => {
                       placeholder="Password"
                       value={formData.password}
                       onChange={handleInputChange}
+                      required
                       className={`w-full pl-12 pr-12 py-4 rounded-xl border-0 ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
@@ -316,16 +347,18 @@ const LoginSignup = () => {
                     </div>
                   )}
 
-                  <button
+                  <motion.button
                     type="submit"
-                    className={`w-full py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 ${
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${
                       isDark 
                         ? 'bg-yellow-400 text-navy hover:bg-yellow-300' 
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
                     {isLogin ? 'Sign In' : 'Create Account'}
-                  </button>
+                  </motion.button>
                 </form>
 
                 {/* Divider */}
@@ -339,19 +372,31 @@ const LoginSignup = () => {
 
                 {/* Social Login */}
                 <div className="space-y-3">
-                  <button className="w-full py-3 px-4 bg-white rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center space-x-2">
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 px-4 bg-white rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center space-x-2"
+                  >
                     <span>🔍</span>
                     <span>Continue with Google</span>
-                  </button>
+                  </motion.button>
                   <div className="grid grid-cols-2 gap-3">
-                    <button className="py-3 px-4 bg-blue-600 rounded-xl font-semibold text-white hover:bg-blue-700 transition-all flex items-center justify-center space-x-2">
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="py-3 px-4 bg-blue-600 rounded-xl font-semibold text-white hover:bg-blue-700 transition-all flex items-center justify-center space-x-2"
+                    >
                       <span>📘</span>
                       <span>Facebook</span>
-                    </button>
-                    <button className="py-3 px-4 bg-black rounded-xl font-semibold text-white hover:bg-gray-800 transition-all flex items-center justify-center space-x-2">
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="py-3 px-4 bg-black rounded-xl font-semibold text-white hover:bg-gray-800 transition-all flex items-center justify-center space-x-2"
+                    >
                       <span>🍎</span>
                       <span>Apple</span>
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
 
@@ -360,7 +405,7 @@ const LoginSignup = () => {
                 }`}>
                   {isLogin ? "Don't have an account? " : "Already have an account? "}
                   <button
-                    onClick={() => setIsLogin(!isLogin)}
+                    onClick={handleToggleMode}
                     className={`font-semibold ${
                       isDark ? 'text-yellow-400' : 'text-blue-600'
                     } hover:opacity-80`}
