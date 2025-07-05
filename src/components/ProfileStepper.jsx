@@ -1,10 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Sun, Moon, Plane, User, Calendar, Heart } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 const steps = [
+  {
+    type: 'welcome',
+    title: 'Welcome to Sanchari!',
+    subtitle: 'We\'re excited to help you plan your next adventure. Let\'s set up your profile to get started.',
+    icon: Plane
+  },
   {
     title: "What's your full name?",
     subtitle: "Help us personalize your experience",
@@ -70,8 +76,14 @@ const ProfileStepper = () => {
     dob: '',
     preferences: []
   })
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -109,6 +121,26 @@ const ProfileStepper = () => {
 
   const renderStepContent = () => {
     const step = steps[currentStep]
+
+    if (step.type === 'welcome') {
+      return (
+        <div className="flex flex-col items-center justify-center space-y-6">
+          <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 ${
+            isDark ? 'bg-yellow-400' : 'bg-blue-600'
+          }`}>
+            <Plane className={`w-12 h-12 ${isDark ? 'text-navy' : 'text-white'}`} />
+          </div>
+          <h2 className={`text-3xl lg:text-4xl font-bold font-playfair mb-2 ${
+            isDark ? 'text-yellow-400' : 'text-blue-600'
+          }`}>
+            {step.title}
+          </h2>
+          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            {step.subtitle}
+          </p>
+        </div>
+      )
+    }
 
     switch (step.type) {
       case 'text':
@@ -200,6 +232,21 @@ const ProfileStepper = () => {
     }
   }
 
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${bgGradient}`}>
+        <div className="flex flex-col items-center">
+          <div className={`animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 ${
+            isDark ? 'border-yellow-400' : 'border-blue-600'
+          }`} />
+          <span className={`mt-6 text-xl font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>
+            Loading...
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={`min-h-screen ${bgGradient}`}>
       {/* Header */}
@@ -223,14 +270,14 @@ const ProfileStepper = () => {
             {/* Progress */}
             <div className="hidden lg:flex items-center space-x-4">
               <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
-                Step {currentStep + 1} of {steps.length}
+                Step {currentStep === 0 ? 0 : currentStep} of {steps.length - 1}
               </span>
               <div className={`w-32 h-2 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}>
                 <div
                   className={`h-2 rounded-full transition-all duration-300 ${
                     isDark ? 'bg-yellow-400' : 'bg-blue-600'
                   }`}
-                  style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                  style={{ width: `${(currentStep === 0 ? 0 : (currentStep) / (steps.length - 1)) * 100}%` }}
                 />
               </div>
             </div>
@@ -263,38 +310,29 @@ const ProfileStepper = () => {
                     className={`h-2 rounded-full transition-all duration-300 ${
                       isDark ? 'bg-yellow-400' : 'bg-blue-600'
                     }`}
-                    style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                    style={{ width: `${(currentStep === 0 ? 0 : (currentStep) / (steps.length - 1)) * 100}%` }}
                   />
                 </div>
                 <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Step {currentStep + 1} of {steps.length}
+                  Step {currentStep === 0 ? 0 : currentStep} of {steps.length - 1}
                 </p>
               </div>
 
               {/* Step Icon */}
-              <div className="text-center mb-8">
-                <div className={`w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center ${
-                  isDark ? 'bg-yellow-400' : 'bg-blue-600'
-                }`}>
-                  {React.createElement(steps[currentStep].icon, {
-                    className: `w-10 h-10 ${isDark ? 'text-navy' : 'text-white'}`
-                  })}
+              {steps[currentStep].type !== 'welcome' && (
+                <div className="text-center mb-8">
+                  <div className={`w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                    isDark ? 'bg-yellow-400' : 'bg-blue-600'
+                  }`}>
+                    {React.createElement(steps[currentStep].icon, {
+                      className: `w-10 h-10 ${isDark ? 'text-navy' : 'text-white'}`
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Step Content */}
               <div className="text-center mb-8">
-                <h2 className={`text-3xl lg:text-4xl font-bold font-playfair mb-4 ${
-                  isDark ? 'text-yellow-400' : 'text-blue-600'
-                }`}>
-                  {steps[currentStep].title}
-                </h2>
-                <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {steps[currentStep].subtitle}
-                </p>
-              </div>
-
-              <div className="mb-12">
                 {renderStepContent()}
               </div>
 
@@ -324,7 +362,13 @@ const ProfileStepper = () => {
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   } transition-all`}
                 >
-                  <span>{currentStep === steps.length - 1 ? 'Complete Setup' : 'Continue'}</span>
+                  <span>
+                    {currentStep === 0
+                      ? 'Get Started'
+                      : currentStep === steps.length - 1
+                      ? 'Complete Setup'
+                      : 'Continue'}
+                  </span>
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
@@ -339,19 +383,19 @@ const ProfileStepper = () => {
                 Setup Progress
               </h3>
               <div className="space-y-3">
-                {steps.map((step, index) => (
+                {steps.slice(1).map((step, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                      index < currentStep
+                      index < currentStep - 1
                         ? 'bg-green-500 text-white'
-                        : index === currentStep
+                        : index === currentStep - 1
                         ? (isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white')
                         : (isDark ? 'bg-gray-600 text-gray-400' : 'bg-gray-200 text-gray-500')
                     }`}>
-                      {index < currentStep ? '✓' : index + 1}
+                      {index < currentStep - 1 ? '✓' : index + 1}
                     </div>
                     <span className={`text-sm font-semibold ${
-                      index <= currentStep
+                      index <= currentStep - 1
                         ? (isDark ? 'text-white' : 'text-navy')
                         : (isDark ? 'text-gray-400' : 'text-gray-500')
                     }`}>

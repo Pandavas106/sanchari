@@ -1,47 +1,28 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Mail, Lock, User, Phone, Sun, Moon, Plane, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Sun, Moon, Plane } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 const LoginSignup = () => {
-  const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    name: '',
-    phone: ''
+    password: ''
   })
   const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (isLogin) {
-      // Sign in - go to dashboard
-      navigate('/dashboard')
-    } else {
-      // Sign up - go to profile setup
-      navigate('/profile-setup')
-    }
+    // Sign in - go to dashboard
+    navigate('/dashboard')
   }
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    })
-  }
-
-  const handleToggleMode = () => {
-    setIsLogin(!isLogin)
-    // Clear form data when switching modes
-    setFormData({
-      email: '',
-      password: '',
-      name: '',
-      phone: ''
     })
   }
 
@@ -106,13 +87,10 @@ const LoginSignup = () => {
               <h1 className={`text-4xl lg:text-5xl font-bold font-playfair mb-4 ${
                 isDark ? 'text-white' : 'text-navy'
               }`}>
-                Welcome to <span className={isDark ? 'text-yellow-400' : 'text-blue-600'}>Sanchari</span>
+                Welcome back to <span className={isDark ? 'text-yellow-400' : 'text-blue-600'}>Sanchari</span>
               </h1>
               <p className={`text-xl ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                {isLogin 
-                  ? 'Sign in to continue your journey and explore amazing destinations.'
-                  : 'Join thousands of travelers who trust Sanchari for their dream vacations.'
-                }
+                Sign in to continue your journey and explore amazing destinations.
               </p>
             </div>
 
@@ -165,26 +143,7 @@ const LoginSignup = () => {
               </div>
             </div>
 
-            {/* Testimonial */}
-            <div className={`p-6 rounded-2xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}>
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
-                  <span className="text-xl font-bold text-navy">M</span>
-                </div>
-                <div>
-                  <h4 className={`font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-                    Maria Rodriguez
-                  </h4>
-                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Frequent Traveler
-                  </p>
-                </div>
-              </div>
-              <p className={`italic ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                "Sanchari transformed how I plan my trips. The AI recommendations were spot-on, 
-                and I discovered places I never would have found on my own!"
-              </p>
-            </div>
+
           </div>
 
           {/* Right Side - Form */}
@@ -196,60 +155,14 @@ const LoginSignup = () => {
             >
               {/* Glass Card */}
               <div className="glass-morphism rounded-3xl p-8 shadow-2xl">
-                {/* Tab Switcher */}
-                <div className={`flex rounded-2xl p-1 mb-8 ${
-                  isDark ? 'bg-navy/50' : 'bg-gray-100'
+                {/* Only Sign In */}
+                <h2 className={`text-2xl font-bold mb-8 text-center ${
+                  isDark ? 'text-yellow-400' : 'text-blue-600'
                 }`}>
-                  <button
-                    onClick={() => setIsLogin(true)}
-                    className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
-                      isLogin
-                        ? (isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white')
-                        : (isDark ? 'text-yellow-400' : 'text-blue-600')
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => setIsLogin(false)}
-                    className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
-                      !isLogin
-                        ? (isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white')
-                        : (isDark ? 'text-yellow-400' : 'text-blue-600')
-                    }`}
-                  >
-                    Sign Up
-                  </button>
-                </div>
-
+                  Sign In
+                </h2>
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {!isLogin && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="relative"
-                    >
-                      <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                        isDark ? 'text-yellow-400' : 'text-blue-600'
-                      }`} />
-                      <input
-                        type="text"
-                        name="name"
-                        placeholder="Full Name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required={!isLogin}
-                        className={`w-full pl-12 pr-4 py-4 rounded-xl border-0 ${
-                          isDark 
-                            ? 'bg-navy/50 text-white placeholder-gray-400' 
-                            : 'bg-white/50 text-navy placeholder-gray-500'
-                        } focus:ring-2 focus:ring-blue-500`}
-                      />
-                    </motion.div>
-                  )}
-
                   <div className="relative">
                     <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
                       isDark ? 'text-yellow-400' : 'text-blue-600'
@@ -268,32 +181,6 @@ const LoginSignup = () => {
                       } focus:ring-2 focus:ring-blue-500`}
                     />
                   </div>
-
-                  {!isLogin && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="relative"
-                    >
-                      <Phone className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                        isDark ? 'text-yellow-400' : 'text-blue-600'
-                      }`} />
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Phone Number"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required={!isLogin}
-                        className={`w-full pl-12 pr-4 py-4 rounded-xl border-0 ${
-                          isDark 
-                            ? 'bg-navy/50 text-white placeholder-gray-400' 
-                            : 'bg-white/50 text-navy placeholder-gray-500'
-                        } focus:ring-2 focus:ring-blue-500`}
-                      />
-                    </motion.div>
-                  )}
 
                   <div className="relative">
                     <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
@@ -325,27 +212,25 @@ const LoginSignup = () => {
                     </button>
                   </div>
 
-                  {isLogin && (
-                    <div className="flex items-center justify-between">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className={`ml-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                          Remember me
-                        </span>
-                      </label>
-                      <button
-                        type="button"
-                        className={`text-sm font-semibold ${
-                          isDark ? 'text-yellow-400' : 'text-blue-600'
-                        } hover:opacity-80`}
-                      >
-                        Forgot password?
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className={`ml-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        Remember me
+                      </span>
+                    </label>
+                    <button
+                      type="button"
+                      className={`text-sm font-semibold ${
+                        isDark ? 'text-yellow-400' : 'text-blue-600'
+                      } hover:opacity-80`}
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
 
                   <motion.button
                     type="submit"
@@ -357,7 +242,7 @@ const LoginSignup = () => {
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
-                    {isLogin ? 'Sign In' : 'Create Account'}
+                    Sign In
                   </motion.button>
                 </form>
 
@@ -380,15 +265,7 @@ const LoginSignup = () => {
                     <span>🔍</span>
                     <span>Continue with Google</span>
                   </motion.button>
-                  <div className="grid grid-cols-2 gap-3">
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="py-3 px-4 bg-blue-600 rounded-xl font-semibold text-white hover:bg-blue-700 transition-all flex items-center justify-center space-x-2"
-                    >
-                      <span>📘</span>
-                      <span>Facebook</span>
-                    </motion.button>
+                  <div className="grid grid-cols-1 gap-3">
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -403,14 +280,14 @@ const LoginSignup = () => {
                 <p className={`text-center mt-6 text-sm ${
                   isDark ? 'text-gray-400' : 'text-gray-600'
                 }`}>
-                  {isLogin ? "Don't have an account? " : "Already have an account? "}
+                  {"Don't have an account? "}
                   <button
-                    onClick={handleToggleMode}
+                    onClick={() => navigate('/profile-setup')}
                     className={`font-semibold ${
                       isDark ? 'text-yellow-400' : 'text-blue-600'
                     } hover:opacity-80`}
                   >
-                    {isLogin ? 'Sign up' : 'Sign in'}
+                    Sign up
                   </button>
                 </p>
               </div>
