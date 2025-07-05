@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import Navbar from './Navbar'
+import BottomNavbar from './BottomNavbar'
 
 const Settings = () => {
   const navigate = useNavigate()
@@ -88,7 +89,7 @@ const Settings = () => {
   }
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -382,6 +383,9 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={2} />
     </div>
   )
 }

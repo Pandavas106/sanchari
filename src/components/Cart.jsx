@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import Navbar from './Navbar'
+import BottomNavbar from './BottomNavbar'
 
 const Cart = () => {
   const navigate = useNavigate()
@@ -53,7 +54,7 @@ const Cart = () => {
     : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -287,6 +288,9 @@ const Cart = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={cartItems.length} />
     </div>
   )
 }

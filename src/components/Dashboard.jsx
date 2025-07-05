@@ -25,6 +25,7 @@ import Navbar from './Navbar'
 import SearchModal from './SearchModal'
 import NotificationCenter from './NotificationCenter'
 import LoadingSpinner from './LoadingSpinner'
+import BottomNavbar from './BottomNavbar'
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -123,7 +124,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => setIsSearchOpen(true)}
@@ -514,58 +515,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <motion.div 
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className={`lg:hidden fixed bottom-0 left-0 right-0 ${
-          isDark ? 'bg-navy' : 'bg-white'
-        } border-t ${isDark ? 'border-gray-700' : 'border-gray-200'} backdrop-blur-md`}
-      >
-        <div className="flex items-center justify-around py-3">
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            className="flex flex-col items-center space-y-1"
-          >
-            <div className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>🏠</div>
-            <span className={`text-xs font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>Home</span>
-          </motion.button>
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/explore')}
-          >
-            <div className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>🔍</div>
-            <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Explore</span>
-          </motion.button>
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              isDark ? 'bg-yellow-400' : 'bg-blue-600'
-            }`}
-            onClick={() => navigate('/trip-planner')}
-          >
-            <div className={`w-6 h-6 ${isDark ? 'text-navy' : 'text-white'}`}>✨</div>
-          </motion.button>
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/cart')}
-          >
-            <div className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>🛒</div>
-            <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Cart</span>
-          </motion.button>
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/profile')}
-          >
-            <User className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
-            <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Profile</span>
-          </motion.button>
-        </div>
-      </motion.div>
-
       {/* Modals */}
       <SearchModal 
         isOpen={isSearchOpen} 
@@ -578,6 +527,9 @@ const Dashboard = () => {
         notificationCount={notificationCount}
         onMarkAsRead={handleNotificationRead}
       />
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={2} />
     </div>
   )
 }

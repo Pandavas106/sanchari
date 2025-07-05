@@ -7,6 +7,7 @@ import Navbar from './Navbar'
 import SearchModal from './SearchModal'
 import FilterModal from './FilterModal'
 import LoadingSpinner from './LoadingSpinner'
+import BottomNavbar from './BottomNavbar'
 
 const Explore = () => {
   const { isDark } = useTheme()
@@ -169,7 +170,7 @@ const Explore = () => {
   }
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => setIsSearchOpen(true)}
@@ -630,6 +631,9 @@ const Explore = () => {
         onApplyFilters={handleApplyFilters}
         currentFilters={appliedFilters}
       />
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={2} />
     </div>
   )
 }

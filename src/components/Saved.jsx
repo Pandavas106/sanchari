@@ -4,6 +4,7 @@ import { Star, Heart, Sun, Moon, MapPin, Calendar, Users, Filter, Search, Grid, 
 import { useTheme } from '../contexts/ThemeContext'
 import { useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
+import BottomNavbar from './BottomNavbar'
 
 const Saved = () => {
   const { isDark } = useTheme()
@@ -93,7 +94,7 @@ const Saved = () => {
     : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -404,6 +405,9 @@ const Saved = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={2} />
     </div>
   )
 }

@@ -16,6 +16,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext'
 import Navbar from './Navbar'
 import LoadingSpinner from './LoadingSpinner'
+import BottomNavbar from './BottomNavbar'
 
 const TripPlanner = () => {
   const navigate = useNavigate()
@@ -488,7 +489,7 @@ const TripPlanner = () => {
   }
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -724,6 +725,9 @@ const TripPlanner = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={2} />
     </div>
   )
 }

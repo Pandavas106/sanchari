@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Calendar, Star, Edit, Sun, Moon, Filter, MapPin, Users, Plane, Search } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import Navbar from './Navbar'
+import BottomNavbar from './BottomNavbar'
 
 const AiSuggestedTrips = () => {
   const navigate = useNavigate()
@@ -110,7 +111,7 @@ const AiSuggestedTrips = () => {
   )
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -380,6 +381,9 @@ const AiSuggestedTrips = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={2} />
     </div>
   )
 }

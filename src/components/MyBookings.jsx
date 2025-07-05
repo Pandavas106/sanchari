@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Star, Sun, Moon, Calendar, MapPin, Users, Download, MessageCircle, Phone } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import Navbar from './Navbar'
+import BottomNavbar from './BottomNavbar'
 
 const MyBookings = () => {
   const navigate = useNavigate()
@@ -89,7 +90,7 @@ const MyBookings = () => {
     : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
 
   return (
-    <div className={`min-h-screen ${bgGradient}`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -353,6 +354,9 @@ const MyBookings = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar cartCount={2} />
     </div>
   )
 }
