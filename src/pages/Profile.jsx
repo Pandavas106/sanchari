@@ -20,8 +20,8 @@ import {
   Camera
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import Navbar from './Navbar'
-import BottomNavbar from './BottomNavbar'
+import Navbar from '../components/Navbar'
+import BottomNavbar from '../components/BottomNavbar'
 
 const Profile = () => {
   const navigate = useNavigate()
