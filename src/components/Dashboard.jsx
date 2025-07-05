@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
-  Bell, 
   MapPin, 
   ArrowRight, 
   Star, 
@@ -12,27 +11,24 @@ import {
   Hotel, 
   Trophy, 
   Utensils,
-  Sun,
-  Moon,
   CreditCard,
   Bookmark,
   Gift,
   Headphones,
-  ShoppingCart,
-  User,
-  Search,
-  Menu,
   TrendingUp,
-  Clock
+  Clock,
+  Award,
+  User
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import Navbar from './Navbar'
 import SearchModal from './SearchModal'
 import NotificationCenter from './NotificationCenter'
 import LoadingSpinner from './LoadingSpinner'
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [notificationCount, setNotificationCount] = useState(3)
@@ -128,182 +124,13 @@ const Dashboard = () => {
 
   return (
     <div className={`min-h-screen ${bgGradient}`}>
-      {/* Desktop Header */}
-      <header className="hidden lg:block sticky top-0 z-40 backdrop-blur-md bg-white/10 border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <motion.div 
-              className="flex items-center space-x-3"
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isDark ? 'bg-yellow-400' : 'bg-blue-600'
-              }`}>
-                <Plane className={`w-6 h-6 ${isDark ? 'text-navy' : 'text-white'}`} />
-              </div>
-              <h1 className={`text-2xl font-bold font-playfair ${
-                isDark ? 'text-yellow-400' : 'text-blue-600'
-              }`}>
-                Sanchari
-              </h1>
-            </motion.div>
-
-            {/* Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                onClick={() => navigate('/explore')}
-                className={`font-semibold hover:opacity-80 transition-opacity ${
-                  isDark ? 'text-white' : 'text-navy'
-                }`}
-              >
-                Explore
-              </motion.button>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                onClick={() => navigate('/trip-planner')}
-                className={`font-semibold hover:opacity-80 transition-opacity ${
-                  isDark ? 'text-white' : 'text-navy'
-                }`}
-              >
-                Plan Trip
-              </motion.button>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                onClick={() => navigate('/ai-trips')}
-                className={`font-semibold hover:opacity-80 transition-opacity ${
-                  isDark ? 'text-white' : 'text-navy'
-                }`}
-              >
-                AI Trips
-              </motion.button>
-            </nav>
-
-            {/* Right Actions */}
-            <div className="flex items-center space-x-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsSearchOpen(true)}
-                className="relative"
-              >
-                <Search className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-              </motion.button>
-              
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleTheme} 
-                className="p-2"
-              >
-                {isDark ? (
-                  <Sun className="w-6 h-6 text-yellow-400" />
-                ) : (
-                  <Moon className="w-6 h-6 text-blue-600" />
-                )}
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsNotificationOpen(true)}
-                className="relative"
-              >
-                <Bell className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-                {notificationCount > 0 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold ${
-                      isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                    }`}
-                  >
-                    {notificationCount}
-                  </motion.div>
-                )}
-              </motion.button>
-              
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/cart')}
-                className="relative"
-              >
-                <ShoppingCart className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold ${
-                    isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                  }`}
-                >
-                  2
-                </motion.div>
-              </motion.button>
-              
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/profile')}
-                className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center"
-              >
-                <User className="w-6 h-6 text-navy" />
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Header */}
-      <header className="lg:hidden sticky top-0 z-40 backdrop-blur-md bg-white/10 border-b border-white/20">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <button className="p-2">
-              <Menu className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
-            </button>
-            <div className="flex items-center space-x-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                isDark ? 'bg-yellow-400' : 'bg-blue-600'
-              }`}>
-                <Plane className={`w-5 h-5 ${isDark ? 'text-navy' : 'text-white'}`} />
-              </div>
-              <h1 className={`text-xl font-bold font-playfair ${
-                isDark ? 'text-yellow-400' : 'text-blue-600'
-              }`}>
-                Sanchari
-              </h1>
-            </div>
-            <div className="flex items-center space-x-2">
-              <motion.button 
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleTheme} 
-                className="p-2"
-              >
-                {isDark ? (
-                  <Sun className="w-5 h-5 text-yellow-400" />
-                ) : (
-                  <Moon className="w-5 h-5 text-blue-600" />
-                )}
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsNotificationOpen(true)}
-                className="relative"
-              >
-                <Bell className={`w-5 h-5 ${isDark ? 'text-white' : 'text-navy'}`} />
-                {notificationCount > 0 && (
-                  <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center text-xs font-bold ${
-                    isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                  }`}>
-                    {notificationCount}
-                  </div>
-                )}
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <Navbar 
+        onSearchOpen={() => setIsSearchOpen(true)}
+        onNotificationOpen={() => setIsNotificationOpen(true)}
+        notificationCount={notificationCount}
+        cartCount={2}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -725,7 +552,7 @@ const Dashboard = () => {
             className="flex flex-col items-center space-y-1"
             onClick={() => navigate('/cart')}
           >
-            <ShoppingCart className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+            <div className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>🛒</div>
             <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Cart</span>
           </motion.button>
           <motion.button 
