@@ -14,6 +14,9 @@ export default {
         navy: '#232946',
         gold: '#F4CA5E',
         blue: '#445DF5',
+        border: 'hsl(var(--border))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
