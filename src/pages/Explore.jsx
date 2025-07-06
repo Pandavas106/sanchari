@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Search, Filter, Bell, Star, Sun, Moon, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Filter, Star, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart, Grid, List, SlidersHorizontal, X, ChevronDown, Loader } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useNavigate, useLocation } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import BottomNavbar from '../components/BottomNavbar'
 import SearchModal from '../components/SearchModal'
 import FilterModal from '../components/FilterModal'
 import LoadingSpinner from '../components/LoadingSpinner'
-import Navbar from '../components/Navbar'
-import BottomNavbar from '../components/BottomNavbar'
+import DestinationCard from '../components/DestinationCard'
+import TrendingCard from '../components/TrendingCard'
+import CategoryFilter from '../components/CategoryFilter'
+import SortDropdown from '../components/SortDropdown'
+import ViewToggle from '../components/ViewToggle'
 
 const Explore = () => {
   const { isDark } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // State management
   const [activeFilter, setActiveFilter] = useState('All')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -21,46 +28,156 @@ const Explore = () => {
   const [savedItems, setSavedItems] = useState(new Set())
   const [appliedFilters, setAppliedFilters] = useState({})
   const [notificationCount, setNotificationCount] = useState(3)
+  const [viewMode, setViewMode] = useState('grid')
+  const [sortBy, setSortBy] = useState('popular')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [destinations, setDestinations] = useState([])
+  const [filteredDestinations, setFilteredDestinations] = useState([])
 
-  const filters = ['All', 'Hotels', 'Activities', 'Restaurants', 'Flights']
+  const itemsPerPage = 12
 
-  useEffect(() => {
-    // Handle search query from navigation state
-    if (location.state?.searchQuery) {
-      setSearchQuery(location.state.searchQuery)
-      setLoading(true)
-      setTimeout(() => setLoading(false), 1000)
-    }
-  }, [location.state])
-
-  const featuredDestinations = [
+  // Mock data - In real app, this would come from API
+  const allDestinations = [
     {
       id: 1,
-      name: "Swiss Alps Luxury",
-      location: "Zermatt, Switzerland",
-      price: "$450/night",
-      originalPrice: "$550/night",
-      rating: "4.9",
-      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80",
+      name: "Santorini, Greece",
+      location: "Cyclades, Greece",
+      price: "From ₹45,000",
+      originalPrice: "₹55,000",
+      rating: 4.8,
+      reviews: 324,
+      image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=400&q=80",
       tag: "Featured",
-      category: "Hotels",
-      discount: "Save $100"
+      category: "Beach",
+      description: "Stunning sunsets and white-washed buildings overlooking the Aegean Sea",
+      duration: "5-7 days",
+      bestTime: "Apr-Oct",
+      highlights: ["Sunset Views", "Wine Tasting", "Volcanic Beaches"],
+      trending: true,
+      discount: 18
     },
     {
       id: 2,
-      name: "Maldives Paradise",
-      location: "Malé, Maldives",
-      price: "$850/night",
-      rating: "4.8",
+      name: "Kyoto, Japan",
+      location: "Kansai, Japan",
+      price: "From ₹65,000",
+      rating: 4.9,
+      reviews: 567,
+      image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=400&q=80",
+      tag: "Cultural",
+      category: "Culture",
+      description: "Ancient temples, traditional gardens, and authentic Japanese culture",
+      duration: "6-8 days",
+      bestTime: "Mar-May, Sep-Nov",
+      highlights: ["Temples", "Gardens", "Traditional Culture"],
+      trending: true
+    },
+    {
+      id: 3,
+      name: "Maldives",
+      location: "Indian Ocean",
+      price: "From ₹85,000",
+      originalPrice: "₹95,000",
+      rating: 4.7,
+      reviews: 892,
       image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
       tag: "Luxury",
-      category: "Hotels"
+      category: "Beach",
+      description: "Overwater bungalows and pristine coral reefs in paradise",
+      duration: "4-6 days",
+      bestTime: "Nov-Apr",
+      highlights: ["Overwater Villas", "Diving", "Spa Resorts"],
+      trending: false,
+      discount: 11
+    },
+    {
+      id: 4,
+      name: "Swiss Alps",
+      location: "Switzerland",
+      price: "From ₹75,000",
+      rating: 4.6,
+      reviews: 445,
+      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80",
+      tag: "Adventure",
+      category: "Mountains",
+      description: "Breathtaking alpine scenery and world-class skiing",
+      duration: "7-10 days",
+      bestTime: "Dec-Mar, Jun-Sep",
+      highlights: ["Skiing", "Hiking", "Mountain Views"],
+      trending: true
+    },
+    {
+      id: 5,
+      name: "Dubai, UAE",
+      location: "United Arab Emirates",
+      price: "From ₹55,000",
+      rating: 4.5,
+      reviews: 678,
+      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80",
+      tag: "Luxury",
+      category: "City",
+      description: "Modern marvels, luxury shopping, and desert adventures",
+      duration: "4-6 days",
+      bestTime: "Nov-Mar",
+      highlights: ["Shopping", "Architecture", "Desert Safari"],
+      trending: true
+    },
+    {
+      id: 6,
+      name: "Bali, Indonesia",
+      location: "Indonesia",
+      price: "From ₹35,000",
+      originalPrice: "₹42,000",
+      rating: 4.7,
+      reviews: 756,
+      image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=400&q=80",
+      tag: "Popular",
+      category: "Culture",
+      description: "Tropical paradise with rich culture and stunning landscapes",
+      duration: "6-8 days",
+      bestTime: "Apr-Oct",
+      highlights: ["Temples", "Rice Terraces", "Beaches"],
+      trending: true,
+      discount: 17
+    },
+    {
+      id: 7,
+      name: "Paris, France",
+      location: "Île-de-France, France",
+      price: "From ₹70,000",
+      rating: 4.8,
+      reviews: 1234,
+      image: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?auto=format&fit=crop&w=400&q=80",
+      tag: "Classic",
+      category: "City",
+      description: "The City of Light with iconic landmarks and world-class cuisine",
+      duration: "5-7 days",
+      bestTime: "Apr-Jun, Sep-Oct",
+      highlights: ["Eiffel Tower", "Museums", "Cuisine"],
+      trending: false
+    },
+    {
+      id: 8,
+      name: "Iceland",
+      location: "Nordic Island",
+      price: "From ₹80,000",
+      rating: 4.9,
+      reviews: 423,
+      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80",
+      tag: "Adventure",
+      category: "Nature",
+      description: "Land of fire and ice with stunning natural phenomena",
+      duration: "8-10 days",
+      bestTime: "Jun-Aug",
+      highlights: ["Northern Lights", "Geysers", "Waterfalls"],
+      trending: true
     }
   ]
 
   const trendingDestinations = [
     {
-      id: 3,
+      id: 1,
       name: "Dubai",
       properties: "2,847 properties",
       growth: "+24%",
@@ -68,7 +185,7 @@ const Explore = () => {
       trending: true
     },
     {
-      id: 4,
+      id: 2,
       name: "Tokyo", 
       properties: "3,921 properties",
       growth: "+18%",
@@ -76,7 +193,7 @@ const Explore = () => {
       trending: true
     },
     {
-      id: 5,
+      id: 3,
       name: "Bali",
       properties: "1,654 properties",
       growth: "+32%",
@@ -84,7 +201,7 @@ const Explore = () => {
       trending: true
     },
     {
-      id: 6,
+      id: 4,
       name: "Santorini",
       properties: "892 properties",
       growth: "+15%",
@@ -93,54 +210,98 @@ const Explore = () => {
     }
   ]
 
-  const popularHotels = [
-    {
-      id: 7,
-      name: "The Ritz-Carlton",
-      location: "New York, USA",
-      price: "$680/night",
-      originalPrice: "$780/night",
-      rating: "4.8",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80",
-      category: "Hotels"
-    },
-    {
-      id: 8,
-      name: "Four Seasons Resort",
-      location: "Maldives",
-      price: "$1,250/night", 
-      rating: "4.9",
-      image: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=400&q=80",
-      category: "Hotels"
-    },
-    {
-      id: 9,
-      name: "Burj Al Arab",
-      location: "Dubai, UAE",
-      price: "$2,100/night",
-      rating: "4.9",
-      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80",
-      category: "Hotels"
-    },
-    {
-      id: 10,
-      name: "Park Hyatt Tokyo",
-      location: "Tokyo, Japan",
-      price: "$450/night",
-      rating: "4.7",
-      image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=400&q=80",
-      category: "Hotels"
-    }
+  const categories = ['All', 'Beach', 'Mountains', 'City', 'Culture', 'Nature', 'Adventure', 'Luxury']
+  const sortOptions = [
+    { value: 'popular', label: 'Most Popular' },
+    { value: 'price-low', label: 'Price: Low to High' },
+    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'rating', label: 'Highest Rated' },
+    { value: 'newest', label: 'Newest' }
   ]
 
-  const bgGradient = isDark 
-    ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
-    : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
+  // Initialize data
+  useEffect(() => {
+    setDestinations(allDestinations)
+    setFilteredDestinations(allDestinations)
+  }, [])
+
+  // Handle search query from navigation state
+  useEffect(() => {
+    if (location.state?.searchQuery) {
+      setSearchQuery(location.state.searchQuery)
+      handleSearch(location.state.searchQuery)
+    }
+  }, [location.state])
+
+  // Filter and sort destinations
+  useEffect(() => {
+    let filtered = [...destinations]
+
+    // Apply category filter
+    if (activeFilter !== 'All') {
+      filtered = filtered.filter(dest => dest.category === activeFilter)
+    }
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(dest => 
+        dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dest.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dest.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+
+    // Apply advanced filters
+    if (appliedFilters.priceRange) {
+      const [min, max] = appliedFilters.priceRange
+      filtered = filtered.filter(dest => {
+        const price = parseInt(dest.price.replace(/[^\d]/g, ''))
+        return price >= min && price <= max
+      })
+    }
+
+    if (appliedFilters.rating) {
+      filtered = filtered.filter(dest => dest.rating >= appliedFilters.rating)
+    }
+
+    if (appliedFilters.category && appliedFilters.category !== activeFilter) {
+      filtered = filtered.filter(dest => dest.category === appliedFilters.category)
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'price-low':
+        filtered.sort((a, b) => {
+          const priceA = parseInt(a.price.replace(/[^\d]/g, ''))
+          const priceB = parseInt(b.price.replace(/[^\d]/g, ''))
+          return priceA - priceB
+        })
+        break
+      case 'price-high':
+        filtered.sort((a, b) => {
+          const priceA = parseInt(a.price.replace(/[^\d]/g, ''))
+          const priceB = parseInt(b.price.replace(/[^\d]/g, ''))
+          return priceB - priceA
+        })
+        break
+      case 'rating':
+        filtered.sort((a, b) => b.rating - a.rating)
+        break
+      case 'newest':
+        filtered.sort((a, b) => b.id - a.id)
+        break
+      default: // popular
+        filtered.sort((a, b) => b.reviews - a.reviews)
+    }
+
+    setFilteredDestinations(filtered)
+    setCurrentPage(1)
+  }, [destinations, activeFilter, searchQuery, appliedFilters, sortBy])
 
   const handleSearch = (query) => {
     setSearchQuery(query)
     setLoading(true)
-    setTimeout(() => setLoading(false), 1000)
+    setTimeout(() => setLoading(false), 800)
   }
 
   const handleSaveItem = (itemId) => {
@@ -158,8 +319,25 @@ const Explore = () => {
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters)
     setLoading(true)
-    setTimeout(() => setLoading(false), 800)
+    setTimeout(() => setLoading(false), 600)
   }
+
+  const handleClearFilters = () => {
+    setAppliedFilters({})
+    setActiveFilter('All')
+    setSearchQuery('')
+  }
+
+  const loadMore = () => {
+    setCurrentPage(prev => prev + 1)
+  }
+
+  const paginatedDestinations = filteredDestinations.slice(0, currentPage * itemsPerPage)
+  const hasMoreItems = filteredDestinations.length > currentPage * itemsPerPage
+
+  const bgGradient = isDark 
+    ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
+    : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
 
   if (loading) {
     return (
@@ -186,294 +364,245 @@ const Explore = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className={`text-3xl lg:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
-            Explore Destinations
-            {searchQuery && (
-              <span className={`block text-lg font-normal mt-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Results for "{searchQuery}"
-              </span>
-            )}
-          </h1>
-          
-          {/* Quick Actions */}
-          <div className="flex items-center space-x-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsSearchOpen(true)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl ${
-                isDark ? 'bg-navy/50 text-white' : 'bg-white/50 text-navy'
-              } hover:bg-opacity-70 transition-all`}
-            >
-              <Search className="w-5 h-5" />
-              <span>{searchQuery || 'Search destinations...'}</span>
-            </motion.button>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <h1 className={`text-3xl lg:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                Explore Destinations
+                {searchQuery && (
+                  <span className={`block text-lg font-normal mt-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {filteredDestinations.length} results for "{searchQuery}"
+                  </span>
+                )}
+              </h1>
+              <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Discover amazing places around the world
+              </p>
+            </div>
             
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsFilterOpen(true)}
-              className={`p-2 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm relative`}
-            >
-              <Filter className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
-              {Object.keys(appliedFilters).length > 0 && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
-              )}
-            </motion.button>
-          </div>
-        </motion.div>
-
-        {/* Filter Chips */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex space-x-3 overflow-x-auto pb-2">
-            {filters.map((filter, index) => (
+            {/* Search and Actions */}
+            <div className="flex items-center gap-4">
               <motion.button
-                key={filter}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setActiveFilter(filter)}
-                className={`px-6 py-3 rounded-full whitespace-nowrap font-semibold transition-all ${
-                  activeFilter === filter
-                    ? (isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white')
-                    : (isDark ? 'bg-navy/50 text-white hover:bg-navy/70' : 'bg-white/50 text-navy hover:bg-white/70')
-                }`}
+                onClick={() => setIsSearchOpen(true)}
+                className={`flex items-center space-x-2 px-4 py-3 rounded-xl ${
+                  isDark ? 'bg-navy/50 text-white' : 'bg-white/50 text-navy'
+                } hover:bg-opacity-70 transition-all min-w-[200px]`}
               >
-                {filter}
+                <Search className="w-5 h-5" />
+                <span className="hidden sm:block">{searchQuery || 'Search destinations...'}</span>
               </motion.button>
-            ))}
+              
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsFilterOpen(true)}
+                className={`p-3 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm relative`}
+              >
+                <SlidersHorizontal className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
+                {Object.keys(appliedFilters).length > 0 && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+                )}
+              </motion.button>
+
+              <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+            </div>
           </div>
+
+          {/* Active Filters Display */}
+          {(Object.keys(appliedFilters).length > 0 || searchQuery || activeFilter !== 'All') && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex flex-wrap items-center gap-2"
+            >
+              <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Active filters:
+              </span>
+              
+              {searchQuery && (
+                <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${
+                  isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                }`}>
+                  Search: "{searchQuery}"
+                  <button onClick={() => setSearchQuery('')}>
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              
+              {activeFilter !== 'All' && (
+                <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${
+                  isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                }`}>
+                  Category: {activeFilter}
+                  <button onClick={() => setActiveFilter('All')}>
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              
+              {Object.entries(appliedFilters).map(([key, value]) => (
+                <span key={key} className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${
+                  isDark ? 'bg-gray-600 text-white' : 'bg-gray-200 text-navy'
+                }`}>
+                  {key}: {Array.isArray(value) ? value.join('-') : value}
+                  <button onClick={() => {
+                    const newFilters = { ...appliedFilters }
+                    delete newFilters[key]
+                    setAppliedFilters(newFilters)
+                  }}>
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              
+              <button 
+                onClick={handleClearFilters}
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  isDark ? 'text-yellow-400 hover:bg-yellow-400/20' : 'text-blue-600 hover:bg-blue-600/20'
+                } transition-colors`}
+              >
+                Clear all
+              </button>
+            </motion.div>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-8">
-            {/* Featured This Week */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mb-12"
-            >
-              <h2 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-navy'}`}>
-                Featured This Week
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {featuredDestinations.map((destination, index) => (
-                  <motion.div
-                    key={destination.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                    whileHover={{ scale: 1.02, y: -5 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="relative rounded-2xl overflow-hidden cursor-pointer group"
-                    onClick={() => navigate('/trip-details')}
-                  >
-                    <img
-                      src={destination.image}
-                      alt={destination.name}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute top-4 left-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                      }`}>
-                        {destination.tag}
-                      </span>
-                    </div>
-                    <div className="absolute top-4 right-4 flex space-x-2">
-                      {destination.discount && (
-                        <span className="px-2 py-1 rounded-lg text-xs font-bold bg-green-500 text-white">
-                          {destination.discount}
-                        </span>
-                      )}
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSaveItem(destination.id)
-                        }}
-                        className="w-8 h-8 bg-white/80 rounded-full flex items-center justify-center"
-                      >
-                        <Heart className={`w-4 h-4 ${
-                          savedItems.has(destination.id) ? 'text-red-500 fill-current' : 'text-gray-600'
-                        }`} />
-                      </motion.button>
-                    </div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="font-bold text-white text-xl mb-1">{destination.name}</h3>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-white text-sm">{destination.rating}</span>
-                          <span className="text-white/80 text-sm ml-2">{destination.location}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {destination.originalPrice && (
-                            <span className="text-white/60 text-sm line-through">{destination.originalPrice}</span>
-                          )}
-                          <span className="text-white font-bold">{destination.price}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+          <div className="lg:col-span-9">
+            {/* Category Filters */}
+            <CategoryFilter 
+              categories={categories}
+              activeFilter={activeFilter}
+              setActiveFilter={setActiveFilter}
+            />
+
+            {/* Sort and View Controls */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  {filteredDestinations.length} destinations found
+                </span>
+                {filteredDestinations.length > 0 && (
+                  <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Showing {Math.min(currentPage * itemsPerPage, filteredDestinations.length)} of {filteredDestinations.length}
+                  </span>
+                )}
               </div>
-            </motion.div>
+              
+              <SortDropdown 
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                options={sortOptions}
+              />
+            </div>
 
             {/* Trending Destinations */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mb-12"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className={`text-2xl font-bold flex items-center space-x-2 ${isDark ? 'text-white' : 'text-navy'}`}>
-                  <TrendingUp className="w-6 h-6" />
-                  <span>Trending Destinations</span>
-                </h2>
-                <button className={`text-sm font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'} hover:opacity-80`}>
-                  See All
-                </button>
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {trendingDestinations.map((destination, index) => (
-                  <motion.div
-                    key={destination.id}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.05 * index }}
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative rounded-xl overflow-hidden cursor-pointer group"
-                  >
-                    <img
-                      src={destination.image}
-                      alt={destination.name}
-                      className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-300"
+            {!searchQuery && activeFilter === 'All' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="mb-12"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className={`text-2xl font-bold flex items-center space-x-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                    <TrendingUp className="w-6 h-6" />
+                    <span>Trending Now</span>
+                  </h2>
+                  <button className={`text-sm font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'} hover:opacity-80`}>
+                    See All
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {trendingDestinations.map((destination, index) => (
+                    <TrendingCard 
+                      key={destination.id}
+                      destination={destination}
+                      index={index}
+                      onClick={() => navigate('/trip-details')}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute top-2 right-2">
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2 + index * 0.05 }}
-                        className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center space-x-1 ${
-                          destination.trending ? 'bg-orange-500 text-white' : 'bg-blue-500 text-white'
-                        }`}
-                      >
-                        {destination.trending && <TrendingUp className="w-3 h-3" />}
-                        <span>{destination.growth}</span>
-                      </motion.span>
-                    </div>
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <h4 className="font-bold text-white text-sm">{destination.name}</h4>
-                      <p className="text-white/80 text-xs">{destination.properties}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
-            {/* Popular Hotels */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="mb-12"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-                  Popular Hotels
-                </h2>
-                <button className={`text-sm font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'} hover:opacity-80`}>
-                  See All
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {popularHotels.map((hotel, index) => (
-                  <motion.div
-                    key={hotel.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 * index }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`flex items-center space-x-4 p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm cursor-pointer group`}
-                  >
-                    <img
-                      src={hotel.image}
-                      alt={hotel.name}
-                      className="w-20 h-20 rounded-xl object-cover group-hover:scale-110 transition-transform"
+            {/* Main Destinations Grid/List */}
+            {filteredDestinations.length > 0 ? (
+              <>
+                <div className={viewMode === 'grid' 
+                  ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" 
+                  : "space-y-6"
+                }>
+                  {paginatedDestinations.map((destination, index) => (
+                    <DestinationCard
+                      key={destination.id}
+                      destination={destination}
+                      index={index}
+                      viewMode={viewMode}
+                      isSaved={savedItems.has(destination.id)}
+                      onSave={() => handleSaveItem(destination.id)}
+                      onClick={() => navigate('/trip-details', { state: { destination } })}
                     />
-                    <div className="flex-1">
-                      <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-navy'}`}>
-                        {hotel.name}
-                      </h3>
-                      <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
-                        {hotel.location}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
-                            {hotel.rating}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {hotel.originalPrice && (
-                            <span className={`text-sm line-through ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {hotel.originalPrice}
-                            </span>
-                          )}
-                          <span className={`font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-                            {hotel.price}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col space-y-2">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSaveItem(hotel.id)
-                        }}
-                        className="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center"
-                      >
-                        <Heart className={`w-4 h-4 ${
-                          savedItems.has(hotel.id) ? 'text-red-500 fill-current' : 'text-red-500'
-                        }`} />
-                      </motion.button>
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`px-4 py-2 rounded-lg font-semibold text-sm ${
-                          isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                        } hover:opacity-90 transition-opacity`}
-                      >
-                        Book
-                      </motion.button>
-                    </div>
+                  ))}
+                </div>
+
+                {/* Load More Button */}
+                {hasMoreItems && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center mt-12"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={loadMore}
+                      className={`px-8 py-4 rounded-xl font-semibold ${
+                        isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                      } hover:opacity-90 transition-opacity`}
+                    >
+                      Load More Destinations
+                    </motion.button>
                   </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                )}
+              </>
+            ) : (
+              /* No Results */
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-16"
+              >
+                <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                  isDark ? 'bg-navy/50' : 'bg-gray-100'
+                }`}>
+                  <Search className={`w-12 h-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                </div>
+                <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+                  No destinations found
+                </h3>
+                <p className={`text-lg mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Try adjusting your search or filters to find what you're looking for
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleClearFilters}
+                  className={`px-6 py-3 rounded-xl font-semibold ${
+                    isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                  } hover:opacity-90 transition-opacity`}
+                >
+                  Clear All Filters
+                </motion.button>
+              </motion.div>
+            )}
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-3">
             {/* Quick Filters */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
@@ -498,6 +627,11 @@ const Explore = () => {
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
                           : 'bg-white/50 text-navy placeholder-gray-500'
                       } focus:ring-2 focus:ring-blue-500`}
+                      onChange={(e) => {
+                        const min = parseInt(e.target.value) || 0
+                        const max = appliedFilters.priceRange?.[1] || 100000
+                        setAppliedFilters(prev => ({ ...prev, priceRange: [min, max] }))
+                      }}
                     />
                     <input
                       type="number"
@@ -507,12 +641,17 @@ const Explore = () => {
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
                           : 'bg-white/50 text-navy placeholder-gray-500'
                       } focus:ring-2 focus:ring-blue-500`}
+                      onChange={(e) => {
+                        const max = parseInt(e.target.value) || 100000
+                        const min = appliedFilters.priceRange?.[0] || 0
+                        setAppliedFilters(prev => ({ ...prev, priceRange: [min, max] }))
+                      }}
                     />
                   </div>
                 </div>
                 <div>
                   <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
-                    Rating
+                    Minimum Rating
                   </label>
                   <div className="flex space-x-2">
                     {[4, 4.5, 5].map((rating) => (
@@ -520,10 +659,11 @@ const Explore = () => {
                         key={rating}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        onClick={() => setAppliedFilters(prev => ({ ...prev, rating }))}
                         className={`px-3 py-2 rounded-lg border ${
-                          isDark 
-                            ? 'border-gray-600 text-white hover:border-yellow-400' 
-                            : 'border-gray-300 text-navy hover:border-blue-600'
+                          appliedFilters.rating === rating
+                            ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white')
+                            : (isDark ? 'border-gray-600 text-white hover:border-yellow-400' : 'border-gray-300 text-navy hover:border-blue-600')
                         } transition-colors`}
                       >
                         {rating}+
