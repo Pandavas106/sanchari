@@ -15,18 +15,22 @@ const SortDropdown = ({ sortBy, setSortBy, options }) => {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center space-x-2 px-4 py-2 rounded-lg border ${
+        className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg border ${
           isDark 
             ? 'bg-navy/50 border-gray-600 text-white' 
             : 'bg-white/50 border-gray-300 text-navy'
-        } hover:bg-opacity-70 transition-all`}
+        } hover:bg-opacity-70 transition-all min-w-0`}
       >
-        <span className="text-sm font-medium">Sort: {selectedOption?.label}</span>
+        <span className="text-xs sm:text-sm font-medium truncate">
+          Sort: <span className="hidden sm:inline">{selectedOption?.label}</span>
+          <span className="sm:hidden">{selectedOption?.label.split(':')[0]}</span>
+        </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
+          className="flex-shrink-0"
         >
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
         </motion.div>
       </motion.button>
 
@@ -52,15 +56,15 @@ const SortDropdown = ({ sortBy, setSortBy, options }) => {
                   setSortBy(option.value)
                   setIsOpen(false)
                 }}
-                className={`w-full px-4 py-3 text-left text-sm font-medium flex items-center justify-between ${
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium flex items-center justify-between ${
                   sortBy === option.value
                     ? (isDark ? 'bg-yellow-400/20 text-yellow-400' : 'bg-blue-600/20 text-blue-600')
                     : (isDark ? 'text-white hover:bg-white/10' : 'text-navy hover:bg-gray-100')
                 } transition-colors first:rounded-t-lg last:rounded-b-lg`}
               >
-                <span>{option.label}</span>
+                <span className="truncate">{option.label}</span>
                 {sortBy === option.value && (
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                 )}
               </motion.button>
             ))}

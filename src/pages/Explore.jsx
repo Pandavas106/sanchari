@@ -357,55 +357,59 @@ const Explore = () => {
         cartCount={2}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Page Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className={`text-3xl lg:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+          <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-navy'} truncate`}>
                 Explore Destinations
-                {searchQuery && (
-                  <span className={`block text-lg font-normal mt-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {filteredDestinations.length} results for "{searchQuery}"
-                  </span>
-                )}
               </h1>
-              <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+              {searchQuery && (
+                <p className={`text-sm sm:text-base lg:text-lg font-normal ${isDark ? 'text-gray-300' : 'text-gray-600'} truncate`}>
+                  {filteredDestinations.length} results for "{searchQuery}"
+                </p>
+              )}
+              <p className={`text-sm sm:text-base lg:text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'} hidden sm:block`}>
                 Discover amazing places around the world
               </p>
             </div>
             
             {/* Search and Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsSearchOpen(true)}
-                className={`flex items-center space-x-2 px-4 py-3 rounded-xl ${
+                className={`flex items-center space-x-2 px-3 sm:px-4 py-2 sm:py-3 rounded-xl ${
                   isDark ? 'bg-navy/50 text-white' : 'bg-white/50 text-navy'
-                } hover:bg-opacity-70 transition-all min-w-[200px]`}
+                } hover:bg-opacity-70 transition-all min-w-0 flex-1 sm:flex-none sm:min-w-[200px]`}
               >
-                <Search className="w-5 h-5" />
-                <span className="hidden sm:block">{searchQuery || 'Search destinations...'}</span>
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <span className="text-sm sm:text-base truncate">
+                  {searchQuery || 'Search...'}
+                </span>
               </motion.button>
               
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsFilterOpen(true)}
-                className={`p-3 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm relative`}
+                className={`p-2 sm:p-3 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm relative flex-shrink-0`}
               >
-                <SlidersHorizontal className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
+                <SlidersHorizontal className={`w-5 h-5 sm:w-6 sm:h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
                 {Object.keys(appliedFilters).length > 0 && (
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
                 )}
               </motion.button>
 
-              <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+              <div className="hidden sm:block">
+                <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+              </div>
             </div>
           </div>
 
@@ -414,54 +418,56 @@ const Explore = () => {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 flex flex-wrap items-center gap-2"
+              className="mt-4 flex flex-wrap items-center gap-2 overflow-hidden"
             >
-              <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Active filters:
+              <span className={`text-xs sm:text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} flex-shrink-0`}>
+                Filters:
               </span>
               
-              {searchQuery && (
-                <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${
-                  isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                }`}>
-                  Search: "{searchQuery}"
-                  <button onClick={() => setSearchQuery('')}>
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              
-              {activeFilter !== 'All' && (
-                <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${
-                  isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                }`}>
-                  Category: {activeFilter}
-                  <button onClick={() => setActiveFilter('All')}>
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              
-              {Object.entries(appliedFilters).map(([key, value]) => (
-                <span key={key} className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${
-                  isDark ? 'bg-gray-600 text-white' : 'bg-gray-200 text-navy'
-                }`}>
-                  {key}: {Array.isArray(value) ? value.join('-') : value}
-                  <button onClick={() => {
-                    const newFilters = { ...appliedFilters }
-                    delete newFilters[key]
-                    setAppliedFilters(newFilters)
-                  }}>
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+              <div className="flex flex-wrap gap-2 min-w-0">
+                {searchQuery && (
+                  <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 ${
+                    isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                  } max-w-[150px] sm:max-w-none`}>
+                    <span className="truncate">Search: "{searchQuery}"</span>
+                    <button onClick={() => setSearchQuery('')} className="flex-shrink-0">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                
+                {activeFilter !== 'All' && (
+                  <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 ${
+                    isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+                  }`}>
+                    <span className="truncate">Category: {activeFilter}</span>
+                    <button onClick={() => setActiveFilter('All')} className="flex-shrink-0">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                
+                {Object.entries(appliedFilters).map(([key, value]) => (
+                  <span key={key} className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 ${
+                    isDark ? 'bg-gray-600 text-white' : 'bg-gray-200 text-navy'
+                  } max-w-[120px] sm:max-w-none`}>
+                    <span className="truncate">{key}: {Array.isArray(value) ? value.join('-') : value}</span>
+                    <button onClick={() => {
+                      const newFilters = { ...appliedFilters }
+                      delete newFilters[key]
+                      setAppliedFilters(newFilters)
+                    }} className="flex-shrink-0">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
               
               <button 
                 onClick={handleClearFilters}
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
                   isDark ? 'text-yellow-400 hover:bg-yellow-400/20' : 'text-blue-600 hover:bg-blue-600/20'
-                } transition-colors`}
+                } transition-colors flex-shrink-0`}
               >
                 Clear all
               </button>
@@ -469,9 +475,9 @@ const Explore = () => {
           )}
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-9">
+          <div className="lg:col-span-9 min-w-0">
             {/* Category Filters */}
             <CategoryFilter 
               categories={categories}
@@ -480,23 +486,28 @@ const Explore = () => {
             />
 
             {/* Sort and View Controls */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 min-w-0">
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} flex-shrink-0`}>
                   {filteredDestinations.length} destinations found
                 </span>
                 {filteredDestinations.length > 0 && (
-                  <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} truncate`}>
                     Showing {Math.min(currentPage * itemsPerPage, filteredDestinations.length)} of {filteredDestinations.length}
                   </span>
                 )}
               </div>
               
-              <SortDropdown 
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                options={sortOptions}
-              />
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <div className="sm:hidden">
+                  <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+                </div>
+                <SortDropdown 
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  options={sortOptions}
+                />
+              </div>
             </div>
 
             {/* Trending Destinations */}
@@ -505,18 +516,18 @@ const Explore = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="mb-12"
+                className="mb-8 sm:mb-12"
               >
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className={`text-2xl font-bold flex items-center space-x-2 ${isDark ? 'text-white' : 'text-navy'}`}>
-                    <TrendingUp className="w-6 h-6" />
-                    <span>Trending Now</span>
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className={`text-xl sm:text-2xl font-bold flex items-center space-x-2 ${isDark ? 'text-white' : 'text-navy'} min-w-0`}>
+                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                    <span className="truncate">Trending Now</span>
                   </h2>
-                  <button className={`text-sm font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'} hover:opacity-80`}>
+                  <button className={`text-sm font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'} hover:opacity-80 flex-shrink-0`}>
                     See All
                   </button>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   {trendingDestinations.map((destination, index) => (
                     <TrendingCard 
                       key={destination.id}
@@ -533,8 +544,8 @@ const Explore = () => {
             {filteredDestinations.length > 0 ? (
               <>
                 <div className={viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" 
-                  : "space-y-6"
+                  ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" 
+                  : "space-y-4 sm:space-y-6"
                 }>
                   {paginatedDestinations.map((destination, index) => (
                     <DestinationCard
@@ -554,13 +565,13 @@ const Explore = () => {
                   <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-center mt-12"
+                    className="text-center mt-8 sm:mt-12"
                   >
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={loadMore}
-                      className={`px-8 py-4 rounded-xl font-semibold ${
+                      className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base ${
                         isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
                       } hover:opacity-90 transition-opacity`}
                     >
@@ -574,24 +585,24 @@ const Explore = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center py-16"
+                className="text-center py-12 sm:py-16"
               >
-                <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                <div className={`w-16 h-16 sm:w-24 sm:h-24 rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center ${
                   isDark ? 'bg-navy/50' : 'bg-gray-100'
                 }`}>
-                  <Search className={`w-12 h-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <Search className={`w-8 h-8 sm:w-12 sm:h-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
                 </div>
-                <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+                <h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
                   No destinations found
                 </h3>
-                <p className={`text-lg mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p className={`text-base sm:text-lg mb-4 sm:mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'} px-4`}>
                   Try adjusting your search or filters to find what you're looking for
                 </p>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleClearFilters}
-                  className={`px-6 py-3 rounded-xl font-semibold ${
+                  className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base ${
                     isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
                   } hover:opacity-90 transition-opacity`}
                 >
@@ -602,18 +613,18 @@ const Explore = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 min-w-0">
             {/* Quick Filters */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
-              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+              <h3 className={`font-bold text-lg sm:text-xl mb-3 sm:mb-4 ${isDark ? 'text-white' : 'text-navy'} truncate`}>
                 Quick Filters
               </h3>
-              <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
+              <div className={`p-4 sm:p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
                 <div>
                   <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
                     Price Range
@@ -622,11 +633,11 @@ const Explore = () => {
                     <input
                       type="number"
                       placeholder="Min"
-                      className={`flex-1 p-2 rounded-lg border-0 ${
+                      className={`flex-1 p-2 rounded-lg border-0 text-sm ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
                           : 'bg-white/50 text-navy placeholder-gray-500'
-                      } focus:ring-2 focus:ring-blue-500`}
+                      } focus:ring-2 focus:ring-blue-500 min-w-0`}
                       onChange={(e) => {
                         const min = parseInt(e.target.value) || 0
                         const max = appliedFilters.priceRange?.[1] || 100000
@@ -636,11 +647,11 @@ const Explore = () => {
                     <input
                       type="number"
                       placeholder="Max"
-                      className={`flex-1 p-2 rounded-lg border-0 ${
+                      className={`flex-1 p-2 rounded-lg border-0 text-sm ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
                           : 'bg-white/50 text-navy placeholder-gray-500'
-                      } focus:ring-2 focus:ring-blue-500`}
+                      } focus:ring-2 focus:ring-blue-500 min-w-0`}
                       onChange={(e) => {
                         const max = parseInt(e.target.value) || 100000
                         const min = appliedFilters.priceRange?.[0] || 0
@@ -660,7 +671,7 @@ const Explore = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setAppliedFilters(prev => ({ ...prev, rating }))}
-                        className={`px-3 py-2 rounded-lg border ${
+                        className={`flex-1 px-2 py-2 rounded-lg border text-sm ${
                           appliedFilters.rating === rating
                             ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white')
                             : (isDark ? 'border-gray-600 text-white hover:border-yellow-400' : 'border-gray-300 text-navy hover:border-blue-600')
@@ -679,12 +690,12 @@ const Explore = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
-              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+              <h3 className={`font-bold text-lg sm:text-xl mb-3 sm:mb-4 ${isDark ? 'text-white' : 'text-navy'} truncate`}>
                 Travel Tips
               </h3>
-              <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
+              <div className={`p-4 sm:p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
                 {[
                   { icon: Calendar, title: 'Best Time to Book', desc: 'Book 6-8 weeks in advance for best deals', color: 'bg-blue-500' },
                   { icon: MapPin, title: 'Off-Season Travel', desc: 'Save up to 40% by traveling off-season', color: 'bg-green-500' },
@@ -701,15 +712,15 @@ const Explore = () => {
                     >
                       <motion.div 
                         whileHover={{ scale: 1.1 }}
-                        className={`w-8 h-8 ${tip.color} rounded-full flex items-center justify-center flex-shrink-0`}
+                        className={`w-6 h-6 sm:w-8 sm:h-8 ${tip.color} rounded-full flex items-center justify-center flex-shrink-0`}
                       >
-                        <Icon className="w-4 h-4 text-white" />
+                        <Icon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                       </motion.div>
-                      <div>
-                        <h4 className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                      <div className="min-w-0">
+                        <h4 className={`font-semibold text-sm sm:text-base ${isDark ? 'text-white' : 'text-navy'} truncate`}>
                           {tip.title}
                         </h4>
-                        <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>
                           {tip.desc}
                         </p>
                       </div>
@@ -724,31 +735,31 @@ const Explore = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
-              <div className={`p-6 rounded-xl ${isDark ? 'bg-yellow-400' : 'bg-blue-600'}`}>
-                <h3 className={`font-bold text-xl mb-2 ${isDark ? 'text-navy' : 'text-white'}`}>
+              <div className={`p-4 sm:p-6 rounded-xl ${isDark ? 'bg-yellow-400' : 'bg-blue-600'}`}>
+                <h3 className={`font-bold text-lg sm:text-xl mb-2 ${isDark ? 'text-navy' : 'text-white'} truncate`}>
                   Stay Updated
                 </h3>
                 <p className={`text-sm mb-4 ${isDark ? 'text-navy' : 'text-white'}`}>
                   Get the latest travel deals and destination guides
                 </p>
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <input
                     type="email"
                     placeholder="Your email"
-                    className={`flex-1 p-2 rounded-lg border-0 ${
+                    className={`flex-1 p-2 rounded-lg border-0 text-sm ${
                       isDark 
                         ? 'bg-navy/50 text-white placeholder-gray-400' 
                         : 'bg-white text-navy placeholder-gray-500'
-                    } focus:ring-2 focus:ring-blue-500`}
+                    } focus:ring-2 focus:ring-blue-500 min-w-0`}
                   />
                   <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`px-4 py-2 rounded-lg font-semibold ${
+                    className={`px-4 py-2 rounded-lg font-semibold text-sm ${
                       isDark ? 'bg-navy text-white' : 'bg-white text-blue-600'
-                    } hover:opacity-90 transition-opacity`}
+                    } hover:opacity-90 transition-opacity flex-shrink-0`}
                   >
                     Subscribe
                   </motion.button>
