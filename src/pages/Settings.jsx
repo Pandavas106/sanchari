@@ -76,28 +76,28 @@ const Settings = () => {
           icon: User, 
           title: "Personal Information", 
           subtitle: "Name, email, phone number", 
-          color: "text-amber-500",
+          color: "text-amber-600",
           action: () => setActiveModal('personalInfo')
         },
         { 
           icon: CreditCard, 
           title: "Payment Methods", 
           subtitle: "Cards, wallets, billing", 
-          color: "text-blue-500",
+          color: "text-blue-600",
           action: () => setActiveModal('paymentMethods')
         },
         { 
           icon: Shield, 
           title: "Privacy & Security", 
           subtitle: "Password, biometrics, data", 
-          color: "text-purple-500",
+          color: "text-purple-600",
           action: () => setActiveModal('privacySecurity')
         },
         { 
           icon: Bell, 
           title: "Notifications", 
           subtitle: "Email, push, SMS preferences", 
-          color: "text-green-500", 
+          color: "text-green-600", 
           expandable: true 
         }
       ]
@@ -109,7 +109,7 @@ const Settings = () => {
           icon: Palette, 
           title: "Theme", 
           subtitle: isDark ? "Dark mode" : "Light mode", 
-          color: "text-amber-500", 
+          color: "text-amber-600", 
           toggle: true,
           action: toggleTheme
         },
@@ -117,14 +117,14 @@ const Settings = () => {
           icon: Globe, 
           title: "Language & Currency", 
           subtitle: `${languageCurrencySettings.language.split('-')[0].toUpperCase()} • ${languageCurrencySettings.currency}`, 
-          color: "text-brown-500",
+          color: "text-orange-600",
           action: () => setActiveModal('languageCurrency')
         },
         { 
           icon: MapPin, 
           title: "Location Services", 
           subtitle: locationServices ? "Always allow" : "Disabled", 
-          color: "text-blue-500", 
+          color: "text-blue-600", 
           toggle: true,
           action: () => setLocationServices(!locationServices)
         }
@@ -137,7 +137,7 @@ const Settings = () => {
           icon: Download, 
           title: "Download Data", 
           subtitle: "Export your travel data", 
-          color: "text-blue-500",
+          color: "text-blue-600",
           action: () => {
             // Simulate data export
             alert('Data export request submitted. You will receive an email with download link within 24 hours.')
@@ -147,14 +147,14 @@ const Settings = () => {
           icon: Eye, 
           title: "Privacy Settings", 
           subtitle: "Control data visibility", 
-          color: "text-purple-500",
+          color: "text-purple-600",
           action: () => setActiveModal('privacySecurity')
         },
         { 
           icon: Trash2, 
           title: "Delete Account", 
           subtitle: "Permanently remove account", 
-          color: "text-red-500",
+          color: "text-red-600",
           action: () => {
             if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
               alert('Account deletion request submitted. You will receive a confirmation email.')
@@ -170,28 +170,28 @@ const Settings = () => {
           icon: Headphones, 
           title: "Help & Support", 
           subtitle: "Get assistance", 
-          color: "text-amber-500",
+          color: "text-amber-600",
           action: () => setActiveModal('helpSupport')
         },
         { 
           icon: FileText, 
           title: "Terms & Conditions", 
           subtitle: "Legal information", 
-          color: "text-brown-500",
+          color: "text-orange-600",
           action: () => window.open('/terms', '_blank')
         },
         { 
           icon: Shield, 
           title: "Privacy Policy", 
           subtitle: "How we protect your data", 
-          color: "text-green-500",
+          color: "text-green-600",
           action: () => window.open('/privacy', '_blank')
         },
         { 
           icon: Info, 
           title: "About Sanchari", 
           subtitle: "Version 2.4.1", 
-          color: "text-blue-500",
+          color: "text-blue-600",
           action: () => setActiveModal('about')
         }
       ]
@@ -202,7 +202,7 @@ const Settings = () => {
 
   const bgGradient = isDark 
     ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
-    : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
+    : 'bg-gradient-to-br from-amber-50 via-blue-50 to-purple-50'
 
   const handleNotificationChange = (type) => {
     setNotifications(prev => ({
@@ -247,7 +247,7 @@ const Settings = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+          <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
             Settings
           </h1>
         </motion.div>
@@ -261,7 +261,7 @@ const Settings = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <div className={`p-6 rounded-2xl ${isDark ? 'bg-navy/70' : 'bg-blue-100'}`}>
+              <div className={`p-6 rounded-2xl ${isDark ? 'bg-navy/70' : 'bg-white/80 border border-gray-200'} backdrop-blur-sm`}>
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center">
                     {userInfo.profileImage ? (
@@ -273,10 +273,10 @@ const Settings = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h2 className={`font-bold text-xl ${isDark ? 'text-white' : 'text-navy'}`}>
+                    <h2 className={`font-bold text-xl ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       {userInfo.firstName} {userInfo.lastName}
                     </h2>
-                    <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <p className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       {userInfo.email}
                     </p>
                     <div className="flex items-center space-x-1 mt-1">
@@ -309,7 +309,7 @@ const Settings = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: groupIndex * 0.1 }}
                 >
-                  <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+                  <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {group.title}
                   </h3>
                   <div className="space-y-3">
@@ -328,14 +328,16 @@ const Settings = () => {
                                 item.action()
                               }
                             }}
-                            className={`p-6 rounded-2xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm cursor-pointer transition-all hover:shadow-lg`}
+                            className={`p-6 rounded-2xl ${
+                              isDark ? 'bg-navy/50' : 'bg-white/80 border border-gray-200'
+                            } backdrop-blur-sm cursor-pointer transition-all hover:shadow-lg`}
                           >
                             <div className="flex items-center space-x-4">
                               <div className={`w-12 h-12 rounded-xl ${item.color} bg-opacity-20 flex items-center justify-center`}>
                                 <Icon className={`w-6 h-6 ${item.color}`} />
                               </div>
                               <div className="flex-1">
-                                <h4 className={`font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+                                <h4 className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                   {item.title}
                                 </h4>
                                 {item.subtitle && (
@@ -347,7 +349,7 @@ const Settings = () => {
                               {item.toggle ? (
                                 <div className="flex items-center space-x-2">
                                   {item.title === 'Theme' && (
-                                    <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                                    <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                       {isDark ? 'Dark' : 'Light'}
                                     </span>
                                   )}
@@ -362,7 +364,7 @@ const Settings = () => {
                                   </label>
                                 </div>
                               ) : (
-                                <div className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                <div className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                   {item.expandable ? (isExpanded ? '−' : '+') : '→'}
                                 </div>
                               )}
@@ -375,16 +377,18 @@ const Settings = () => {
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
-                              className={`mt-3 p-6 rounded-2xl ${isDark ? 'bg-navy/30' : 'bg-white/30'} backdrop-blur-sm`}
+                              className={`mt-3 p-6 rounded-2xl ${
+                                isDark ? 'bg-navy/30' : 'bg-white/60 border border-gray-200'
+                              } backdrop-blur-sm`}
                             >
-                              <h5 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+                              <h5 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Notification Preferences
                               </h5>
                               <div className="space-y-4">
                                 {Object.entries(notifications).map(([key, value]) => (
                                   <div key={key} className="flex items-center justify-between">
                                     <div>
-                                      <h6 className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                                      <h6 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         {key.charAt(0).toUpperCase() + key.slice(1)} Notifications
                                       </h6>
                                       <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -427,7 +431,7 @@ const Settings = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSignOut}
-                className="w-full py-4 bg-red-500/20 rounded-2xl font-semibold text-red-500 flex items-center justify-center space-x-2 hover:bg-red-500/30 transition-colors"
+                className="w-full py-4 bg-red-500/20 rounded-2xl font-semibold text-red-600 flex items-center justify-center space-x-2 hover:bg-red-500/30 transition-colors border border-red-200"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Sign Out</span>
@@ -444,21 +448,23 @@ const Settings = () => {
               transition={{ delay: 0.2 }}
               className="mb-8"
             >
-              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Account Overview
               </h3>
-              <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
+              <div className={`p-6 rounded-xl ${
+                isDark ? 'bg-navy/50' : 'bg-white/80 border border-gray-200'
+              } backdrop-blur-sm space-y-4`}>
                 <div className="flex justify-between">
                   <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Member Since</span>
-                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>Jan 2023</span>
+                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Jan 2023</span>
                 </div>
                 <div className="flex justify-between">
                   <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Total Trips</span>
-                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>24</span>
+                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>24</span>
                 </div>
                 <div className="flex justify-between">
                   <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Countries Visited</span>
-                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>12</span>
+                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>12</span>
                 </div>
                 <div className="flex justify-between">
                   <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Travel Points</span>
@@ -474,16 +480,18 @@ const Settings = () => {
               transition={{ delay: 0.3 }}
               className="mb-8"
             >
-              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Security Status
               </h3>
-              <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
+              <div className={`p-6 rounded-xl ${
+                isDark ? 'bg-navy/50' : 'bg-white/80 border border-gray-200'
+              } backdrop-blur-sm space-y-4`}>
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                     <Check className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       Two-Factor Authentication
                     </p>
                     <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -496,7 +504,7 @@ const Settings = () => {
                     <Check className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       Strong Password
                     </p>
                     <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -509,7 +517,7 @@ const Settings = () => {
                     <AlertTriangle className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       Email Verification
                     </p>
                     <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -527,7 +535,7 @@ const Settings = () => {
               transition={{ delay: 0.4 }}
               className="mb-8"
             >
-              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+              <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Quick Actions
               </h3>
               <div className="space-y-3">
@@ -546,7 +554,7 @@ const Settings = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveModal('privacySecurity')}
                   className={`w-full p-4 rounded-xl font-semibold text-left ${
-                    isDark ? 'bg-navy/50 text-white' : 'bg-white/50 text-navy'
+                    isDark ? 'bg-navy/50 text-white' : 'bg-white/80 text-gray-900 border border-gray-200'
                   } hover:opacity-80 transition-opacity`}
                 >
                   Change Password
@@ -555,7 +563,7 @@ const Settings = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className={`w-full p-4 rounded-xl font-semibold text-left ${
-                    isDark ? 'bg-navy/50 text-white' : 'bg-white/50 text-navy'
+                    isDark ? 'bg-navy/50 text-white' : 'bg-white/80 text-gray-900 border border-gray-200'
                   } hover:opacity-80 transition-opacity`}
                 >
                   Manage Subscriptions

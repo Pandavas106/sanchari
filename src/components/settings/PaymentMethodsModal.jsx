@@ -94,7 +94,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
           className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl ${
             isDark ? 'bg-navy/95' : 'bg-white/95'
           } backdrop-blur-md border ${
-            isDark ? 'border-gray-600' : 'border-gray-200'
+            isDark ? 'border-gray-600' : 'border-gray-300'
           } shadow-2xl`}
           onClick={(e) => e.stopPropagation()}
         >
@@ -103,7 +103,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <CreditCard className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-blue-600'}`} />
-                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Payment Methods
                 </h2>
               </div>
@@ -113,7 +113,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                   isDark ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
                 }`}
               >
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
               </button>
             </div>
           </div>
@@ -125,10 +125,10 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
               <div className="flex items-center space-x-3">
                 <Shield className="w-5 h-5 text-blue-500" />
                 <div>
-                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
+                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     Secure Payment Processing
                   </h3>
-                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Your payment information is encrypted and securely stored
                   </p>
                 </div>
@@ -154,7 +154,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                       <div className="text-3xl">{getCardIcon(method.type)}</div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h3 className={`font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+                          <h3 className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             •••• •••• •••• {method.last4}
                           </h3>
                           {method.isDefault && (
@@ -165,7 +165,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                             </span>
                           )}
                         </div>
-                        <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                           {method.holderName} • Expires {method.expiryMonth}/{method.expiryYear}
                         </p>
                       </div>
@@ -216,15 +216,15 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}
+                className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-gray-100'} backdrop-blur-sm space-y-4`}
               >
-                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-navy'}`}>
+                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Add New Card
                 </h3>
                 
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                    <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       Card Number
                     </label>
                     <input
@@ -235,13 +235,13 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                       className={`w-full p-3 rounded-xl border-0 ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
-                          : 'bg-gray-100 text-navy placeholder-gray-500'
+                          : 'bg-white text-gray-900 placeholder-gray-500'
                       } focus:ring-2 focus:ring-blue-500`}
                     />
                   </div>
 
                   <div>
-                    <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                    <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       Cardholder Name
                     </label>
                     <input
@@ -252,14 +252,14 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                       className={`w-full p-3 rounded-xl border-0 ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
-                          : 'bg-gray-100 text-navy placeholder-gray-500'
+                          : 'bg-white text-gray-900 placeholder-gray-500'
                       } focus:ring-2 focus:ring-blue-500`}
                     />
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                      <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Month
                       </label>
                       <select
@@ -268,7 +268,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                         className={`w-full p-3 rounded-xl border-0 ${
                           isDark 
                             ? 'bg-navy/50 text-white' 
-                            : 'bg-gray-100 text-navy'
+                            : 'bg-white text-gray-900'
                         } focus:ring-2 focus:ring-blue-500`}
                       >
                         <option value="">MM</option>
@@ -280,7 +280,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                       </select>
                     </div>
                     <div>
-                      <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                      <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Year
                       </label>
                       <select
@@ -289,7 +289,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                         className={`w-full p-3 rounded-xl border-0 ${
                           isDark 
                             ? 'bg-navy/50 text-white' 
-                            : 'bg-gray-100 text-navy'
+                            : 'bg-white text-gray-900'
                         } focus:ring-2 focus:ring-blue-500`}
                       >
                         <option value="">YYYY</option>
@@ -301,7 +301,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                       </select>
                     </div>
                     <div>
-                      <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                      <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         CVV
                       </label>
                       <input
@@ -313,7 +313,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                         className={`w-full p-3 rounded-xl border-0 ${
                           isDark 
                             ? 'bg-navy/50 text-white placeholder-gray-400' 
-                            : 'bg-gray-100 text-navy placeholder-gray-500'
+                            : 'bg-white text-gray-900 placeholder-gray-500'
                         } focus:ring-2 focus:ring-blue-500`}
                       />
                     </div>
@@ -326,7 +326,7 @@ const PaymentMethodsModal = ({ isOpen, onClose }) => {
                     className={`flex-1 py-3 rounded-xl font-semibold border-2 ${
                       isDark 
                         ? 'border-gray-600 text-white hover:bg-gray-600' 
-                        : 'border-gray-300 text-navy hover:bg-gray-100'
+                        : 'border-gray-300 text-gray-900 hover:bg-gray-100'
                     } transition-colors`}
                   >
                     Cancel

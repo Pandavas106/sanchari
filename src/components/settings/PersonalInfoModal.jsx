@@ -67,14 +67,14 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
           className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl ${
             isDark ? 'bg-navy/95' : 'bg-white/95'
           } backdrop-blur-md border ${
-            isDark ? 'border-gray-600' : 'border-gray-200'
+            isDark ? 'border-gray-600' : 'border-gray-300'
           } shadow-2xl`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="sticky top-0 p-6 border-b border-gray-300 bg-inherit rounded-t-2xl">
             <div className="flex items-center justify-between">
-              <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+              <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Personal Information
               </h2>
               <button
@@ -83,7 +83,7 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                   isDark ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
                 }`}
               >
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
               </button>
             </div>
           </div>
@@ -117,7 +117,7 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   First Name
                 </label>
                 <div className="relative">
@@ -132,14 +132,14 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                     className={`w-full pl-12 pr-4 py-3 rounded-xl border-0 ${
                       isDark 
                         ? 'bg-navy/50 text-white placeholder-gray-400' 
-                        : 'bg-gray-100 text-navy placeholder-gray-500'
+                        : 'bg-gray-100 text-gray-900 placeholder-gray-500'
                     } focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Last Name
                 </label>
                 <div className="relative">
@@ -154,14 +154,14 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                     className={`w-full pl-12 pr-4 py-3 rounded-xl border-0 ${
                       isDark 
                         ? 'bg-navy/50 text-white placeholder-gray-400' 
-                        : 'bg-gray-100 text-navy placeholder-gray-500'
+                        : 'bg-gray-100 text-gray-900 placeholder-gray-500'
                     } focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Email Address
                 </label>
                 <div className="relative">
@@ -176,14 +176,14 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                     className={`w-full pl-12 pr-4 py-3 rounded-xl border-0 ${
                       isDark 
                         ? 'bg-navy/50 text-white placeholder-gray-400' 
-                        : 'bg-gray-100 text-navy placeholder-gray-500'
+                        : 'bg-gray-100 text-gray-900 placeholder-gray-500'
                     } focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Phone Number
                 </label>
                 <div className="relative">
@@ -198,14 +198,14 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                     className={`w-full pl-12 pr-4 py-3 rounded-xl border-0 ${
                       isDark 
                         ? 'bg-navy/50 text-white placeholder-gray-400' 
-                        : 'bg-gray-100 text-navy placeholder-gray-500'
+                        : 'bg-gray-100 text-gray-900 placeholder-gray-500'
                     } focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Date of Birth
                 </label>
                 <div className="relative">
@@ -220,14 +220,14 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                     className={`w-full pl-12 pr-4 py-3 rounded-xl border-0 ${
                       isDark 
                         ? 'bg-navy/50 text-white placeholder-gray-400' 
-                        : 'bg-gray-100 text-navy placeholder-gray-500'
+                        : 'bg-gray-100 text-gray-900 placeholder-gray-500'
                     } focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Location
                 </label>
                 <div className="relative">
@@ -242,7 +242,7 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                     className={`w-full pl-12 pr-4 py-3 rounded-xl border-0 ${
                       isDark 
                         ? 'bg-navy/50 text-white placeholder-gray-400' 
-                        : 'bg-gray-100 text-navy placeholder-gray-500'
+                        : 'bg-gray-100 text-gray-900 placeholder-gray-500'
                     } focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
@@ -251,7 +251,7 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
 
             {/* Bio */}
             <div>
-              <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+              <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Bio
               </label>
               <textarea
@@ -262,7 +262,7 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                 className={`w-full p-4 rounded-xl border-0 ${
                   isDark 
                     ? 'bg-navy/50 text-white placeholder-gray-400' 
-                    : 'bg-gray-100 text-navy placeholder-gray-500'
+                    : 'bg-gray-100 text-gray-900 placeholder-gray-500'
                 } focus:ring-2 focus:ring-blue-500`}
                 placeholder="Tell us about yourself..."
               />
@@ -277,7 +277,7 @@ const PersonalInfoModal = ({ isOpen, onClose, userInfo, onSave }) => {
                 className={`flex-1 py-3 rounded-xl font-semibold border-2 ${
                   isDark 
                     ? 'border-gray-600 text-white hover:bg-gray-600' 
-                    : 'border-gray-300 text-navy hover:bg-gray-100'
+                    : 'border-gray-300 text-gray-900 hover:bg-gray-100'
                 } transition-colors`}
               >
                 Cancel
