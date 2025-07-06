@@ -36,9 +36,7 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import Navbar from '../components/Navbar'
-import LoadingSpinner from '../components/LoadingSpinner'
-import BottomNavbar from '../components/BottomNavbar'
+import { Navbar, LoadingSpinner, BottomNavbar } from '../components'
 
 const TripPlanner = () => {
   const navigate = useNavigate()
