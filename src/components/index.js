@@ -13,6 +13,15 @@ export { default as TrendingCard } from './explore/TrendingCard'
 export { default as SortDropdown } from './explore/SortDropdown'
 export { default as ViewToggle } from './explore/ViewToggle'
 
+// Settings Components
+export { 
+  PersonalInfoModal, 
+  PaymentMethodsModal, 
+  PrivacySecurityModal, 
+  LanguageCurrencyModal, 
+  HelpSupportModal 
+} from './settings'
+
 // Dashboard Components
 // (Will be added when dashboard-specific components are created)
 
@@ -21,9 +30,6 @@ export { default as ViewToggle } from './explore/ViewToggle'
 
 // Profile Components
 // (Will be added when profile-specific components are created)
-
-// Settings Components
-// (Will be added when settings-specific components are created)
 
 // Bookings Components
 // (Will be added when bookings-specific components are created)
