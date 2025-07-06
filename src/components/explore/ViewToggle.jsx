@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Grid, List } from 'lucide-react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const ViewToggle = ({ viewMode, setViewMode }) => {
   const { isDark } = useTheme()

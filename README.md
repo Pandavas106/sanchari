@@ -68,12 +68,66 @@ npm run build
 
 ```
 src/
-├── components/          # React components
-├── contexts/           # React contexts (Theme)
-├── main.jsx           # App entry point
-├── App.jsx            # Main app component
-└── index.css          # Global styles
+├── components/             # React components (organized by feature)
+│   ├── common/            # Shared components
+│   │   ├── Navbar.jsx
+│   │   ├── BottomNavbar.jsx
+│   │   ├── LoadingSpinner.jsx
+│   │   ├── SearchModal.jsx
+│   │   └── NotificationCenter.jsx
+│   ├── explore/           # Explore page components
+│   │   ├── DestinationCard.jsx
+│   │   ├── FilterModal.jsx
+│   │   ├── CategoryFilter.jsx
+│   │   ├── TrendingCard.jsx
+│   │   ├── SortDropdown.jsx
+│   │   └── ViewToggle.jsx
+│   ├── dashboard/         # Dashboard components (to be added)
+│   ├── cart/             # Cart components (to be added)
+│   ├── profile/          # Profile components (to be added)
+│   ├── settings/         # Settings components (to be added)
+│   ├── bookings/         # Bookings components (to be added)
+│   ├── saved/            # Saved items components (to be added)
+│   ├── tripDetails/      # Trip details components (to be added)
+│   ├── auth/             # Authentication components (to be added)
+│   ├── onboarding/       # Onboarding components (to be added)
+│   └── index.js          # Component exports
+├── contexts/             # React contexts (Theme)
+├── pages/                # Page components
+├── main.jsx             # App entry point
+├── App.jsx              # Main app component
+└── index.css            # Global styles
 ```
+
+## 🏗️ Component Organization
+
+The components are now systematically organized into folders based on their page associations:
+
+### Common Components
+- **Navbar** - Main navigation bar for desktop and mobile
+- **BottomNavbar** - Mobile bottom navigation
+- **LoadingSpinner** - Reusable loading component
+- **SearchModal** - Global search functionality
+- **NotificationCenter** - Notification management
+
+### Explore Components
+- **DestinationCard** - Display destination information
+- **FilterModal** - Advanced filtering options
+- **CategoryFilter** - Category selection chips
+- **TrendingCard** - Trending destination cards
+- **SortDropdown** - Sorting options
+- **ViewToggle** - Grid/List view toggle
+
+### Future Component Folders
+- **dashboard/** - Dashboard-specific components
+- **cart/** - Shopping cart components
+- **profile/** - User profile components
+- **settings/** - Settings page components
+- **bookings/** - Booking management components
+- **saved/** - Saved items components
+- **tripDetails/** - Trip details components
+- **auth/** - Authentication components
+- **onboarding/** - Onboarding flow components
 
 ## 🌟 Key Features
 
@@ -83,6 +137,8 @@ src/
 - **Interactive Cards** - Hover effects and animations
 - **Form Handling** - Multi-step forms with validation
 - **State Management** - Context API for global state
+- **Component Reusability** - Modular component architecture
+- **Systematic Organization** - Clean folder structure for scalability
 
 ## 📄 License
 

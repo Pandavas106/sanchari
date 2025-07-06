@@ -3,16 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Star, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart, Grid, List, SlidersHorizontal, X, ChevronDown, Loader } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useNavigate, useLocation } from 'react-router-dom'
-import Navbar from '../components/Navbar'
-import BottomNavbar from '../components/BottomNavbar'
-import SearchModal from '../components/SearchModal'
-import FilterModal from '../components/FilterModal'
-import LoadingSpinner from '../components/LoadingSpinner'
-import DestinationCard from '../components/DestinationCard'
-import TrendingCard from '../components/TrendingCard'
-import CategoryFilter from '../components/CategoryFilter'
-import SortDropdown from '../components/SortDropdown'
-import ViewToggle from '../components/ViewToggle'
+import { 
+  Navbar, 
+  BottomNavbar, 
+  SearchModal, 
+  FilterModal, 
+  LoadingSpinner, 
+  DestinationCard, 
+  TrendingCard, 
+  CategoryFilter, 
+  SortDropdown, 
+  ViewToggle 
+} from '../components'
 
 const Explore = () => {
   const { isDark } = useTheme()

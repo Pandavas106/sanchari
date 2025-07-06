@@ -19,7 +19,7 @@ import {
   Heart,
   Settings as SettingsIcon
 } from 'lucide-react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const Navbar = ({ 
   onSearchOpen, 

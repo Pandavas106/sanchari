@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, MapPin, Clock, TrendingUp } from 'lucide-react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const SearchModal = ({ isOpen, onClose, onSearch }) => {
   const { isDark } = useTheme()

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Filter, DollarSign, Star, MapPin, Calendar } from 'lucide-react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const FilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters = {} }) => {
   const { isDark } = useTheme()

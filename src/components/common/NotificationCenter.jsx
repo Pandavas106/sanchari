@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bell, X, Check, Info, AlertTriangle, Gift, Plane } from 'lucide-react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const NotificationCenter = ({ isOpen, onClose, notificationCount, onMarkAsRead }) => {
   const { isDark } = useTheme()

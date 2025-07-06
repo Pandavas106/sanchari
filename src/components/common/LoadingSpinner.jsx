@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Plane } from 'lucide-react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const LoadingSpinner = ({ size = 'md', text = 'Loading...' }) => {
   const { isDark } = useTheme()

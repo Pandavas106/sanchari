@@ -12,7 +12,7 @@ import {
   User,
   Plus
 } from 'lucide-react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const BottomNavbar = ({ cartCount = 0 }) => {
   const navigate = useNavigate()
