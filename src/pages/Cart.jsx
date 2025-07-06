@@ -18,8 +18,7 @@ import {
   Truck
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import Navbar from '../components/Navbar'
-import BottomNavbar from '../components/BottomNavbar'
+import { Navbar, BottomNavbar } from '../components'
 
 const Cart = () => {
   const navigate = useNavigate()
