@@ -4,13 +4,9 @@ import { motion } from 'framer-motion'
 import { 
   Home, 
   Compass, 
-  MapPin, 
   Sparkles, 
-  Calendar, 
-  Heart, 
   ShoppingCart, 
-  User,
-  Plus
+  User
 } from 'lucide-react'
 import { useTheme } from '../../contexts/ThemeContext'
 
@@ -34,8 +30,8 @@ const BottomNavbar = ({ cartCount = 0 }) => {
     },
     { 
       path: '/trip-planner', 
-      label: 'Plan', 
-      icon: Plus,
+      label: 'AI Trips', 
+      icon: Sparkles,
       activeColor: isDark ? 'text-navy' : 'text-white',
       isSpecial: true
     },

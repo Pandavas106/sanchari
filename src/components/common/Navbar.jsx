@@ -13,7 +13,6 @@ import {
   X,
   Home,
   Compass,
-  MapPin,
   Sparkles,
   Calendar,
   Heart,
@@ -47,15 +46,9 @@ const Navbar = ({
     },
     { 
       path: '/trip-planner', 
-      label: 'Plan Trip', 
-      icon: MapPin,
-      description: 'Create your journey'
-    },
-    { 
-      path: '/ai-trips', 
       label: 'AI Trips', 
       icon: Sparkles,
-      description: 'AI recommendations'
+      description: 'AI-powered trip planning'
     },
     { 
       path: '/bookings', 
