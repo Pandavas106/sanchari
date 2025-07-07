@@ -200,6 +200,11 @@ service cloud.firestore {
     match /notifications/{document} {
       allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
     }
+    
+    // Users can create their own activity tracking data
+    match /userActivity/{document} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
   }
 }
 ```
