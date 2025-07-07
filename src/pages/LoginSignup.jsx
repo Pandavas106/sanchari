@@ -3,20 +3,38 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, Sun, Moon, Plane } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
 
 const LoginSignup = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: 'sarah.johnson@email.com',
+    password: 'password123'
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()
+  const { signIn } = useAuth()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Sign in - go to dashboard
-    navigate('/dashboard')
+    setLoading(true)
+    setError('')
+
+    try {
+      const result = await signIn(formData.email, formData.password)
+      
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.error || 'Login failed. Please try again.')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleInputChange = (e) => {
@@ -24,6 +42,8 @@ const LoginSignup = () => {
       ...formData,
       [e.target.name]: e.target.value
     })
+    // Clear error when user starts typing
+    if (error) setError('')
   }
 
   const bgGradient = isDark 
@@ -94,6 +114,17 @@ const LoginSignup = () => {
               </p>
             </div>
 
+            {/* Demo Credentials */}
+            <div className={`p-4 rounded-xl ${isDark ? 'bg-blue-600/20' : 'bg-blue-100'} border-l-4 border-blue-500`}>
+              <h3 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                Demo Credentials
+              </h3>
+              <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} space-y-1`}>
+                <p><strong>Email:</strong> sarah.johnson@email.com</p>
+                <p><strong>Password:</strong> password123</p>
+              </div>
+            </div>
+
             {/* Features */}
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
@@ -142,8 +173,6 @@ const LoginSignup = () => {
                 </div>
               </div>
             </div>
-
-
           </div>
 
           {/* Right Side - Form */}
@@ -155,12 +184,23 @@ const LoginSignup = () => {
             >
               {/* Glass Card */}
               <div className="glass-morphism rounded-3xl p-8 shadow-2xl">
-                {/* Only Sign In */}
                 <h2 className={`text-2xl font-bold mb-8 text-center ${
                   isDark ? 'text-yellow-400' : 'text-blue-600'
                 }`}>
                   Sign In
                 </h2>
+
+                {/* Error Message */}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 p-4 rounded-xl bg-red-500/20 border border-red-500/30"
+                  >
+                    <p className="text-red-500 text-sm font-medium">{error}</p>
+                  </motion.div>
+                )}
+
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="relative">
@@ -174,11 +214,12 @@ const LoginSignup = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
+                      disabled={loading}
                       className={`w-full pl-12 pr-4 py-4 rounded-xl border-0 ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
                           : 'bg-white/50 text-navy placeholder-gray-500'
-                      } focus:ring-2 focus:ring-blue-500`}
+                      } focus:ring-2 focus:ring-blue-500 disabled:opacity-50`}
                     />
                   </div>
 
@@ -193,16 +234,18 @@ const LoginSignup = () => {
                       value={formData.password}
                       onChange={handleInputChange}
                       required
+                      disabled={loading}
                       className={`w-full pl-12 pr-12 py-4 rounded-xl border-0 ${
                         isDark 
                           ? 'bg-navy/50 text-white placeholder-gray-400' 
                           : 'bg-white/50 text-navy placeholder-gray-500'
-                      } focus:ring-2 focus:ring-blue-500`}
+                      } focus:ring-2 focus:ring-blue-500 disabled:opacity-50`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      disabled={loading}
                     >
                       {showPassword ? (
                         <EyeOff className="w-5 h-5 text-gray-400" />
@@ -217,6 +260,7 @@ const LoginSignup = () => {
                       <input
                         type="checkbox"
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        disabled={loading}
                       />
                       <span className={`ml-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                         Remember me
@@ -226,7 +270,8 @@ const LoginSignup = () => {
                       type="button"
                       className={`text-sm font-semibold ${
                         isDark ? 'text-yellow-400' : 'text-blue-600'
-                      } hover:opacity-80`}
+                      } hover:opacity-80 disabled:opacity-50`}
+                      disabled={loading}
                     >
                       Forgot password?
                     </button>
@@ -234,15 +279,23 @@ const LoginSignup = () => {
 
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${
+                    whileHover={{ scale: loading ? 1 : 1.02 }}
+                    whileTap={{ scale: loading ? 1 : 0.98 }}
+                    disabled={loading}
+                    className={`w-full py-4 rounded-xl font-semibold text-lg transition-all flex items-center justify-center space-x-2 ${
                       isDark 
                         ? 'bg-yellow-400 text-navy hover:bg-yellow-300' 
                         : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    Sign In
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        <span>Signing In...</span>
+                      </>
+                    ) : (
+                      <span>Sign In</span>
+                    )}
                   </motion.button>
                 </form>
 
@@ -260,7 +313,8 @@ const LoginSignup = () => {
                   <motion.button 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 px-4 bg-white rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center space-x-2"
+                    disabled={loading}
+                    className="w-full py-3 px-4 bg-white rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
                     <span>🔍</span>
                     <span>Continue with Google</span>
@@ -269,7 +323,8 @@ const LoginSignup = () => {
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="py-3 px-4 bg-black rounded-xl font-semibold text-white hover:bg-gray-800 transition-all flex items-center justify-center space-x-2"
+                      disabled={loading}
+                      className="py-3 px-4 bg-black rounded-xl font-semibold text-white hover:bg-gray-800 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                     >
                       <span>🍎</span>
                       <span>Apple</span>
@@ -283,9 +338,10 @@ const LoginSignup = () => {
                   {"Don't have an account? "}
                   <button
                     onClick={() => navigate('/profile-setup')}
+                    disabled={loading}
                     className={`font-semibold ${
                       isDark ? 'text-yellow-400' : 'text-blue-600'
-                    } hover:opacity-80`}
+                    } hover:opacity-80 disabled:opacity-50`}
                   >
                     Sign up
                   </button>

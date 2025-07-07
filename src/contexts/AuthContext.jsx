@@ -32,6 +32,10 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  // Demo credentials
+  const DEMO_EMAIL = 'sarah.johnson@email.com'
+  const DEMO_PASSWORD = 'password123'
+
   useEffect(() => {
     // Check if user is logged in (localStorage for demo)
     const savedUser = localStorage.getItem('sanchari_user')
@@ -52,8 +56,8 @@ export const AuthProvider = ({ children }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Mock authentication - in real app this would be Firebase Auth
-      if (email && password) {
+      // Check demo credentials
+      if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
         const userData = { ...mockUser, email }
         setUser(userData)
         setIsAuthenticated(true)
@@ -65,7 +69,21 @@ export const AuthProvider = ({ children }) => {
         
         return { success: true, user: userData }
       } else {
-        throw new Error('Invalid credentials')
+        // For demo purposes, also accept any email with the demo password
+        if (password === DEMO_PASSWORD && email) {
+          const userData = { ...mockUser, email }
+          setUser(userData)
+          setIsAuthenticated(true)
+          
+          // Save to localStorage for persistence
+          localStorage.setItem('sanchari_user', JSON.stringify(userData))
+          localStorage.setItem('sanchari_auth', 'true')
+          localStorage.setItem('sanchari_login_time', new Date().toISOString())
+          
+          return { success: true, user: userData }
+        } else {
+          throw new Error('Invalid credentials. Please use the demo credentials provided.')
+        }
       }
     } catch (error) {
       console.error('Sign in error:', error)
