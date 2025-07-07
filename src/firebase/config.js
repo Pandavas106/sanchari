@@ -6,13 +6,13 @@ import { getAnalytics } from 'firebase/analytics'
 
 // Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCDduqEsMkkP9HVzXkdiDuxdR3i6Y36uDs",
-  authDomain: "sanchari-d123c.firebaseapp.com",
-  projectId: "sanchari-d123c",
-  storageBucket: "sanchari-d123c.firebasestorage.app",
-  messagingSenderId: "908808918153",
-  appId: "1:908808918153:web:bee7b19fde74de5d0d6258",
-  measurementId: "G-3EJ61YBQ5Q"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
 // Initialize Firebase

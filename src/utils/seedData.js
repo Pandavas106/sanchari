@@ -179,6 +179,40 @@ const destinationsData = [
     trending: true,
     aiMatch: 86,
     aiReasons: ["Urban explorer", "Entertainment lover", "Cultural enthusiast"]
+  },
+  {
+    name: "Machu Picchu, Peru",
+    location: "Cusco Region, Peru",
+    price: "From ₹60,000",
+    rating: 4.9,
+    reviews: 1543,
+    image: "https://images.unsplash.com/photo-1587595431973-160d0d94add1?auto=format&fit=crop&w=400&q=80",
+    tag: "Historic",
+    category: "Culture",
+    description: "Ancient Incan citadel perched high in the Andes Mountains",
+    duration: "7-9 days",
+    bestTime: "May-Sep",
+    highlights: ["Inca Trail", "Ancient Ruins", "Mountain Views"],
+    trending: true,
+    aiMatch: 94,
+    aiReasons: ["History enthusiast", "Adventure seeker", "Cultural explorer"]
+  },
+  {
+    name: "Serengeti, Tanzania",
+    location: "Northern Tanzania",
+    price: "From ₹95,000",
+    rating: 4.8,
+    reviews: 432,
+    image: "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=400&q=80",
+    tag: "Wildlife",
+    category: "Nature",
+    description: "Witness the Great Migration and incredible wildlife in their natural habitat",
+    duration: "8-12 days",
+    bestTime: "Jun-Oct",
+    highlights: ["Safari", "Great Migration", "Wildlife Photography"],
+    trending: false,
+    aiMatch: 87,
+    aiReasons: ["Wildlife enthusiast", "Photography lover", "Adventure seeker"]
   }
 ]
 
@@ -187,17 +221,22 @@ export const seedDestinations = async () => {
   try {
     console.log('🌱 Seeding destinations...')
     
+    let successCount = 0
+    let errorCount = 0
+    
     for (const destination of destinationsData) {
       const result = await createDocument('destinations', destination)
       if (result.success) {
         console.log(`✅ Created destination: ${destination.name}`)
+        successCount++
       } else {
         console.error(`❌ Failed to create destination ${destination.name}:`, result.error)
+        errorCount++
       }
     }
     
-    console.log('🎉 Destinations seeded successfully!')
-    return { success: true, count: destinationsData.length }
+    console.log(`🎉 Destinations seeding completed! Success: ${successCount}, Errors: ${errorCount}`)
+    return { success: true, successCount, errorCount, total: destinationsData.length }
   } catch (error) {
     console.error('❌ Error seeding destinations:', error)
     return { success: false, error: error.message }
@@ -207,9 +246,9 @@ export const seedDestinations = async () => {
 // Sample user data for demo
 export const createDemoUser = async () => {
   try {
-    console.log('👤 Creating demo user...')
+    console.log('👤 Creating demo user data...')
     
-    // This will be called after user signs up
+    // This will be used when demo user signs up
     const demoUserData = {
       email: 'demo@sanchari.com',
       firstName: 'Demo',
@@ -218,7 +257,11 @@ export const createDemoUser = async () => {
       travelPoints: 2450,
       memberSince: new Date(),
       preferences: ['Beach', 'Culture', 'Luxury'],
-      profileComplete: true
+      profileComplete: true,
+      phone: '+1 (555) 123-4567',
+      dateOfBirth: '1990-05-15',
+      location: 'New York, NY',
+      bio: 'Travel enthusiast who loves exploring new cultures and destinations.'
     }
     
     console.log('✅ Demo user data prepared')
@@ -229,9 +272,55 @@ export const createDemoUser = async () => {
   }
 }
 
+// Function to seed sample bookings for demo user
+export const seedDemoBookings = async (userId) => {
+  try {
+    console.log('📅 Seeding demo bookings...')
+    
+    const demoBookings = [
+      {
+        destinationId: 'maldives-001',
+        destinationName: 'Maldives Luxury Retreat',
+        status: 'ACTIVE',
+        checkInDate: new Date('2024-12-15'),
+        checkOutDate: new Date('2024-12-22'),
+        travelers: 2,
+        totalAmount: 144000,
+        bookingReference: 'BK001',
+        confirmationCode: 'CMD123456'
+      },
+      {
+        destinationId: 'bali-001',
+        destinationName: 'Bali Private Villa',
+        status: 'UPCOMING',
+        checkInDate: new Date('2025-01-10'),
+        checkOutDate: new Date('2025-01-18'),
+        travelers: 2,
+        totalAmount: 130000,
+        bookingReference: 'BK002',
+        confirmationCode: 'BLI789012'
+      }
+    ]
+    
+    let successCount = 0
+    for (const booking of demoBookings) {
+      const result = await createDocument('bookings', { ...booking, userId })
+      if (result.success) {
+        successCount++
+      }
+    }
+    
+    console.log(`✅ Demo bookings seeded: ${successCount}`)
+    return { success: true, count: successCount }
+  } catch (error) {
+    console.error('❌ Error seeding demo bookings:', error)
+    return { success: false, error: error.message }
+  }
+}
+
 // Function to seed all data
 export const seedAllData = async () => {
-  console.log('🚀 Starting data seeding process...')
+  console.log('🚀 Starting comprehensive data seeding process...')
   
   const results = {
     destinations: await seedDestinations(),
@@ -251,5 +340,22 @@ export const checkDataExists = async () => {
   } catch (error) {
     console.error('Error checking data:', error)
     return false
+  }
+}
+
+// Function to seed data for a specific user (called after signup)
+export const seedUserData = async (userId) => {
+  try {
+    console.log(`🌱 Seeding data for user: ${userId}`)
+    
+    const results = {
+      bookings: await seedDemoBookings(userId)
+    }
+    
+    console.log('✅ User data seeding completed:', results)
+    return results
+  } catch (error) {
+    console.error('❌ Error seeding user data:', error)
+    return { success: false, error: error.message }
   }
 }

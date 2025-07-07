@@ -1,7 +1,22 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { onAuthStateChange, signInWithEmail, createUserWithEmail, signOut as firebaseSignOut } from '../firebase/auth'
-import { createUserProfile, getUserProfile, updateUserProfile } from '../firebase/firestore'
+import { 
+  onAuthStateChange, 
+  signInWithEmail, 
+  createUserWithEmail, 
+  signOut as firebaseSignOut,
+  resetPassword as firebaseResetPassword,
+  updateUserPassword,
+  deleteUserAccount as firebaseDeleteAccount,
+  sendVerificationEmail
+} from '../firebase/auth'
+import { 
+  createUserProfile, 
+  getUserProfile, 
+  updateUserProfile,
+  createNotification,
+  trackUserActivity
+} from '../firebase/firestore'
 
 const AuthContext = createContext()
 
@@ -38,6 +53,13 @@ export const AuthProvider = ({ children }) => {
               ...profileResult.data
             }
             setUser(userData)
+            
+            // Track login activity
+            await trackUserActivity(firebaseUser.uid, {
+              type: 'login',
+              timestamp: new Date(),
+              method: 'email'
+            })
           } else {
             // Create basic user profile if it doesn't exist
             const basicProfile = {
@@ -47,10 +69,19 @@ export const AuthProvider = ({ children }) => {
               emailVerified: firebaseUser.emailVerified,
               travelPoints: 0,
               memberSince: new Date(),
-              preferences: []
+              preferences: [],
+              profileComplete: false
             }
             
             await createUserProfile(firebaseUser.uid, basicProfile)
+            
+            // Send welcome notification
+            await createNotification(firebaseUser.uid, {
+              type: 'welcome',
+              title: 'Welcome to Sanchari!',
+              message: 'Start exploring amazing destinations and plan your dream trips.',
+              icon: '🎉'
+            })
             
             setUser({
               uid: firebaseUser.uid,
@@ -108,10 +139,26 @@ export const AuthProvider = ({ children }) => {
           emailVerified: false,
           travelPoints: 0,
           memberSince: new Date(),
-          preferences: userData.preferences || []
+          preferences: userData.preferences || [],
+          profileComplete: true
         }
         
         await createUserProfile(authResult.user.uid, profileData)
+        
+        // Send welcome notification
+        await createNotification(authResult.user.uid, {
+          type: 'welcome',
+          title: 'Welcome to Sanchari!',
+          message: 'Your account has been created successfully. Start exploring amazing destinations!',
+          icon: '🎉'
+        })
+        
+        // Track signup activity
+        await trackUserActivity(authResult.user.uid, {
+          type: 'signup',
+          timestamp: new Date(),
+          method: 'email'
+        })
         
         return { success: true, user: authResult.user }
       } else {
@@ -128,6 +175,15 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setLoading(true)
+      
+      // Track logout activity
+      if (user?.uid) {
+        await trackUserActivity(user.uid, {
+          type: 'logout',
+          timestamp: new Date()
+        })
+      }
+      
       const result = await firebaseSignOut()
       
       if (result.success) {
@@ -156,6 +212,14 @@ export const AuthProvider = ({ children }) => {
         if (result.success) {
           // Update local user state
           setUser(prevUser => ({ ...prevUser, ...updates }))
+          
+          // Track profile update
+          await trackUserActivity(user.uid, {
+            type: 'profile_update',
+            timestamp: new Date(),
+            fields: Object.keys(updates)
+          })
+          
           return { success: true }
         } else {
           return { success: false, error: result.error }
@@ -174,8 +238,7 @@ export const AuthProvider = ({ children }) => {
   const resetPassword = async (email) => {
     try {
       setLoading(true)
-      const { resetPassword } = await import('../firebase/auth')
-      const result = await resetPassword(email)
+      const result = await firebaseResetPassword(email)
       
       if (result.success) {
         return { success: true, message: 'Password reset email sent' }
@@ -190,11 +253,53 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      setLoading(true)
+      const result = await updateUserPassword(currentPassword, newPassword)
+      
+      if (result.success) {
+        // Track password change
+        if (user?.uid) {
+          await trackUserActivity(user.uid, {
+            type: 'password_change',
+            timestamp: new Date()
+          })
+          
+          // Send notification
+          await createNotification(user.uid, {
+            type: 'security',
+            title: 'Password Changed',
+            message: 'Your password has been successfully updated.',
+            icon: '🔒'
+          })
+        }
+        
+        return { success: true, message: 'Password updated successfully' }
+      } else {
+        return { success: false, error: result.error }
+      }
+    } catch (error) {
+      console.error('Change password error:', error)
+      return { success: false, error: error.message }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const deleteAccount = async () => {
     try {
       setLoading(true)
-      const { deleteUserAccount } = await import('../firebase/auth')
-      const result = await deleteUserAccount()
+      
+      // Track account deletion
+      if (user?.uid) {
+        await trackUserActivity(user.uid, {
+          type: 'account_deletion',
+          timestamp: new Date()
+        })
+      }
+      
+      const result = await firebaseDeleteAccount()
       
       if (result.success) {
         setUser(null)
@@ -212,6 +317,51 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const sendEmailVerification = async () => {
+    try {
+      const result = await sendVerificationEmail()
+      
+      if (result.success) {
+        // Send notification
+        if (user?.uid) {
+          await createNotification(user.uid, {
+            type: 'info',
+            title: 'Verification Email Sent',
+            message: 'Please check your email and click the verification link.',
+            icon: '📧'
+          })
+        }
+        
+        return { success: true, message: 'Verification email sent' }
+      } else {
+        return { success: false, error: result.error }
+      }
+    } catch (error) {
+      console.error('Send verification error:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  const refreshUserProfile = async () => {
+    try {
+      if (user?.uid) {
+        const profileResult = await getUserProfile(user.uid)
+        
+        if (profileResult.success) {
+          setUser(prevUser => ({
+            ...prevUser,
+            ...profileResult.data
+          }))
+          return { success: true }
+        }
+      }
+      return { success: false, error: 'No user logged in' }
+    } catch (error) {
+      console.error('Refresh profile error:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -221,7 +371,10 @@ export const AuthProvider = ({ children }) => {
     signOut,
     updateProfile,
     resetPassword,
-    deleteAccount
+    changePassword,
+    deleteAccount,
+    sendEmailVerification,
+    refreshUserProfile
   }
 
   return (
