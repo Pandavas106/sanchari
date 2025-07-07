@@ -8,6 +8,7 @@ export { default as ProtectedRoute } from './common/ProtectedRoute'
 export { default as SignOutModal } from './common/SignOutModal'
 export { default as UserMenu } from './common/UserMenu'
 export { default as SessionTimeout } from './common/SessionTimeout'
+export { default as DataSeeder } from './common/DataSeeder'
 
 // Explore Components
 export { default as DestinationCard } from './explore/DestinationCard'

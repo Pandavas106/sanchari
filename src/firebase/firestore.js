@@ -6,6 +6,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -27,6 +28,7 @@ export const createDocument = async (collectionName, data) => {
     })
     return { success: true, id: docRef.id }
   } catch (error) {
+    console.error('Error creating document:', error)
     return { success: false, error: error.message }
   }
 }
@@ -42,6 +44,7 @@ export const getDocument = async (collectionName, docId) => {
       return { success: false, error: 'Document not found' }
     }
   } catch (error) {
+    console.error('Error getting document:', error)
     return { success: false, error: error.message }
   }
 }
@@ -55,6 +58,7 @@ export const updateDocument = async (collectionName, docId, data) => {
     })
     return { success: true }
   } catch (error) {
+    console.error('Error updating document:', error)
     return { success: false, error: error.message }
   }
 }
@@ -64,6 +68,7 @@ export const deleteDocument = async (collectionName, docId) => {
     await deleteDoc(doc(db, collectionName, docId))
     return { success: true }
   } catch (error) {
+    console.error('Error deleting document:', error)
     return { success: false, error: error.message }
   }
 }
@@ -91,6 +96,7 @@ export const getDocuments = async (collectionName, conditions = []) => {
     
     return { success: true, data: documents }
   } catch (error) {
+    console.error('Error getting documents:', error)
     return { success: false, error: error.message }
   }
 }
@@ -98,13 +104,15 @@ export const getDocuments = async (collectionName, conditions = []) => {
 // User-specific operations
 export const createUserProfile = async (userId, userData) => {
   try {
-    await updateDoc(doc(db, 'users', userId), {
+    const docRef = doc(db, 'users', userId)
+    await setDoc(docRef, {
       ...userData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     })
     return { success: true }
   } catch (error) {
+    console.error('Error creating user profile:', error)
     return { success: false, error: error.message }
   }
 }
@@ -183,24 +191,15 @@ export const getUserSavedItems = async (userId) => {
 export const updateUserCart = async (userId, cartItems) => {
   try {
     const cartRef = doc(db, 'carts', userId)
-    await updateDoc(cartRef, {
+    await setDoc(cartRef, {
       userId,
       items: cartItems,
       lastUpdated: serverTimestamp()
-    })
+    }, { merge: true })
     return { success: true }
   } catch (error) {
-    // If cart doesn't exist, create it
-    try {
-      await updateDoc(cartRef, {
-        userId,
-        items: cartItems,
-        lastUpdated: serverTimestamp()
-      })
-      return { success: true }
-    } catch (createError) {
-      return { success: false, error: createError.message }
-    }
+    console.error('Error updating cart:', error)
+    return { success: false, error: error.message }
   }
 }
 
@@ -258,5 +257,7 @@ export const subscribeToUserNotifications = (userId, callback) => {
       notifications.push({ id: doc.id, ...doc.data() })
     })
     callback(notifications)
+  }, (error) => {
+    console.error('Error in notifications listener:', error)
   })
 }

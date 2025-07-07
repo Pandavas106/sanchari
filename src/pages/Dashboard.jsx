@@ -21,16 +21,25 @@ import {
   User
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import { Navbar, BottomNavbar, SearchModal, NotificationCenter, LoadingSpinner } from '../components'
+import { useAuth } from '../contexts/AuthContext'
+import { useDestinations } from '../hooks/useDestinations'
+import { Navbar, BottomNavbar, SearchModal, NotificationCenter, LoadingSpinner, DataSeeder } from '../components'
 
 const Dashboard = () => {
   const navigate = useNavigate()
   const { isDark } = useTheme()
+  const { user } = useAuth()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [notificationCount, setNotificationCount] = useState(3)
   const [loading, setLoading] = useState(true)
   const [weatherData, setWeatherData] = useState(null)
+
+  // Fetch featured destinations
+  const { destinations: featuredDestinations, loading: destinationsLoading } = useDestinations({
+    trending: true,
+    limit: 4
+  })
 
   useEffect(() => {
     // Simulate loading
@@ -50,43 +59,6 @@ const Dashboard = () => {
   const bgGradient = isDark 
     ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
     : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
-
-  const recommendations = [
-    {
-      title: "Bali Paradise",
-      subtitle: "7 days • 2 people",
-      price: "$1,299",
-      originalPrice: "$1,599",
-      rating: "4.8",
-      tag: "Popular",
-      image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=400&q=80",
-      discount: "Save $300"
-    },
-    {
-      title: "Alpine Escape",
-      subtitle: "5 days • 2 people", 
-      price: "$1,099",
-      rating: "4.7",
-      tag: "New",
-      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80"
-    },
-    {
-      title: "Tokyo Adventure",
-      subtitle: "6 days • 2 people",
-      price: "$1,599",
-      rating: "4.9",
-      tag: "Trending",
-      image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=400&q=80"
-    },
-    {
-      title: "Santorini Dreams",
-      subtitle: "5 days • 2 people",
-      price: "$1,399",
-      rating: "4.8",
-      tag: "Romantic",
-      image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=400&q=80"
-    }
-  ]
 
   const categories = [
     { icon: Plane, label: "Flights", color: "bg-blue-500", count: "200+ deals" },
@@ -111,7 +83,7 @@ const Dashboard = () => {
     setNotificationCount(Math.max(0, notificationCount - 1))
   }
 
-  if (loading) {
+  if (loading || destinationsLoading) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center`}>
         <LoadingSpinner size="xl" text="Loading your dashboard..." />
@@ -146,7 +118,15 @@ const Dashboard = () => {
                       whileHover={{ scale: 1.1 }}
                       className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center"
                     >
-                      <User className="w-8 h-8 text-navy" />
+                      {user?.photoURL ? (
+                        <img 
+                          src={user.photoURL} 
+                          alt={user.displayName} 
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-8 h-8 text-navy" />
+                      )}
                     </motion.div>
                     <div>
                       <motion.p 
@@ -163,7 +143,7 @@ const Dashboard = () => {
                         transition={{ delay: 0.3 }}
                         className={`font-bold text-2xl ${isDark ? 'text-white' : 'text-navy'}`}
                       >
-                        Sarah!
+                        {user?.displayName || user?.firstName || 'Traveler'}!
                       </motion.h2>
                       <motion.div 
                         initial={{ opacity: 0 }}
@@ -187,7 +167,7 @@ const Dashboard = () => {
                       className={`p-4 rounded-xl ${isDark ? 'bg-yellow-400' : 'bg-blue-600'} text-center`}
                     >
                       <div className={`text-2xl font-bold ${isDark ? 'text-navy' : 'text-white'}`}>
-                        2,450
+                        {user?.travelPoints || 2450}
                       </div>
                       <div className={`text-sm font-semibold ${isDark ? 'text-navy' : 'text-white'}`}>
                         Travel Points
@@ -287,20 +267,20 @@ const Dashboard = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                {recommendations.slice(0, 4).map((item, index) => (
+                {featuredDestinations.slice(0, 4).map((item, index) => (
                   <motion.div
-                    key={index}
+                    key={item.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index }}
                     whileHover={{ scale: 1.05, y: -5 }}
                     whileTap={{ scale: 0.95 }}
                     className="relative rounded-2xl overflow-hidden cursor-pointer group"
-                    onClick={() => navigate('/trip-details')}
+                    onClick={() => navigate('/trip-details', { state: { destination: item } })}
                   >
                     <img
                       src={item.image}
-                      alt={item.title}
+                      alt={item.name}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -319,13 +299,13 @@ const Dashboard = () => {
                     {item.discount && (
                       <div className="absolute top-4 right-4">
                         <span className="px-2 py-1 rounded-lg text-xs font-bold bg-green-500 text-white">
-                          {item.discount}
+                          {item.discount}% OFF
                         </span>
                       </div>
                     )}
                     <div className="absolute bottom-4 left-4 right-4">
-                      <h4 className="font-bold text-white text-xl mb-1">{item.title}</h4>
-                      <p className="text-white/80 text-sm mb-2">{item.subtitle}</p>
+                      <h4 className="font-bold text-white text-xl mb-1">{item.name}</h4>
+                      <p className="text-white/80 text-sm mb-2">{item.location}</p>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-1">
                           <Star className="w-4 h-4 text-yellow-400 fill-current" />
@@ -499,6 +479,7 @@ const Dashboard = () => {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/explore', { state: { searchQuery: 'Bali' } })}
                   className={`px-4 py-2 rounded-lg font-semibold ${
                     isDark ? 'bg-navy text-white' : 'bg-white text-blue-600'
                   } hover:opacity-90 transition-opacity`}
@@ -523,6 +504,9 @@ const Dashboard = () => {
         notificationCount={notificationCount}
         onMarkAsRead={handleNotificationRead}
       />
+
+      {/* Data Seeder */}
+      <DataSeeder />
 
       {/* Bottom Navigation */}
       <BottomNavbar cartCount={2} />
