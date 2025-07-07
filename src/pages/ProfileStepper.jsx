@@ -225,8 +225,17 @@ const ProfileStepper = () => {
       if (result.success) {
         navigate('/dashboard')
       } else {
-        setErrors({ submit: result.error })
-        setCurrentStep(2) // Go back to password step if signup fails
+        // Handle different types of errors and navigate to appropriate step
+        if (result.error.includes('email already exists') || result.error.includes('email-already-in-use')) {
+          setErrors({ email: result.error })
+          setCurrentStep(2) // Go back to email step for email errors
+        } else if (result.error.includes('password') || result.error.includes('weak-password')) {
+          setErrors({ password: result.error })
+          setCurrentStep(3) // Go back to password step for password errors
+        } else {
+          setErrors({ submit: result.error })
+          setCurrentStep(2) // Default to email step for other errors
+        }
       }
     } catch (error) {
       setErrors({ submit: 'An unexpected error occurred. Please try again.' })
@@ -341,6 +350,19 @@ const ProfileStepper = () => {
               <p className={`text-xs mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 This will be your login email address
               </p>
+              {errors.email && errors.email.includes('email already exists') && (
+                <div className={`mt-3 p-3 rounded-lg ${isDark ? 'bg-blue-500/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-500/30' : 'border-blue-200'}`}>
+                  <p className={`text-sm ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                    Already have an account? 
+                    <button 
+                      onClick={() => navigate('/login')}
+                      className={`ml-1 font-semibold underline hover:no-underline ${isDark ? 'text-blue-200' : 'text-blue-600'}`}
+                    >
+                      Sign in instead
+                    </button>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )
