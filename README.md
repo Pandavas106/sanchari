@@ -74,7 +74,56 @@ npm install
 4. Enable Storage
 5. Get your Firebase config keys
 
-### 3. Environment Configuration
+### 3. Configure Firestore Security Rules
+
+**IMPORTANT**: You must configure Firestore security rules before the app will work properly.
+
+1. Go to your [Firebase Console](https://console.firebase.google.com)
+2. Select your project
+3. Navigate to **Firestore Database** → **Rules**
+4. Replace the default rules with the rules provided in the "Firebase Security Rules" section below
+5. Click **Publish** to deploy the rules
+
+### 4. Create Required Firestore Indexes
+
+**IMPORTANT**: The app requires specific composite indexes to function properly.
+
+#### Required Indexes:
+
+1. **savedItems Collection Index**:
+   - Go to **Firestore Database** → **Indexes** → **Composite**
+   - Click **Create Index**
+   - Collection ID: `savedItems`
+   - Fields:
+     - `userId` (Ascending)
+     - `savedDate` (Descending)
+   - Click **Create**
+
+2. **notifications Collection Index**:
+   - Collection ID: `notifications`
+   - Fields:
+     - `userId` (Ascending)
+     - `read` (Ascending)
+     - `createdAt` (Descending)
+   - Click **Create**
+
+3. **bookings Collection Index**:
+   - Collection ID: `bookings`
+   - Fields:
+     - `userId` (Ascending)
+     - `createdAt` (Descending)
+   - Click **Create**
+
+4. **reviews Collection Index**:
+   - Collection ID: `reviews`
+   - Fields:
+     - `destinationId` (Ascending)
+     - `createdAt` (Descending)
+   - Click **Create**
+
+**Note**: Index creation can take several minutes. The app may show errors until all indexes are built.
+
+### 5. Environment Configuration
 
 1. Copy `.env.example` to `.env`
 2. Fill in your Firebase configuration:
@@ -88,7 +137,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
 VITE_FIREBASE_APP_ID=your-app-id
 ```
 
-### 4. Update Firebase Config
+### 6. Update Firebase Config
 
 Edit `src/firebase/config.js` with your Firebase configuration:
 
@@ -103,7 +152,7 @@ const firebaseConfig = {
 }
 ```
 
-### 5. Seed Initial Data (Optional)
+### 7. Seed Initial Data (Optional)
 
 To populate your Firestore with sample destinations:
 
@@ -113,7 +162,7 @@ import { seedAllData } from './src/utils/seedData'
 seedAllData()
 ```
 
-### 6. Start Development Server
+### 8. Start Development Server
 
 ```bash
 npm run dev
@@ -204,6 +253,7 @@ service cloud.firestore {
     // Users can create their own activity tracking data
     match /userActivity/{document} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
     }
   }
 }
@@ -263,11 +313,34 @@ service firebase.storage {
 
 ## 🚨 Important Notes
 
+- **CRITICAL**: Configure Firestore security rules and create required indexes before running the app
+- Ensure all required Firestore indexes are created (see setup instructions above)
 - Ensure Firebase project has proper billing setup for production
-- Configure Firebase security rules before deploying
 - Set up proper error handling for offline scenarios
 - Implement proper loading states for all Firebase operations
 - Use Firebase emulators for local development
+
+## 🔧 Troubleshooting
+
+### Common Issues:
+
+1. **"Missing or insufficient permissions" error**:
+   - Ensure Firestore security rules are properly configured and published
+   - Verify the user is authenticated before making requests
+
+2. **"The query requires an index" error**:
+   - Create the required composite indexes in Firebase Console
+   - Wait for index creation to complete (can take several minutes)
+
+3. **Authentication errors**:
+   - Verify Firebase configuration in `.env` file
+   - Ensure Authentication is enabled in Firebase Console
+   - Check that Email/Password provider is enabled
+
+4. **Data not loading**:
+   - Check browser console for specific error messages
+   - Verify Firestore security rules allow read access
+   - Ensure required indexes are created and active
 
 ## 📄 License
 
