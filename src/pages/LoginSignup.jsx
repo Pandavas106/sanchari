@@ -8,8 +8,8 @@ import { useAuth } from '../contexts/AuthContext'
 const LoginSignup = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: 'sarah.johnson@email.com',
-    password: 'password123'
+    email: '',
+    password: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -120,8 +120,11 @@ const LoginSignup = () => {
                 Demo Credentials
               </h3>
               <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} space-y-1`}>
-                <p><strong>Email:</strong> sarah.johnson@email.com</p>
-                <p><strong>Password:</strong> password123</p>
+                <p><strong>Email:</strong> demo@sanchari.com</p>
+                <p><strong>Password:</strong> demo123</p>
+                <p className="text-xs mt-2 opacity-75">
+                  Or create a new account with any email and password
+                </p>
               </div>
             </div>
 

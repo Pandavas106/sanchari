@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { onAuthStateChange, signInWithEmail, createUserWithEmail, signOut as firebaseSignOut } from '../firebase/auth'
+import { createUserProfile, getUserProfile, updateUserProfile } from '../firebase/firestore'
 
 const AuthContext = createContext()
 
@@ -17,73 +19,71 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const navigate = useNavigate()
 
-  // Mock user data - in real app this would come from Firebase Auth
-  const mockUser = {
-    uid: 'user123',
-    email: 'sarah.johnson@email.com',
-    displayName: 'Sarah Johnson',
-    photoURL: null,
-    emailVerified: true,
-    createdAt: new Date('2023-01-15'),
-    lastLoginAt: new Date(),
-    metadata: {
-      creationTime: '2023-01-15',
-      lastSignInTime: new Date().toISOString()
-    }
-  }
-
-  // Demo credentials
-  const DEMO_EMAIL = 'sarah.johnson@email.com'
-  const DEMO_PASSWORD = 'password123'
-
   useEffect(() => {
-    // Check if user is logged in (localStorage for demo)
-    const savedUser = localStorage.getItem('sanchari_user')
-    const isLoggedIn = localStorage.getItem('sanchari_auth') === 'true'
-    
-    if (savedUser && isLoggedIn) {
-      setUser(JSON.parse(savedUser))
-      setIsAuthenticated(true)
-    }
-    
-    setLoading(false)
+    const unsubscribe = onAuthStateChange(async (firebaseUser) => {
+      if (firebaseUser) {
+        // User is signed in
+        try {
+          // Get user profile from Firestore
+          const profileResult = await getUserProfile(firebaseUser.uid)
+          
+          if (profileResult.success) {
+            // Merge Firebase auth data with Firestore profile data
+            const userData = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL,
+              emailVerified: firebaseUser.emailVerified,
+              ...profileResult.data
+            }
+            setUser(userData)
+          } else {
+            // Create basic user profile if it doesn't exist
+            const basicProfile = {
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName || '',
+              photoURL: firebaseUser.photoURL || null,
+              emailVerified: firebaseUser.emailVerified,
+              travelPoints: 0,
+              memberSince: new Date(),
+              preferences: []
+            }
+            
+            await createUserProfile(firebaseUser.uid, basicProfile)
+            
+            setUser({
+              uid: firebaseUser.uid,
+              ...basicProfile
+            })
+          }
+          
+          setIsAuthenticated(true)
+        } catch (error) {
+          console.error('Error loading user profile:', error)
+          setUser(null)
+          setIsAuthenticated(false)
+        }
+      } else {
+        // User is signed out
+        setUser(null)
+        setIsAuthenticated(false)
+      }
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
   }, [])
 
   const signIn = async (email, password) => {
     try {
       setLoading(true)
+      const result = await signInWithEmail(email, password)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Check demo credentials
-      if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-        const userData = { ...mockUser, email }
-        setUser(userData)
-        setIsAuthenticated(true)
-        
-        // Save to localStorage for persistence
-        localStorage.setItem('sanchari_user', JSON.stringify(userData))
-        localStorage.setItem('sanchari_auth', 'true')
-        localStorage.setItem('sanchari_login_time', new Date().toISOString())
-        
-        return { success: true, user: userData }
+      if (result.success) {
+        return { success: true, user: result.user }
       } else {
-        // For demo purposes, also accept any email with the demo password
-        if (password === DEMO_PASSWORD && email) {
-          const userData = { ...mockUser, email }
-          setUser(userData)
-          setIsAuthenticated(true)
-          
-          // Save to localStorage for persistence
-          localStorage.setItem('sanchari_user', JSON.stringify(userData))
-          localStorage.setItem('sanchari_auth', 'true')
-          localStorage.setItem('sanchari_login_time', new Date().toISOString())
-          
-          return { success: true, user: userData }
-        } else {
-          throw new Error('Invalid credentials. Please use the demo credentials provided.')
-        }
+        return { success: false, error: result.error }
       }
     } catch (error) {
       console.error('Sign in error:', error)
@@ -97,25 +97,26 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Create Firebase auth user
+      const authResult = await createUserWithEmail(email, password, userData)
       
-      const newUser = {
-        ...mockUser,
-        email,
-        displayName: `${userData.firstName} ${userData.lastName}`,
-        ...userData
+      if (authResult.success) {
+        // Create user profile in Firestore
+        const profileData = {
+          ...userData,
+          email,
+          emailVerified: false,
+          travelPoints: 0,
+          memberSince: new Date(),
+          preferences: userData.preferences || []
+        }
+        
+        await createUserProfile(authResult.user.uid, profileData)
+        
+        return { success: true, user: authResult.user }
+      } else {
+        return { success: false, error: authResult.error }
       }
-      
-      setUser(newUser)
-      setIsAuthenticated(true)
-      
-      // Save to localStorage
-      localStorage.setItem('sanchari_user', JSON.stringify(newUser))
-      localStorage.setItem('sanchari_auth', 'true')
-      localStorage.setItem('sanchari_login_time', new Date().toISOString())
-      
-      return { success: true, user: newUser }
     } catch (error) {
       console.error('Sign up error:', error)
       return { success: false, error: error.message }
@@ -127,29 +128,16 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setLoading(true)
+      const result = await firebaseSignOut()
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Clear user data
-      setUser(null)
-      setIsAuthenticated(false)
-      
-      // Clear localStorage
-      localStorage.removeItem('sanchari_user')
-      localStorage.removeItem('sanchari_auth')
-      localStorage.removeItem('sanchari_login_time')
-      localStorage.removeItem('sanchari_cart')
-      localStorage.removeItem('sanchari_saved_items')
-      localStorage.removeItem('sanchari_search_history')
-      
-      // Clear any other app-specific data
-      localStorage.removeItem('theme')
-      
-      // Navigate to welcome page
-      navigate('/')
-      
-      return { success: true }
+      if (result.success) {
+        setUser(null)
+        setIsAuthenticated(false)
+        navigate('/')
+        return { success: true }
+      } else {
+        return { success: false, error: result.error }
+      }
     } catch (error) {
       console.error('Sign out error:', error)
       return { success: false, error: error.message }
@@ -162,16 +150,19 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const updatedUser = { ...user, ...updates }
-      setUser(updatedUser)
-      
-      // Update localStorage
-      localStorage.setItem('sanchari_user', JSON.stringify(updatedUser))
-      
-      return { success: true, user: updatedUser }
+      if (user?.uid) {
+        const result = await updateUserProfile(user.uid, updates)
+        
+        if (result.success) {
+          // Update local user state
+          setUser(prevUser => ({ ...prevUser, ...updates }))
+          return { success: true }
+        } else {
+          return { success: false, error: result.error }
+        }
+      } else {
+        return { success: false, error: 'No user logged in' }
+      }
     } catch (error) {
       console.error('Update profile error:', error)
       return { success: false, error: error.message }
@@ -183,14 +174,14 @@ export const AuthProvider = ({ children }) => {
   const resetPassword = async (email) => {
     try {
       setLoading(true)
+      const { resetPassword } = await import('../firebase/auth')
+      const result = await resetPassword(email)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // In real app, this would send password reset email
-      console.log('Password reset email sent to:', email)
-      
-      return { success: true, message: 'Password reset email sent' }
+      if (result.success) {
+        return { success: true, message: 'Password reset email sent' }
+      } else {
+        return { success: false, error: result.error }
+      }
     } catch (error) {
       console.error('Reset password error:', error)
       return { success: false, error: error.message }
@@ -202,21 +193,17 @@ export const AuthProvider = ({ children }) => {
   const deleteAccount = async () => {
     try {
       setLoading(true)
+      const { deleteUserAccount } = await import('../firebase/auth')
+      const result = await deleteUserAccount()
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Clear all data
-      setUser(null)
-      setIsAuthenticated(false)
-      
-      // Clear localStorage completely
-      localStorage.clear()
-      
-      // Navigate to welcome page
-      navigate('/')
-      
-      return { success: true }
+      if (result.success) {
+        setUser(null)
+        setIsAuthenticated(false)
+        navigate('/')
+        return { success: true }
+      } else {
+        return { success: false, error: result.error }
+      }
     } catch (error) {
       console.error('Delete account error:', error)
       return { success: false, error: error.message }

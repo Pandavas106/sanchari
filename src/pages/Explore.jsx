@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Star, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart, Grid, List, SlidersHorizontal, X, ChevronDown, Loader } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useDestinations } from '../hooks/useDestinations'
+import { addToSaved, removeFromSaved, getUserSavedItems } from '../firebase/firestore'
 import { 
   Navbar, 
   BottomNavbar, 
@@ -18,6 +21,7 @@ import {
 
 const Explore = () => {
   const { isDark } = useTheme()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   
@@ -33,184 +37,17 @@ const Explore = () => {
   const [viewMode, setViewMode] = useState('grid')
   const [sortBy, setSortBy] = useState('popular')
   const [currentPage, setCurrentPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [destinations, setDestinations] = useState([])
-  const [filteredDestinations, setFilteredDestinations] = useState([])
 
   const itemsPerPage = 12
 
-  // Mock data - In real app, this would come from API
-  const allDestinations = [
-    {
-      id: 1,
-      name: "Santorini, Greece",
-      location: "Cyclades, Greece",
-      price: "From ₹45,000",
-      originalPrice: "₹55,000",
-      rating: 4.8,
-      reviews: 324,
-      image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=400&q=80",
-      tag: "Featured",
-      category: "Beach",
-      description: "Stunning sunsets and white-washed buildings overlooking the Aegean Sea",
-      duration: "5-7 days",
-      bestTime: "Apr-Oct",
-      highlights: ["Sunset Views", "Wine Tasting", "Volcanic Beaches"],
-      trending: true,
-      discount: 18
-    },
-    {
-      id: 2,
-      name: "Kyoto, Japan",
-      location: "Kansai, Japan",
-      price: "From ₹65,000",
-      rating: 4.9,
-      reviews: 567,
-      image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=400&q=80",
-      tag: "Cultural",
-      category: "Culture",
-      description: "Ancient temples, traditional gardens, and authentic Japanese culture",
-      duration: "6-8 days",
-      bestTime: "Mar-May, Sep-Nov",
-      highlights: ["Temples", "Gardens", "Traditional Culture"],
-      trending: true
-    },
-    {
-      id: 3,
-      name: "Maldives",
-      location: "Indian Ocean",
-      price: "From ₹85,000",
-      originalPrice: "₹95,000",
-      rating: 4.7,
-      reviews: 892,
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-      tag: "Luxury",
-      category: "Beach",
-      description: "Overwater bungalows and pristine coral reefs in paradise",
-      duration: "4-6 days",
-      bestTime: "Nov-Apr",
-      highlights: ["Overwater Villas", "Diving", "Spa Resorts"],
-      trending: false,
-      discount: 11
-    },
-    {
-      id: 4,
-      name: "Swiss Alps",
-      location: "Switzerland",
-      price: "From ₹75,000",
-      rating: 4.6,
-      reviews: 445,
-      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80",
-      tag: "Adventure",
-      category: "Mountains",
-      description: "Breathtaking alpine scenery and world-class skiing",
-      duration: "7-10 days",
-      bestTime: "Dec-Mar, Jun-Sep",
-      highlights: ["Skiing", "Hiking", "Mountain Views"],
-      trending: true
-    },
-    {
-      id: 5,
-      name: "Dubai, UAE",
-      location: "United Arab Emirates",
-      price: "From ₹55,000",
-      rating: 4.5,
-      reviews: 678,
-      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80",
-      tag: "Luxury",
-      category: "City",
-      description: "Modern marvels, luxury shopping, and desert adventures",
-      duration: "4-6 days",
-      bestTime: "Nov-Mar",
-      highlights: ["Shopping", "Architecture", "Desert Safari"],
-      trending: true
-    },
-    {
-      id: 6,
-      name: "Bali, Indonesia",
-      location: "Indonesia",
-      price: "From ₹35,000",
-      originalPrice: "₹42,000",
-      rating: 4.7,
-      reviews: 756,
-      image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=400&q=80",
-      tag: "Popular",
-      category: "Culture",
-      description: "Tropical paradise with rich culture and stunning landscapes",
-      duration: "6-8 days",
-      bestTime: "Apr-Oct",
-      highlights: ["Temples", "Rice Terraces", "Beaches"],
-      trending: true,
-      discount: 17
-    },
-    {
-      id: 7,
-      name: "Paris, France",
-      location: "Île-de-France, France",
-      price: "From ₹70,000",
-      rating: 4.8,
-      reviews: 1234,
-      image: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?auto=format&fit=crop&w=400&q=80",
-      tag: "Classic",
-      category: "City",
-      description: "The City of Light with iconic landmarks and world-class cuisine",
-      duration: "5-7 days",
-      bestTime: "Apr-Jun, Sep-Oct",
-      highlights: ["Eiffel Tower", "Museums", "Cuisine"],
-      trending: false
-    },
-    {
-      id: 8,
-      name: "Iceland",
-      location: "Nordic Island",
-      price: "From ₹80,000",
-      rating: 4.9,
-      reviews: 423,
-      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80",
-      tag: "Adventure",
-      category: "Nature",
-      description: "Land of fire and ice with stunning natural phenomena",
-      duration: "8-10 days",
-      bestTime: "Jun-Aug",
-      highlights: ["Northern Lights", "Geysers", "Waterfalls"],
-      trending: true
-    }
-  ]
+  // Fetch destinations using custom hook
+  const { destinations, loading: destinationsLoading, error } = useDestinations({
+    category: activeFilter !== 'All' ? activeFilter : undefined,
+    orderBy: sortBy === 'rating' ? 'rating' : sortBy === 'popular' ? 'reviews' : 'createdAt',
+    direction: 'desc'
+  })
 
-  const trendingDestinations = [
-    {
-      id: 1,
-      name: "Dubai",
-      properties: "2,847 properties",
-      growth: "+24%",
-      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80",
-      trending: true
-    },
-    {
-      id: 2,
-      name: "Tokyo", 
-      properties: "3,921 properties",
-      growth: "+18%",
-      image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=400&q=80",
-      trending: true
-    },
-    {
-      id: 3,
-      name: "Bali",
-      properties: "1,654 properties",
-      growth: "+32%",
-      image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=400&q=80",
-      trending: true
-    },
-    {
-      id: 4,
-      name: "Santorini",
-      properties: "892 properties",
-      growth: "+15%",
-      image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=400&q=80",
-      trending: false
-    }
-  ]
+  const [filteredDestinations, setFilteredDestinations] = useState([])
 
   const categories = ['All', 'Beach', 'Mountains', 'City', 'Culture', 'Nature', 'Adventure', 'Luxury']
   const sortOptions = [
@@ -221,28 +58,28 @@ const Explore = () => {
     { value: 'newest', label: 'Newest' }
   ]
 
-  // Initialize data
+  // Load user's saved items
   useEffect(() => {
-    setDestinations(allDestinations)
-    setFilteredDestinations(allDestinations)
-  }, [])
-
-  // Handle search query from navigation state
-  useEffect(() => {
-    if (location.state?.searchQuery) {
-      setSearchQuery(location.state.searchQuery)
-      handleSearch(location.state.searchQuery)
+    const loadSavedItems = async () => {
+      if (user?.uid) {
+        try {
+          const result = await getUserSavedItems(user.uid)
+          if (result.success) {
+            const savedItemIds = new Set(result.data.map(item => item.itemId))
+            setSavedItems(savedItemIds)
+          }
+        } catch (error) {
+          console.error('Error loading saved items:', error)
+        }
+      }
     }
-  }, [location.state])
+
+    loadSavedItems()
+  }, [user?.uid])
 
   // Filter and sort destinations
   useEffect(() => {
     let filtered = [...destinations]
-
-    // Apply category filter
-    if (activeFilter !== 'All') {
-      filtered = filtered.filter(dest => dest.category === activeFilter)
-    }
 
     // Apply search filter
     if (searchQuery) {
@@ -266,10 +103,6 @@ const Explore = () => {
       filtered = filtered.filter(dest => dest.rating >= appliedFilters.rating)
     }
 
-    if (appliedFilters.category && appliedFilters.category !== activeFilter) {
-      filtered = filtered.filter(dest => dest.category === appliedFilters.category)
-    }
-
     // Apply sorting
     switch (sortBy) {
       case 'price-low':
@@ -290,7 +123,7 @@ const Explore = () => {
         filtered.sort((a, b) => b.rating - a.rating)
         break
       case 'newest':
-        filtered.sort((a, b) => b.id - a.id)
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         break
       default: // popular
         filtered.sort((a, b) => b.reviews - a.reviews)
@@ -298,7 +131,15 @@ const Explore = () => {
 
     setFilteredDestinations(filtered)
     setCurrentPage(1)
-  }, [destinations, activeFilter, searchQuery, appliedFilters, sortBy])
+  }, [destinations, searchQuery, appliedFilters, sortBy])
+
+  // Handle search query from navigation state
+  useEffect(() => {
+    if (location.state?.searchQuery) {
+      setSearchQuery(location.state.searchQuery)
+      handleSearch(location.state.searchQuery)
+    }
+  }, [location.state])
 
   const handleSearch = (query) => {
     setSearchQuery(query)
@@ -306,16 +147,52 @@ const Explore = () => {
     setTimeout(() => setLoading(false), 800)
   }
 
-  const handleSaveItem = (itemId) => {
-    setSavedItems(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId)
+  const handleSaveItem = async (itemId) => {
+    if (!user?.uid) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      const destination = destinations.find(d => d.id === itemId)
+      if (!destination) return
+
+      if (savedItems.has(itemId)) {
+        // Remove from saved
+        const userSavedItems = await getUserSavedItems(user.uid)
+        if (userSavedItems.success) {
+          const savedItem = userSavedItems.data.find(item => item.itemId === itemId)
+          if (savedItem) {
+            await removeFromSaved(savedItem.id)
+            setSavedItems(prev => {
+              const newSet = new Set(prev)
+              newSet.delete(itemId)
+              return newSet
+            })
+          }
+        }
       } else {
-        newSet.add(itemId)
+        // Add to saved
+        const savedItemData = {
+          itemId: itemId,
+          itemType: 'Destination',
+          title: destination.name,
+          subtitle: destination.location,
+          price: destination.price,
+          image: destination.image,
+          description: destination.description,
+          rating: destination.rating,
+          savedDate: new Date()
+        }
+        
+        const result = await addToSaved(user.uid, savedItemData)
+        if (result.success) {
+          setSavedItems(prev => new Set([...prev, itemId]))
+        }
       }
-      return newSet
-    })
+    } catch (error) {
+      console.error('Error saving item:', error)
+    }
   }
 
   const handleApplyFilters = (filters) => {
@@ -341,10 +218,33 @@ const Explore = () => {
     ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
     : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
 
-  if (loading) {
+  if (destinationsLoading || loading) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center`}>
         <LoadingSpinner size="xl" text={searchQuery ? `Searching for "${searchQuery}"...` : "Loading destinations..."} />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className={`min-h-screen ${bgGradient} flex items-center justify-center`}>
+        <div className="text-center">
+          <h2 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
+            Error Loading Destinations
+          </h2>
+          <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} mb-4`}>
+            {error}
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className={`px-6 py-3 rounded-xl font-semibold ${
+              isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
+            }`}
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     )
   }
@@ -511,36 +411,6 @@ const Explore = () => {
                 />
               </div>
             </div>
-
-            {/* Trending Destinations */}
-            {!searchQuery && activeFilter === 'All' && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="mb-8 sm:mb-12"
-              >
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h2 className={`text-xl sm:text-2xl font-bold flex items-center space-x-2 ${isDark ? 'text-white' : 'text-navy'} min-w-0`}>
-                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <span className="truncate">Trending Now</span>
-                  </h2>
-                  <button className={`text-sm font-semibold ${isDark ? 'text-yellow-400' : 'text-blue-600'} hover:opacity-80 flex-shrink-0`}>
-                    See All
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                  {trendingDestinations.map((destination, index) => (
-                    <TrendingCard 
-                      key={destination.id}
-                      destination={destination}
-                      index={index}
-                      onClick={() => navigate('/trip-details')}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
 
             {/* Main Destinations Grid/List */}
             {filteredDestinations.length > 0 ? (
