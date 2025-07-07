@@ -11,21 +11,24 @@ import {
   Headphones, 
   Settings,
   LogOut,
-  Sun,
-  Moon,
   TrendingUp,
   Plane,
   Award,
   MapPin,
-  Camera
+  Camera,
+  Shield,
+  Clock
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import { Navbar, BottomNavbar } from '../components'
+import { useAuth } from '../contexts/AuthContext'
+import { Navbar, BottomNavbar, SignOutModal } from '../components'
 
 const Profile = () => {
   const navigate = useNavigate()
   const { isDark } = useTheme()
+  const { user } = useAuth()
   const [notificationCount, setNotificationCount] = useState(3)
+  const [showSignOutModal, setShowSignOutModal] = useState(false)
 
   const stats = [
     { label: "Trips", value: "24", icon: Plane, color: "text-blue-500" },
@@ -37,10 +40,10 @@ const Profile = () => {
   const menuItems = [
     { icon: Calendar, title: "My Bookings", subtitle: "View and manage trips", color: "text-orange-500", route: "/bookings" },
     { icon: Heart, title: "Favorites", subtitle: "Saved places & activities", color: "text-red-500", route: "/saved" },
-    { icon: CreditCard, title: "Payment Methods", subtitle: "Cards & payment options", color: "text-green-500" },
+    { icon: CreditCard, title: "Payment Methods", subtitle: "Cards & payment options", color: "text-green-500", route: "/settings" },
     { icon: Gift, title: "Referral Program", subtitle: "Invite friends & earn rewards", color: "text-purple-500" },
     { icon: Award, title: "Achievements", subtitle: "Travel milestones & badges", color: "text-yellow-500" },
-    { icon: Headphones, title: "Help & Support", subtitle: "Get assistance", color: "text-blue-500" },
+    { icon: Headphones, title: "Help & Support", subtitle: "Get assistance", color: "text-blue-500", route: "/settings" },
     { icon: Settings, title: "Settings", subtitle: "Privacy & preferences", color: "text-gray-500", route: "/settings" }
   ]
 
@@ -100,7 +103,17 @@ const Profile = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6 lg:mb-0">
                   <div className="relative">
                     <div className="w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center">
-                      <span className="text-3xl font-bold text-navy">S</span>
+                      {user?.photoURL ? (
+                        <img 
+                          src={user.photoURL} 
+                          alt={user.displayName} 
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-3xl font-bold text-navy">
+                          {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                        </span>
+                      )}
                     </div>
                     <button className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center ${
                       isDark ? 'bg-yellow-400' : 'bg-blue-600'
@@ -110,10 +123,10 @@ const Profile = () => {
                   </div>
                   <div>
                     <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'} mb-2`}>
-                      Sarah Johnson
+                      {user?.displayName || 'User'}
                     </h2>
                     <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
-                      sarah.johnson@email.com
+                      {user?.email}
                     </p>
                     <div className="flex items-center space-x-2">
                       <Star className="w-5 h-5 text-yellow-400 fill-current" />
@@ -124,6 +137,12 @@ const Profile = () => {
                         isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
                       }`}>
                         Elite
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Clock className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Member since {user?.createdAt ? new Date(user.createdAt).getFullYear() : '2023'}
                       </span>
                     </div>
                   </div>
@@ -141,6 +160,36 @@ const Profile = () => {
                     <div className="text-2xl font-bold text-yellow-400">3</div>
                     <div className="text-sm font-semibold text-yellow-400">Upcoming</div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Account Security Status */}
+            <div className={`p-6 rounded-2xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm mb-8`}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className={`font-bold text-xl ${isDark ? 'text-white' : 'text-navy'}`}>
+                  Account Security
+                </h3>
+                <Shield className={`w-6 h-6 ${user?.emailVerified ? 'text-green-500' : 'text-orange-500'}`} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${user?.emailVerified ? 'bg-green-500' : 'bg-orange-500'}`} />
+                  <span className={`text-sm ${isDark ? 'text-white' : 'text-navy'}`}>
+                    Email {user?.emailVerified ? 'Verified' : 'Pending'}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <span className={`text-sm ${isDark ? 'text-white' : 'text-navy'}`}>
+                    2FA Enabled
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <span className={`text-sm ${isDark ? 'text-white' : 'text-navy'}`}>
+                    Secure Login
+                  </span>
                 </div>
               </div>
             </div>
@@ -202,7 +251,8 @@ const Profile = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-4 bg-red-500/20 rounded-2xl font-semibold text-red-500 flex items-center justify-center space-x-2 mb-4"
+              onClick={() => setShowSignOutModal(true)}
+              className="w-full py-4 bg-red-500/20 rounded-2xl font-semibold text-red-500 flex items-center justify-center space-x-2 mb-4 border border-red-200"
             >
               <LogOut className="w-5 h-5" />
               <span>Sign Out</span>
@@ -349,6 +399,12 @@ const Profile = () => {
 
       {/* Bottom Navigation */}
       <BottomNavbar cartCount={2} />
+
+      {/* Sign Out Modal */}
+      <SignOutModal 
+        isOpen={showSignOutModal}
+        onClose={() => setShowSignOutModal(false)}
+      />
     </div>
   )
 }

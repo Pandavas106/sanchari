@@ -4,6 +4,10 @@ export { default as BottomNavbar } from './common/BottomNavbar'
 export { default as LoadingSpinner } from './common/LoadingSpinner'
 export { default as SearchModal } from './common/SearchModal'
 export { default as NotificationCenter } from './common/NotificationCenter'
+export { default as ProtectedRoute } from './common/ProtectedRoute'
+export { default as SignOutModal } from './common/SignOutModal'
+export { default as UserMenu } from './common/UserMenu'
+export { default as SessionTimeout } from './common/SessionTimeout'
 
 // Explore Components
 export { default as DestinationCard } from './explore/DestinationCard'

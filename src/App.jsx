@@ -1,6 +1,8 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { AuthProvider } from './contexts/AuthContext'
+import { ProtectedRoute, SessionTimeout } from './components'
 import WelcomeOnboarding from './pages/WelcomeOnboarding'
 import LoginSignup from './pages/LoginSignup'
 import ProfileStepper from './pages/ProfileStepper'
@@ -19,23 +21,71 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <div className="min-h-screen">
-          <Routes>
-            <Route path="/" element={<WelcomeOnboarding />} />
-            <Route path="/login" element={<LoginSignup />} />
-            <Route path="/profile-setup" element={<ProfileStepper />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/trip-planner" element={<TripPlanner />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/ai-trips" element={<AiSuggestedTrips />} />
-            <Route path="/trip-details" element={<TripDetails />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/saved" element={<Saved />} />
-            <Route path="/bookings" element={<MyBookings />} />
-          </Routes>
-        </div>
+        <AuthProvider>
+          <div className="min-h-screen">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<WelcomeOnboarding />} />
+              <Route path="/login" element={<LoginSignup />} />
+              <Route path="/profile-setup" element={<ProfileStepper />} />
+              
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/trip-planner" element={
+                <ProtectedRoute>
+                  <TripPlanner />
+                </ProtectedRoute>
+              } />
+              <Route path="/explore" element={
+                <ProtectedRoute>
+                  <Explore />
+                </ProtectedRoute>
+              } />
+              <Route path="/ai-trips" element={
+                <ProtectedRoute>
+                  <AiSuggestedTrips />
+                </ProtectedRoute>
+              } />
+              <Route path="/trip-details" element={
+                <ProtectedRoute>
+                  <TripDetails />
+                </ProtectedRoute>
+              } />
+              <Route path="/cart" element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } />
+              <Route path="/saved" element={
+                <ProtectedRoute>
+                  <Saved />
+                </ProtectedRoute>
+              } />
+              <Route path="/bookings" element={
+                <ProtectedRoute>
+                  <MyBookings />
+                </ProtectedRoute>
+              } />
+            </Routes>
+            
+            {/* Global Components */}
+            <SessionTimeout />
+          </div>
+        </AuthProvider>
       </Router>
     </ThemeProvider>
   )
