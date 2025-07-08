@@ -24,6 +24,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useDestinations } from '../hooks/useDestinations'
 import { Navbar, BottomNavbar, SearchModal, NotificationCenter, LoadingSpinner, DataSeeder } from '../components'
+import axios from 'axios'; // Add this if not already imported
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -34,6 +35,7 @@ const Dashboard = () => {
   const [notificationCount, setNotificationCount] = useState(3)
   const [loading, setLoading] = useState(true)
   const [weatherData, setWeatherData] = useState(null)
+  const [userLocation, setUserLocation] = useState(null)
 
   // Fetch featured destinations
   const { destinations: featuredDestinations, loading: destinationsLoading } = useDestinations({
@@ -42,17 +44,72 @@ const Dashboard = () => {
   })
 
   useEffect(() => {
+    // Get user's real location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          setUserLocation({ lat, lon });
+
+          // Fetch city name using reverse geocoding (OpenStreetMap Nominatim)
+          let locationName = "Your Location";
+          try {
+            const geoRes = await axios.get(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+            );
+            locationName = geoRes.data.address.city ||
+              geoRes.data.address.town ||
+              geoRes.data.address.village ||
+              geoRes.data.address.state ||
+              "Your Location";
+          } catch (e) {
+            // fallback to coordinates
+            locationName = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+          }
+
+          // Fetch weather using Open-Meteo (no API key required)
+          try {
+            const weatherRes = await axios.get(
+              `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
+            );
+            const weather = weatherRes.data.current_weather;
+            setWeatherData({
+              location: locationName,
+              temperature: `${weather.temperature}°C`,
+              condition: weather.weathercode === 0 ? "Clear" : "See details",
+              recommendation: "Enjoy your day!"
+            });
+          } catch (e) {
+            setWeatherData({
+              location: locationName,
+              temperature: "",
+              condition: "",
+              recommendation: ""
+            });
+          }
+        },
+        () => {
+          // If user denies location, fallback to default
+          setWeatherData({
+            location: "Unknown",
+            temperature: "",
+            condition: "",
+            recommendation: ""
+          });
+        }
+      );
+    } else {
+      setWeatherData({
+        location: "Unknown",
+        temperature: "",
+        condition: "",
+        recommendation: ""
+      });
+    }
+
     // Simulate loading
     const timer = setTimeout(() => setLoading(false), 1500)
-    
-    // Simulate weather data fetch
-    setWeatherData({
-      location: 'New York, NY',
-      temperature: '22°C',
-      condition: 'Sunny',
-      recommendation: 'Perfect weather for exploring!'
-    })
-
     return () => clearTimeout(timer)
   }, [])
 
@@ -506,7 +563,7 @@ const Dashboard = () => {
       />
 
       {/* Data Seeder */}
-      <DataSeeder />
+      {/* <DataSeeder /> */}
 
       {/* Bottom Navigation */}
       <BottomNavbar cartCount={2} />

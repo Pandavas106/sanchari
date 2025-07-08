@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, Sun, Moon, Plane } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useGeolocation } from '../hooks/useGeolocation'
 
 const LoginSignup = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -16,6 +17,12 @@ const LoginSignup = () => {
   const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()
   const { signIn } = useAuth()
+  const { location, error: locationError, requestLocation } = useGeolocation()
+
+  useEffect(() => {
+    // Prompt for location on sign in/sign up
+    requestLocation()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -84,6 +91,34 @@ const LoginSignup = () => {
                   <Moon className="w-6 h-6 text-blue-600" />
                 )}
               </button>
+              {/* --- Add location button and info here --- */}
+              <button
+                onClick={requestLocation}
+                className={`flex items-center px-4 py-2 rounded-lg font-semibold transition-all ${
+                  location
+                    ? isDark
+                      ? 'bg-yellow-400 text-navy hover:bg-yellow-300'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : isDark
+                      ? 'bg-navy text-yellow-400 border border-yellow-400 hover:bg-yellow-400/10'
+                      : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-600/10'
+                }`}
+                title={location ? "Location enabled" : "Enable location"}
+              >
+                <span className="mr-2">{location ? "📍" : "📡"}</span>
+                {location ? "Location On" : "Enable Location"}
+              </button>
+              {location && (
+                <span className={`ml-2 text-xs ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>
+                  {location.lat}, {location.lon}
+                </span>
+              )}
+              {locationError && (
+                <span className="ml-2 text-xs text-red-500">
+                  {locationError}
+                </span>
+              )}
+              {/* --- End location button and info --- */}
               <button 
                 onClick={() => navigate('/')}
                 className={`px-4 py-2 rounded-lg font-semibold transition-all ${
@@ -349,6 +384,36 @@ const LoginSignup = () => {
                     Sign up
                   </button>
                 </p>
+
+                {/* Location Info */}
+                <div className="mt-6 p-4 rounded-xl bg-blue-500/20 border-l-4 border-blue-600">
+                  <h3 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
+                    Location Access
+                  </h3>
+                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    We use your location to personalize your experience and provide relevant content.
+                  </p>
+                  <button
+                    onClick={requestLocation}
+                    className={`mt-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                      isDark 
+                        ? 'bg-yellow-400 text-navy hover:bg-yellow-300' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    Enable Location
+                  </button>
+                  {location && (
+                    <div className={`mt-4 text-sm ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>
+                      Your location: {location.lat}, {location.lon}
+                    </div>
+                  )}
+                  {locationError && (
+                    <div className="mt-2 text-red-500 text-sm">
+                      {locationError}
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>
