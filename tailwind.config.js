@@ -9,6 +9,7 @@ export default {
       fontFamily: {
         'inter': ['Inter', 'sans-serif'],
         'playfair': ['Playfair Display', 'serif'],
+        'poppins': ['Poppins', 'sans-serif'],
       },
       colors: {
         navy: '#232946',
