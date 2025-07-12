@@ -70,7 +70,7 @@ function App() {
                   <Saved />
                 </ProtectedRoute>
               } />
-              <Route path="/bookings" element={
+              <Route path="/mybookings" element={
                 <ProtectedRoute>
                   <MyBookings />
                 </ProtectedRoute>

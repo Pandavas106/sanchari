@@ -454,7 +454,7 @@ export const trackUserActivity = async (userId, activity) => {
       url: window.location.href
     }
     
-    return await createDocument('userActivity', activityData)
+    return await createDocument('userActivities', activityData)
   } catch (error) {
     console.error('Error tracking user activity:', error)
     return { success: false, error: error.message }

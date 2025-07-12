@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { 
   ArrowLeft, 
   ArrowRight,
   DollarSign,
-  Calendar,
-  Users,
+  Calendar, 
+  Users, 
   MapPin,
   Check,
   Sparkles
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import { Navbar, LoadingSpinner, BottomNavbar } from '../components'
-import axios from 'axios';
+import { Navbar, LoadingSpinner } from '../components'
 import { useNavigate } from 'react-router-dom';
 import { generateGeminiTrip } from '../utils/geminiTripPlanner';
 
@@ -110,7 +109,7 @@ const steps = [
   { id: 'duration', title: 'Duration', subtitle: 'How many days?', icon: Calendar },
   { id: 'type', title: 'Trip Type', subtitle: 'What kind of trip?', icon: Sparkles },
   { id: 'companion', title: 'Companion', subtitle: 'Who\'s traveling?', icon: Users },
-  { id: 'location', title: 'Location', subtitle: 'Where are you from?', icon: MapPin },
+  { id: 'location', title: 'Location', subtitle: 'Where do you want to go?', icon: MapPin },
 ]
 
 const TripPlanner = () => {
@@ -149,9 +148,9 @@ const TripPlanner = () => {
   }
 
   const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
-    } else {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1)
+      } else {
       handleGenerate()
     }
   }
@@ -163,7 +162,7 @@ const TripPlanner = () => {
   }
 
   const goToStep = (stepIndex) => {
-    setCurrentStep(stepIndex)
+      setCurrentStep(stepIndex)
   }
 
   async function handleGenerate() {
@@ -224,7 +223,7 @@ const TripPlanner = () => {
                 placeholder="50000"
               />
             </div>
-            
+
             <div>
               <label className={`block text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>Budget Type</label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -257,38 +256,38 @@ const TripPlanner = () => {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <div>
+              <div>
               <label className={`block text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>How many days?</label>
-              <input
+                  <input
                 type="number"
                 value={selectedDays}
                 onChange={e => setSelectedDays(Number(e.target.value))}
                 min={1}
                 max={30}
                 className={`w-full p-4 text-xl rounded-xl border-2 ${
-                  isDark 
+                      isDark 
                     ? 'border-gray-600 bg-navy/50 text-white focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20' 
                     : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
                 }`}
               />
-            </div>
-            
+              </div>
+              
             <div className="grid grid-cols-3 gap-4">
               {[3, 5, 7, 10, 14, 21].map((days) => (
-                <motion.button
+                  <motion.button
                   key={days}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDays(days)}
-                  className={`p-4 rounded-xl border-2 transition-all text-center ${
+                      className={`p-4 rounded-xl border-2 transition-all text-center ${
                     selectedDays === days
-                      ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white')
+                          ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white')
                       : (isDark ? 'border-gray-600 text-white hover:border-yellow-400' : 'border-gray-300 text-gray-700 hover:border-blue-500')
-                  }`}
-                >
+                      }`}
+                    >
                   <div className="text-2xl font-bold">{days}</div>
                   <div className="text-sm">days</div>
-                </motion.button>
+                    </motion.button>
               ))}
             </div>
           </motion.div>
@@ -301,11 +300,11 @@ const TripPlanner = () => {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <div>
+                  <div>
               <label className="block text-lg font-semibold mb-4">What type of trip?</label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {tripTypes.map((type) => (
-                  <motion.button
+                    <motion.button
                     key={type.value}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -336,79 +335,67 @@ const TripPlanner = () => {
               <label className="block text-lg font-semibold mb-4">Who's traveling?</label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 {companionTypes.map((companion) => (
-                  <motion.button
+                <motion.button
                     key={companion.value}
                     whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedCompanion(companion.value)}
                     className={`p-6 rounded-xl border-2 transition-all text-center ${
                       selectedCompanion === companion.value
-                        ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white')
+                      ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white')
                         : (isDark ? 'border-gray-600 text-white hover:border-yellow-400' : 'border-gray-300 text-gray-700 hover:border-blue-500')
                     }`}
                   >
                     <div className="text-4xl mb-2">{companion.icon}</div>
                     <h3 className="font-bold text-lg">{companion.label}</h3>
-                  </motion.button>
-                ))}
+                </motion.button>
+              ))}
               </div>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                 <label className="block font-semibold mb-2">Adults</label>
-                <input
-                  type="number"
+                    <input
+                      type="number"
                   value={adults}
                   onChange={e => setAdults(Number(e.target.value))}
                   min={1}
                   className={`w-full p-3 rounded-lg border ${isDark ? 'border-gray-600 bg-navy/50 text-white' : 'border-gray-300'}`}
-                />
-              </div>
-              <div>
+                    />
+                  </div>
+                  <div>
                 <label className="block font-semibold mb-2">Children</label>
-                <input
-                  type="number"
+                    <input
+                      type="number"
                   value={children}
                   onChange={e => setChildren(Number(e.target.value))}
                   min={0}
                   className={`w-full p-3 rounded-lg border ${isDark ? 'border-gray-600 bg-navy/50 text-white' : 'border-gray-300'}`}
-                />
-              </div>
+                    />
+                  </div>
             </div>
           </motion.div>
         )
 
-      case 4: // Location
+      case 4: // Destination
         return (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="checkbox"
-                checked={autoLocation}
-                onChange={e => setAutoLocation(e.target.checked)}
-                id="autoLocation"
-                className="w-5 h-5"
-              />
-              <label htmlFor="autoLocation" className="font-semibold">Auto Detect Location</label>
-            </div>
-            
             <div>
-              <label className="block text-lg font-semibold mb-4">Current Location</label>
+              <label className={`block text-lg font-semibold mb-4 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>Destination</label>
               <input
                 type="text"
                 value={currentLocation}
                 onChange={e => setCurrentLocation(e.target.value)}
-                disabled={autoLocation}
-                className="w-full p-4 text-xl rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:bg-gray-100"
-                placeholder="Enter your city"
+                className={`w-full p-4 text-xl rounded-xl border-2 ${isDark ? 'border-gray-600 bg-navy/50 text-white focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20' : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'}`}
+                placeholder="Where do you want to go? (e.g., Paris, Tokyo, Goa)"
               />
-            </div>
-          </motion.div>
+              </div>
+                      </motion.div>
         )
 
       default:
@@ -417,64 +404,55 @@ const TripPlanner = () => {
   }
 
   if (isGenerating) {
-    return (
+        return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center`}>
         <div className="text-center max-w-md mx-auto px-6">
           <LoadingSpinner size="xl" />
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
             className="mt-8 space-y-4"
           >
-            <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
-              🤖 AI is crafting your perfect trip
-            </h2>
+            <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>🤖 AI is crafting your perfect trip</h2>
             <div className="space-y-3">
-              {[
-                '🔍 Analyzing your preferences...',
-                '🌍 Finding the best destinations...',
-                '📅 Optimizing your itinerary...',
-                '✨ Adding special experiences...'
-              ].map((text, index) => (
-                <motion.p
+              {[ '🔍 Analyzing your preferences...', '🌍 Finding the best destinations...', '📅 Optimizing your itinerary...', '✨ Adding special experiences...' ].map((text, index) => (
+              <motion.p
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+            animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1 + index * 0.5 }}
                   className={`text-left ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
                 >
                   {text}
                 </motion.p>
-              ))}
-            </div>
+                ))}
+              </div>
           </motion.div>
-        </div>
-      </div>
-    )
+            </div>
+              </div>
+        )
   }
 
   return (
-    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
+    <div className={`min-h-screen flex flex-col ${bgGradient}`}>
+      {/* Navbar */}
       <Navbar />
-      
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className={`text-3xl lg:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-navy'}`}>
-            🤖 AI Trip Planner
-          </h1>
-          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
-          </p>
-        </motion.div>
 
-        {/* Progress Bar */}
+      {/* Breadcrumb & Hero/Header */}
+      <div className="max-w-5xl mx-auto w-full px-6 pt-8 pb-2">
         <div className="mb-8">
+          <h1 className={`text-4xl font-bold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>AI Trip Planner</h1>
+          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Plan your next adventure with our AI-powered trip planner. Fill in your preferences and let us do the magic!</p>
+            </div>
+          </div>
+          
+      {/* Main Content: Two-column layout */}
+      <div className="max-w-5xl mx-auto w-full px-6 pb-16 flex flex-col md:flex-row gap-12">
+        {/* Main Column (Form) */}
+        <div className="w-full md:w-2/3">
+          {/* Progress Bar */}
+          <div className="mb-8">
           <div className={`w-full h-3 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'} overflow-hidden`}>
             <motion.div
               initial={{ width: 0 }}
@@ -482,229 +460,114 @@ const TripPlanner = () => {
               transition={{ duration: 0.5 }}
               className={`h-full rounded-full ${isDark ? 'bg-yellow-400' : 'bg-blue-600'}`}
             />
+            </div>
           </div>
-        </div>
-        
-        {/* Step Indicators */}
-        <div className="flex justify-between mb-8 overflow-x-auto pb-2">
-          {steps.map((step, index) => {
-            const Icon = step.icon
-            const isCompleted = index < currentStep
-            const isCurrent = index === currentStep
-            
-            return (
-              <motion.button
-                key={step.id}
-                onClick={() => goToStep(index)}
-                className={`flex flex-col items-center space-y-2 p-2 rounded-lg transition-all min-w-0 ${
-                  isCurrent ? (isDark ? 'bg-yellow-400/20' : 'bg-blue-600/20') : ''
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                  isCompleted 
-                    ? 'bg-green-500 border-green-500 text-white'
-                    : isCurrent 
-                      ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white')
-                      : (isDark ? 'border-gray-600 text-gray-400' : 'border-gray-300 text-gray-500')
-                }`}>
-                  {isCompleted ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    <Icon className="w-5 h-5" />
-                  )}
-                </div>
-                <span className={`text-xs font-medium text-center ${
-                  isCurrent 
-                    ? (isDark ? 'text-yellow-400' : 'text-blue-600')
-                    : (isDark ? 'text-gray-400' : 'text-gray-600')
-                }`}>
-                  {step.title}
-                </span>
-              </motion.button>
-            )
-          })}
-        </div>
+          
+          {/* Step Indicators (horizontal, web-like) */}
+          <div className="flex justify-between mb-8 overflow-x-auto pb-2">
+            {steps.map((step, index) => {
+              const Icon = step.icon
+              const isCompleted = index < currentStep
+              const isCurrent = index === currentStep
+              return (
+                <motion.button
+                  key={step.id}
+                  onClick={() => goToStep(index)}
+                  className={`flex flex-col items-center space-y-2 p-2 rounded-lg transition-all min-w-0 ${isCurrent ? (isDark ? 'bg-yellow-400/20' : 'bg-blue-600/20') : ''}`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${isCompleted ? 'bg-green-500 border-green-500 text-white' : isCurrent ? (isDark ? 'bg-yellow-400 border-yellow-400 text-navy' : 'bg-blue-600 border-blue-600 text-white') : (isDark ? 'border-gray-600 text-gray-400' : 'border-gray-300 text-gray-500')}`}>{isCompleted ? (<Check className="w-5 h-5" />) : (<Icon className="w-5 h-5" />)}</div>
+                  <span className={`text-xs font-medium text-center ${isCurrent ? (isDark ? 'text-yellow-400' : 'text-blue-600') : (isDark ? 'text-gray-400' : 'text-gray-600')}`}>{step.title}</span>
+                </motion.button>
+              )
+            })}
+          </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form */}
-          <div className="lg:col-span-2">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`${isDark ? 'bg-navy/50' : 'bg-white/70'} p-8 rounded-2xl shadow-lg backdrop-blur-sm`}
-            >
+          {/* Main Form Card */}
+          <div className={`${isDark ? 'bg-navy/70' : 'bg-white/90'} rounded-2xl shadow p-10 mb-10`}>
+            <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>{steps[currentStep].title}</h2>
+            <p className={`text-lg mb-8 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{steps[currentStep].subtitle}</p>
               <div className="mb-8">
-                <h2 className={`text-3xl font-bold mb-3 ${isDark ? 'text-white' : 'text-navy'}`}>
-                  {steps[currentStep].title}
-                </h2>
-                <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {steps[currentStep].subtitle}
-                </p>
-              </div>
-
               {renderStepContent()}
-
+            </div>
+            <hr className={`${isDark ? 'border-gray-700' : 'border-gray-200'} my-8`} />
               {/* Navigation */}
-              <div className="flex justify-between mt-8 pt-6 border-t border-gray-300">
+            <div className="flex justify-between">
                 {currentStep > 0 ? (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={prevStep}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-                      isDark 
-                        ? 'bg-navy/50 text-yellow-400 hover:bg-navy/70' 
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    <ArrowLeft className="w-5 h-5" />
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all ${isDark ? 'bg-navy/50 text-yellow-400 hover:bg-navy/70' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                  <ArrowLeft className="w-5 h-5" />
                     <span>Previous</span>
                   </motion.button>
-                ) : (
-                  <div />
-                )}
-
+              ) : (<div />)}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={nextStep}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-                    isDark 
-                      ? 'bg-yellow-400 text-navy hover:bg-yellow-300' 
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
-                >
-                  {currentStep === steps.length - 1 ? (
-                    <>
-                      <Sparkles className="w-5 h-5" />
-                      <span>Generate My Trip</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Continue</span>
-                      <ArrowRight className="w-5 h-5" />
-                    </>
-                  )}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all ${isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              >
+                {currentStep === steps.length - 1 ? (<><Sparkles className="w-5 h-5" /><span>Generate My Trip</span></>) : (<><span>Continue</span><ArrowRight className="w-5 h-5" /></>)}
                 </motion.button>
               </div>
-            </motion.div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              {/* Trip Summary */}
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className={`p-6 rounded-2xl ${isDark ? 'bg-navy/70' : 'bg-blue-100'}`}
-              >
-                <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
-                  Trip Summary
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Budget:</span>
-                    <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>₹{budget.toLocaleString()}</span>
+          {/* Error Message */}
+          {error && (
+            <div className={`mt-6 text-center font-semibold ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</div>
+          )}
                   </div>
-                  <div className="flex justify-between">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Type:</span>
-                    <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>{budgetTypes.find(b => b.value === budgetType)?.label}</span>
+                  
+        {/* Sidebar */}
+        <aside className="w-full md:w-1/3 flex flex-col gap-8">
+          {/* Trip Summary Card */}
+          <div className={`${isDark ? 'bg-navy/80 text-white' : 'bg-blue-100'} rounded-2xl shadow p-8 mb-4`}>
+            <h3 className={`font-bold text-xl mb-4 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>Trip Summary</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between"><span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Budget:</span><span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>₹{budget.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Type:</span><span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>{budgetTypes.find(b => b.value === budgetType)?.label}</span></div>
+              <div className="flex justify-between"><span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Duration:</span><span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>{selectedDays} days</span></div>
+              <div className="flex justify-between"><span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Trip Type:</span><span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>{tripTypes.find(t => t.value === selectedType)?.label}</span></div>
+              <div className="flex justify-between"><span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Companion:</span><span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>{companionTypes.find(c => c.value === selectedCompanion)?.label}</span></div>
+              <div className="flex justify-between"><span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Travelers:</span><span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>{adults + children} people</span></div>
+              <div className="flex justify-between"><span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Destination:</span><span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>{currentLocation}</span></div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Duration:</span>
-                    <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>{selectedDays} days</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Trip Type:</span>
-                    <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>{tripTypes.find(t => t.value === selectedType)?.label}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Companion:</span>
-                    <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>{companionTypes.find(c => c.value === selectedCompanion)?.label}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Travelers:</span>
-                    <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>{adults + children} people</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Location:</span>
-                    <span className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>{currentLocation}</span>
-                  </div>
+                  
+          {/* How it works/info card */}
+          <div className={`${isDark ? 'bg-navy/70 text-white' : 'bg-white/90'} rounded-2xl shadow p-6 mb-4`}>
+            <h4 className={`font-semibold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>How it works</h4>
+            <ul className={`text-sm space-y-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <li>1. Fill in your preferences step by step.</li>
+              <li>2. Our AI analyzes your input and finds the best options.</li>
+              <li>3. Get a personalized trip plan instantly!</li>
+            </ul>
                 </div>
-              </motion.div>
-
-              {/* AI Features */}
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className={`p-6 rounded-2xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm`}
-              >
-                <h3 className={`font-bold text-lg mb-4 ${isDark ? 'text-white' : 'text-navy'}`}>
-                  🤖 AI-Powered Features
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    'Smart Recommendations',
-                    'Optimized Itinerary', 
-                    'Budget Optimization',
-                    'Local Insights'
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-yellow-400' : 'bg-blue-500'}`} />
-                      <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{feature}</span>
+                
+          {/* Help/Contact card */}
+          <div className={`${isDark ? 'bg-navy/70 text-white' : 'bg-white/90'} rounded-2xl shadow p-6`}>
+            <h4 className={`font-semibold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>Need Help?</h4>
+            <p className={`text-sm mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Contact our support team for assistance or questions about planning your trip.</p>
+            <a href="mailto:help@sanchari.com" className={`${isDark ? 'text-yellow-400' : 'text-blue-600'} font-semibold hover:underline`}>help@sanchari.com</a>
                     </div>
-                  ))}
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
+        </aside>
+                  </div>
 
-        {/* Trip Suggestions */}
-        {suggestedTrips.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-10"
-          >
-            <h2 className={`text-2xl font-bold mb-6 text-center ${isDark ? 'text-white' : 'text-navy'}`}>Your Suggested Trips</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {suggestedTrips.map(trip => (
-                <motion.div 
-                  key={trip.name}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className={`p-6 rounded-xl ${isDark ? 'bg-navy/80' : 'bg-white/80'} shadow-lg border ${isDark ? 'border-gray-600' : 'border-gray-200'} flex flex-col`}
-                >
-                  <img src={trip.image} alt={trip.name} className="w-full h-40 object-cover rounded-lg mb-4" />
-                  <h3 className={`font-semibold text-lg mb-1 ${isDark ? 'text-white' : 'text-navy'}`}>{trip.name}</h3>
-                  <div className={`text-sm mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{trip.location}</div>
-                  <div className="flex gap-2 text-sm mb-2">
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Days: {trip.days}</span>
-                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>Budget: ₹{trip.minBudget.toLocaleString()} - ₹{trip.maxBudget.toLocaleString()}</span>
+      {/* Footer */}
+      <footer className={`${isDark ? 'bg-navy text-yellow-400' : 'bg-navy text-white'} w-full py-8 mt-auto`}>
+        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-sm">&copy; {new Date().getFullYear()} Sanchari. All rights reserved.</div>
+          <div className="flex gap-6 text-sm">
+            <a href="#" className="hover:underline">Privacy Policy</a>
+            <a href="#" className="hover:underline">Terms of Service</a>
+            <a href="#" className="hover:underline">Contact</a>
+                    </div>
                   </div>
-                  <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Type: {tripTypes.find(t => t.value === trip.type)?.label}, 
-                    Companion: {companionTypes.find(c => c.value === trip.companion)?.label}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-        {error && (
-          <div className={`mt-10 text-center font-semibold ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</div>
-        )}
-      </div>
-      
-      <BottomNavbar cartCount={2} />
+      </footer>
     </div>
   )
 }
