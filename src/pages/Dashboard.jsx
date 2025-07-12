@@ -25,6 +25,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useDestinations } from '../hooks/useDestinations'
 import { Navbar, BottomNavbar, SearchModal, NotificationCenter, LoadingSpinner, DataSeeder } from '../components'
 import axios from 'axios'; // Add this if not already imported
+import POICard from '../components/explore/POICard';
+import { useNearbyPOIs } from '../hooks/useNearbyPOIs';
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -42,6 +44,8 @@ const Dashboard = () => {
     trending: true,
     limit: 4
   })
+
+  const { pois, loading: poisLoading, error: poisError } = useNearbyPOIs(userLocation);
 
   useEffect(() => {
     // Get user's real location
@@ -322,62 +326,27 @@ const Dashboard = () => {
                   View All
                 </motion.button>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                {featuredDestinations.slice(0, 4).map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative rounded-2xl overflow-hidden cursor-pointer group"
-                    onClick={() => navigate('/trip-details', { state: { destination: item } })}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute top-4 left-4">
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2 + index * 0.1 }}
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
-                        }`}
-                      >
-                        {item.tag}
-                      </motion.span>
-                    </div>
-                    {item.discount && (
-                      <div className="absolute top-4 right-4">
-                        <span className="px-2 py-1 rounded-lg text-xs font-bold bg-green-500 text-white">
-                          {item.discount}% OFF
-                        </span>
-                      </div>
-                    )}
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h4 className="font-bold text-white text-xl mb-1">{item.name}</h4>
-                      <p className="text-white/80 text-sm mb-2">{item.location}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-white text-sm font-semibold">{item.rating}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {item.originalPrice && (
-                            <span className="text-white/60 text-sm line-through">{item.originalPrice}</span>
-                          )}
-                          <span className="text-white font-bold text-lg">{item.price}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+              {/* Nearby POIs Horizontal Scroll ONLY */}
+              <div>
+                <h4 className={`font-semibold text-lg mb-3 ${isDark ? 'text-white' : 'text-navy'}`}>Nearby Points of Interest</h4>
+                {poisLoading && (
+                  <div className="flex items-center justify-center py-8">
+                    <LoadingSpinner size="md" text="Finding nearby places..." />
+                  </div>
+                )}
+                {poisError && (
+                  <div className="text-red-500 text-center py-4">{poisError}</div>
+                )}
+                {!poisLoading && !poisError && pois.length === 0 && (
+                  <div className="text-gray-500 text-center py-4">No nearby points of interest found.</div>
+                )}
+                {!poisLoading && !poisError && pois.length > 0 && (
+                  <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
+                    {pois.map((poi, idx) => (
+                      <POICard key={poi.id} poi={poi} index={idx} />
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
 
