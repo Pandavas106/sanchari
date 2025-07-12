@@ -321,7 +321,7 @@ const Dashboard = () => {
                   className={`px-6 py-3 rounded-lg font-semibold ${
                     isDark ? 'bg-yellow-400 text-navy' : 'bg-blue-600 text-white'
                   } hover:opacity-90 transition-opacity`}
-                  onClick={() => navigate('/ai-trips')}
+                  onClick={() => navigate('/nearby-pois')}
                 >
                   View All
                 </motion.button>

@@ -1,12 +1,48 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Mountain, Landmark, Waves } from 'lucide-react';
+import { MapPin, Mountain, Landmark, Waves, Building, TreePine, Camera, Castle, Home, Users, Film, Zap } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
+// Category images mapping to Cloudinary URLs
+const categoryImages = {
+  temple: [
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304202/temple_1_ieqr33.jpg',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304229/temple_2_q1hteg.jpg',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304246/temple_3_vtm25s.jpg',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304265/temple_4_tvgdy5.jpg',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304286/temple_5_wkfhci.jpg'
+  ],
+  attraction: [
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304402/Attraction_1_sontrz.avif',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304420/Attraction_2_foiwac.avif',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304478/Attraction_3_kydpj0.avif',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304492/Attraction_4_glwl5n.avif',
+    'https://res.cloudinary.com/dvoh0lat7/image/upload/v1752304504/Attraction_5_z9l2s0.avif'
+  ]
+};
+
+// Enhanced category icon mapping with available lucide-react icons
 const categoryIcon = {
   Temple: Landmark,
   Beach: Waves,
   Mountain: Mountain,
+  'Mountain Peak': Mountain,
+  Attraction: Camera,
+  Museum: Building,
+  Park: TreePine,
+  Garden: TreePine,
+  Castle: Castle,
+  Theatre: Users,
+  Cinema: Film,
+  Zoo: Home,
+  Waterfall: Waves,
+  Cave: Mountain,
+  Historic: Landmark,
+  'Theme Park': Zap,
+  Aquarium: Waves,
+  Gallery: Camera,
+  Viewpoint: Camera,
+  Ruins: Landmark,
   POI: MapPin,
 };
 
@@ -16,6 +52,28 @@ const placeholderImg =
 const POICard = ({ poi, index, onClick }) => {
   const { isDark } = useTheme();
   const Icon = categoryIcon[poi.category] || MapPin;
+
+  // Get dynamic image based on category
+  const getCategoryImage = (category) => {
+    const categoryKey = category.toLowerCase();
+    const imagePool = categoryImages[categoryKey] || [];
+    
+    console.log(`POI Category: ${category}, Key: ${categoryKey}, Available images: ${imagePool.length}`);
+    
+    if (imagePool.length === 0) {
+      console.log(`No images available for category: ${categoryKey}`);
+      return null; // No images available for this category
+    }
+    
+    // Randomly select an image from the pool
+    const randomIndex = Math.floor(Math.random() * imagePool.length);
+    const selectedImage = imagePool[randomIndex];
+    console.log(`Selected image for ${categoryKey}: ${selectedImage}`);
+    
+    return selectedImage;
+  };
+
+  const dynamicImage = getCategoryImage(poi.category);
 
   return (
     <motion.div
@@ -30,7 +88,7 @@ const POICard = ({ poi, index, onClick }) => {
       onClick={onClick}
     >
       <img
-        src={poi.image || placeholderImg}
+        src={dynamicImage || placeholderImg}
         alt={poi.name}
         className="w-full h-36 object-cover group-hover:scale-110 transition-transform duration-300"
         loading="lazy"

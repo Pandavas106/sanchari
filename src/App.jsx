@@ -9,13 +9,13 @@ import ProfileStepper from './pages/ProfileStepper'
 import Dashboard from './pages/Dashboard'
 import TripPlanner from './pages/TripPlanner'
 import Explore from './pages/Explore'
-import AiSuggestedTrips from './pages/AiSuggestedTrips'
 import TripDetails from './pages/TripDetails'
 import Cart from './pages/Cart'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Saved from './pages/Saved'
 import MyBookings from './pages/MyBookings'
+import NearbyPOIs from './pages/NearbyPOIs';
 
 function App() {
   return (
@@ -43,11 +43,6 @@ function App() {
               <Route path="/explore" element={
                 <ProtectedRoute>
                   <Explore />
-                </ProtectedRoute>
-              } />
-              <Route path="/ai-trips" element={
-                <ProtectedRoute>
-                  <AiSuggestedTrips />
                 </ProtectedRoute>
               } />
               <Route path="/trip-details" element={
@@ -80,6 +75,7 @@ function App() {
                   <MyBookings />
                 </ProtectedRoute>
               } />
+              <Route path="/nearby-pois" element={<ProtectedRoute><NearbyPOIs /></ProtectedRoute>} />
             </Routes>
             
             {/* Global Components */}

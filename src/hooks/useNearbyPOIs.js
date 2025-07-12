@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
-const WIKIDATA_URL = 'https://www.wikidata.org/wiki/Special:EntityData/';
-const COMMONS_IMAGE_URL = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
 
 const buildOverpassQuery = (lat, lon, radius = 50000) => `
 [out:json][timeout:25];
@@ -64,21 +62,6 @@ const getPOICategory = (tags) => {
   return 'POI';
 };
 
-const fetchWikidataImage = async (wikidata) => {
-  try {
-    const qid = wikidata.replace('Q', 'Q');
-    const { data } = await axios.get(`${WIKIDATA_URL}${qid}.json`);
-    const entity = data.entities[qid];
-    if (entity && entity.claims && entity.claims.P18 && entity.claims.P18[0]) {
-      const imageName = entity.claims.P18[0].mainsnak.datavalue.value;
-      return `${COMMONS_IMAGE_URL}${encodeURIComponent(imageName)}`;
-    }
-  } catch (e) {
-    // Ignore error, fallback to placeholder
-  }
-  return null;
-};
-
 export const useNearbyPOIs = (location) => {
   const [pois, setPOIs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -99,28 +82,15 @@ export const useNearbyPOIs = (location) => {
         const elements = data.elements || [];
         // Limit to 20 POIs for performance
         const limited = elements.slice(0, 20);
-        const poisWithImages = await Promise.all(
-          limited.map(async (el) => {
-            let image = null;
-            // Prefer OSM image tag if present
-            if (el.tags && el.tags.image) {
-              image = el.tags.image;
-            } else if (el.tags && el.tags.wikidata) {
-              image = await fetchWikidataImage(el.tags.wikidata);
-            }
-            return {
-              id: el.id,
-              name: el.tags.name || 'Unknown',
-              category: getPOICategory(el.tags),
-              image,
-              location: el.tags['addr:city'] || el.tags['addr:town'] || el.tags['addr:state'] || '',
-              lat: el.lat,
-              lon: el.lon,
-              wikidata: el.tags.wikidata || null,
-            };
-          })
-        );
-        setPOIs(poisWithImages);
+        const poisData = limited.map((el) => ({
+          id: el.id,
+          name: el.tags.name || 'Unknown',
+          category: getPOICategory(el.tags),
+          location: el.tags['addr:city'] || el.tags['addr:town'] || el.tags['addr:state'] || '',
+          lat: el.lat,
+          lon: el.lon,
+        }));
+        setPOIs(poisData);
       } catch (err) {
         setError('Failed to fetch POIs');
       } finally {
