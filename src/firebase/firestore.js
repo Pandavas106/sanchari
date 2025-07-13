@@ -528,3 +528,266 @@ export const searchDestinations = async (searchQuery, filters = {}) => {
     return { success: false, error: error.message }
   }
 }
+
+// ==================== SHARED TRIPS FUNCTIONALITY ====================
+
+// Create a shared trip
+export const createSharedTrip = async (userId, tripData) => {
+  try {
+    const sharedTripData = {
+      ...tripData,
+      creatorId: userId,
+      isShared: true,
+      isPublic: true,
+      usageCount: 0,
+      ratings: [],
+      averageRating: 0,
+      totalRatings: 0,
+      tags: tripData.tags || [],
+      difficulty: tripData.difficulty || 'medium',
+      season: tripData.season || 'any',
+      shareDate: serverTimestamp(),
+      lastUpdated: serverTimestamp()
+    }
+    
+    const docRef = await addDoc(collection(db, 'sharedTrips'), sharedTripData)
+    return { success: true, id: docRef.id }
+  } catch (error) {
+    console.error('Error creating shared trip:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Get all shared trips with filtering and sorting
+export const getSharedTrips = async (filters = {}) => {
+  try {
+    const conditions = []
+    
+    // Always filter for public shared trips
+    conditions.push({ type: 'where', field: 'isPublic', operator: '==', value: true })
+    
+    // Apply filters
+    if (filters.category && filters.category !== 'All') {
+      conditions.push({ type: 'where', field: 'category', operator: '==', value: filters.category })
+    }
+    
+    if (filters.difficulty) {
+      conditions.push({ type: 'where', field: 'difficulty', operator: '==', value: filters.difficulty })
+    }
+    
+    if (filters.season) {
+      conditions.push({ type: 'where', field: 'season', operator: '==', value: filters.season })
+    }
+    
+    if (filters.maxDays) {
+      conditions.push({ type: 'where', field: 'days', operator: '<=', value: filters.maxDays })
+    }
+    
+    // Default sorting
+    const sortBy = filters.sortBy || 'popular'
+    switch (sortBy) {
+      case 'newest':
+        conditions.push({ type: 'orderBy', field: 'shareDate', direction: 'desc' })
+        break
+      case 'rating':
+        conditions.push({ type: 'orderBy', field: 'averageRating', direction: 'desc' })
+        break
+      case 'popular':
+        conditions.push({ type: 'orderBy', field: 'usageCount', direction: 'desc' })
+        break
+      case 'budget-low':
+        conditions.push({ type: 'orderBy', field: 'minBudget', direction: 'asc' })
+        break
+      case 'budget-high':
+        conditions.push({ type: 'orderBy', field: 'maxBudget', direction: 'desc' })
+        break
+      default:
+        conditions.push({ type: 'orderBy', field: 'shareDate', direction: 'desc' })
+    }
+    
+    if (filters.limit) {
+      conditions.push({ type: 'limit', value: filters.limit })
+    }
+    
+    const result = await getDocuments('sharedTrips', conditions)
+    
+    if (result.success && filters.searchQuery) {
+      // Client-side search filtering
+      const filteredData = result.data.filter(trip => 
+        trip.name?.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        trip.location?.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        trip.description?.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        trip.tags?.some(tag => tag.toLowerCase().includes(filters.searchQuery.toLowerCase()))
+      )
+      
+      return { success: true, data: filteredData }
+    }
+    
+    return result
+  } catch (error) {
+    console.error('Error getting shared trips:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Get shared trips by specific user
+export const getUserSharedTrips = async (userId) => {
+  try {
+    const conditions = [
+      { type: 'where', field: 'creatorId', operator: '==', value: userId },
+      { type: 'orderBy', field: 'shareDate', direction: 'desc' }
+    ]
+    
+    return await getDocuments('sharedTrips', conditions)
+  } catch (error) {
+    console.error('Error getting user shared trips:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Use a shared trip (increment usage count)
+export const useSharedTrip = async (sharedTripId, userId) => {
+  try {
+    const sharedTripRef = doc(db, 'sharedTrips', sharedTripId)
+    
+    // Update usage count
+    await updateDoc(sharedTripRef, {
+      usageCount: increment(1),
+      lastUsed: serverTimestamp()
+    })
+    
+    // Create a usage record
+    await addDoc(collection(db, 'tripUsage'), {
+      sharedTripId,
+      userId,
+      usedAt: serverTimestamp()
+    })
+    
+    return { success: true }
+  } catch (error) {
+    console.error('Error using shared trip:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Rate a shared trip
+export const rateSharedTrip = async (sharedTripId, userId, rating, comment = '') => {
+  try {
+    const sharedTripRef = doc(db, 'sharedTrips', sharedTripId)
+    
+    // Get current trip data
+    const tripDoc = await getDoc(sharedTripRef)
+    if (!tripDoc.exists()) {
+      return { success: false, error: 'Trip not found' }
+    }
+    
+    const tripData = tripDoc.data()
+    const currentRatings = tripData.ratings || []
+    
+    // Check if user has already rated
+    const existingRatingIndex = currentRatings.findIndex(r => r.userId === userId)
+    
+    const newRating = {
+      userId,
+      rating,
+      comment,
+      ratedAt: serverTimestamp()
+    }
+    
+    let updatedRatings
+    if (existingRatingIndex !== -1) {
+      // Update existing rating
+      updatedRatings = [...currentRatings]
+      updatedRatings[existingRatingIndex] = newRating
+    } else {
+      // Add new rating
+      updatedRatings = [...currentRatings, newRating]
+    }
+    
+    // Calculate new average
+    const totalRatings = updatedRatings.length
+    const averageRating = updatedRatings.reduce((sum, r) => sum + r.rating, 0) / totalRatings
+    
+    // Update trip with new rating data
+    await updateDoc(sharedTripRef, {
+      ratings: updatedRatings,
+      averageRating: Math.round(averageRating * 10) / 10,
+      totalRatings: totalRatings,
+      lastUpdated: serverTimestamp()
+    })
+    
+    return { success: true }
+  } catch (error) {
+    console.error('Error rating shared trip:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Get popular shared trips
+export const getPopularSharedTrips = async (limit = 10) => {
+  try {
+    const conditions = [
+      { type: 'where', field: 'isPublic', operator: '==', value: true },
+      { type: 'orderBy', field: 'usageCount', direction: 'desc' },
+      { type: 'limit', value: limit }
+    ]
+    
+    return await getDocuments('sharedTrips', conditions)
+  } catch (error) {
+    console.error('Error getting popular shared trips:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Get trending shared trips (high usage in recent days)
+export const getTrendingSharedTrips = async (limit = 10) => {
+  try {
+    const conditions = [
+      { type: 'where', field: 'isPublic', operator: '==', value: true },
+      { type: 'orderBy', field: 'averageRating', direction: 'desc' },
+      { type: 'limit', value: limit }
+    ]
+    
+    return await getDocuments('sharedTrips', conditions)
+  } catch (error) {
+    console.error('Error getting trending shared trips:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Search shared trips
+export const searchSharedTrips = async (searchQuery, filters = {}) => {
+  try {
+    const conditions = [
+      { type: 'where', field: 'isPublic', operator: '==', value: true }
+    ]
+    
+    // Apply filters
+    if (filters.category && filters.category !== 'All') {
+      conditions.push({ type: 'where', field: 'category', operator: '==', value: filters.category })
+    }
+    
+    if (filters.difficulty) {
+      conditions.push({ type: 'where', field: 'difficulty', operator: '==', value: filters.difficulty })
+    }
+    
+    const result = await getDocuments('sharedTrips', conditions)
+    
+    if (result.success && searchQuery) {
+      // Client-side filtering for search query
+      const filteredData = result.data.filter(trip => 
+        trip.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        trip.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        trip.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        trip.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+      
+      return { success: true, data: filteredData }
+    }
+    
+    return result
+  } catch (error) {
+    console.error('Error searching shared trips:', error)
+    return { success: false, error: error.message }
+  }
+}

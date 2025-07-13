@@ -4,6 +4,7 @@ import { Database, Check, AlertCircle, Loader, RefreshCw } from 'lucide-react'
 import { useTheme } from '../../contexts/ThemeContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { seedAllData, checkDataExists, seedUserData } from '../../utils/seedData'
+import { seedSharedTrips } from '../../utils/seedSharedTrips'
 
 const DataSeeder = () => {
   const { isDark } = useTheme()
@@ -39,6 +40,11 @@ const DataSeeder = () => {
       
       if (results.destinations.success) {
         setSeedingProgress('Destinations seeded successfully!')
+        
+        // Seed shared trips
+        setSeedingProgress('Setting up shared trips...')
+        await seedSharedTrips()
+        setSeedingProgress('Shared trips seeded successfully!')
         
         // If user is logged in, seed user-specific data
         if (user?.uid) {
