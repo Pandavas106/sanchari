@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Filter, Star, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart, Grid, List, SlidersHorizontal, X, ChevronDown, Loader } from 'lucide-react'
+import { Search, Filter, Star, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart, Grid, List, SlidersHorizontal, X, ChevronDown, Loader, CloudSun, Navigation, Sparkles, Bot, Compass } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAllBookings } from '../hooks/useUserData'
 import { addToSaved, removeFromSaved, getUserSavedItems } from '../firebase/firestore'
+import { useNearbyPOIs } from '../hooks/useNearbyPOIs'
+import { generateGeminiTrip } from '../utils/geminiTripPlanner'
+import POICard from '../components/explore/POICard'
+import axios from 'axios'
 import { 
   Navbar, 
   BottomNavbar, 
@@ -37,11 +41,23 @@ const Explore = () => {
   const [viewMode, setViewMode] = useState('grid')
   const [sortBy, setSortBy] = useState('popular')
   const [currentPage, setCurrentPage] = useState(1)
+  
+  // Enhanced state for advanced features
+  const [weatherData, setWeatherData] = useState(null)
+  const [userLocation, setUserLocation] = useState(null)
+  const [aiRecommendations, setAiRecommendations] = useState([])
+  const [nearbyPOIs, setNearbyPOIs] = useState([])
+  const [loadingAI, setLoadingAI] = useState(false)
+  const [loadingWeather, setLoadingWeather] = useState(false)
+  const [locationName, setLocationName] = useState('')
 
   const itemsPerPage = 12
 
   // Fetch bookings using custom hook
   const { bookings, loading: bookingsLoading, error } = useAllBookings()
+  
+  // Use nearby POIs hook
+  const { pois, loading: poisLoading, error: poisError } = useNearbyPOIs(userLocation)
 
   const [filteredBookings, setFilteredBookings] = useState([])
 
@@ -72,6 +88,131 @@ const Explore = () => {
 
     loadSavedItems()
   }, [user?.uid])
+
+  // Get user location and weather data
+  useEffect(() => {
+    const getUserLocationAndWeather = async () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const lat = position.coords.latitude
+            const lon = position.coords.longitude
+            setUserLocation({ lat, lon })
+
+            // Get location name
+            try {
+              const geoRes = await axios.get(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+              )
+              const locationName = geoRes.data.address.city ||
+                geoRes.data.address.town ||
+                geoRes.data.address.village ||
+                geoRes.data.address.state ||
+                "Your Location"
+              setLocationName(locationName)
+            } catch (error) {
+              console.error('Error fetching location name:', error)
+              setLocationName(`${lat.toFixed(2)}, ${lon.toFixed(2)}`)
+            }
+
+            // Get weather data
+            setLoadingWeather(true)
+            try {
+              const weatherRes = await axios.get(
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto`
+              )
+              const weather = weatherRes.data.current_weather
+              setWeatherData({
+                temperature: `${Math.round(weather.temperature)}°C`,
+                condition: getWeatherCondition(weather.weathercode),
+                windSpeed: `${weather.windspeed} km/h`,
+                humidity: weatherRes.data.hourly.relative_humidity_2m[0] || 0,
+                recommendation: getWeatherRecommendation(weather.weathercode, weather.temperature)
+              })
+            } catch (error) {
+              console.error('Error fetching weather data:', error)
+            } finally {
+              setLoadingWeather(false)
+            }
+          },
+          (error) => {
+            console.error('Error getting location:', error)
+          }
+        )
+      }
+    }
+
+    getUserLocationAndWeather()
+  }, [])
+
+  // Generate AI recommendations based on user preferences and location
+  useEffect(() => {
+    const generateAIRecommendations = async () => {
+      if (userLocation && !loadingAI && aiRecommendations.length === 0) {
+        setLoadingAI(true)
+        try {
+          const preferences = {
+            location: locationName,
+            budget: 'moderate',
+            interests: ['culture', 'nature', 'adventure'],
+            duration: '3-5 days'
+          }
+          
+          const aiTrip = await generateGeminiTrip(preferences)
+          if (aiTrip && aiTrip.trip) {
+            setAiRecommendations([aiTrip.trip])
+          }
+        } catch (error) {
+          console.error('Error generating AI recommendations:', error)
+        } finally {
+          setLoadingAI(false)
+        }
+      }
+    }
+
+    generateAIRecommendations()
+  }, [userLocation, locationName, loadingAI, aiRecommendations.length])
+
+  // Helper functions for weather
+  const getWeatherCondition = (code) => {
+    const conditions = {
+      0: 'Clear sky',
+      1: 'Mainly clear',
+      2: 'Partly cloudy',
+      3: 'Overcast',
+      45: 'Foggy',
+      48: 'Depositing rime fog',
+      51: 'Light drizzle',
+      53: 'Moderate drizzle',
+      55: 'Dense drizzle',
+      61: 'Slight rain',
+      63: 'Moderate rain',
+      65: 'Heavy rain',
+      71: 'Slight snow',
+      73: 'Moderate snow',
+      75: 'Heavy snow',
+      80: 'Slight showers',
+      81: 'Moderate showers',
+      82: 'Violent showers',
+      95: 'Thunderstorm',
+      96: 'Thunderstorm with hail',
+      99: 'Heavy thunderstorm'
+    }
+    return conditions[code] || 'Unknown'
+  }
+
+  const getWeatherRecommendation = (code, temperature) => {
+    if (code === 0 || code === 1) {
+      return temperature > 25 ? 'Perfect for outdoor activities!' : 'Great day for sightseeing!'
+    } else if (code >= 61 && code <= 65) {
+      return 'Consider indoor attractions or pack an umbrella'
+    } else if (code >= 71 && code <= 75) {
+      return 'Winter activities or cozy indoor experiences'
+    } else if (code >= 95) {
+      return 'Stay indoors and plan for tomorrow'
+    }
+    return 'Check weather before heading out'
+  }
 
   // Filter and sort bookings
   useEffect(() => {
@@ -140,7 +281,42 @@ const Explore = () => {
   const handleSearch = (query) => {
     setSearchQuery(query)
     setLoading(true)
+    
+    // Enhanced search with AI-powered suggestions
+    if (query.length > 3) {
+      generateSearchSuggestions(query)
+    }
+    
     setTimeout(() => setLoading(false), 800)
+  }
+
+  const generateSearchSuggestions = async (query) => {
+    try {
+      // Use Gemini AI to enhance search results
+      const enhancedQuery = `Based on the search query "${query}" and location "${locationName}", suggest relevant travel destinations and activities. Focus on practical recommendations.`
+      
+      // This would call Gemini API for search enhancement
+      console.log('Enhanced search query:', enhancedQuery)
+    } catch (error) {
+      console.error('Error generating search suggestions:', error)
+    }
+  }
+
+  const getWeatherBasedRecommendations = () => {
+    if (!weatherData) return []
+    
+    const recommendations = []
+    const temp = parseInt(weatherData.temperature)
+    
+    if (temp > 25 && weatherData.condition.includes('clear')) {
+      recommendations.push('Beach destinations', 'Outdoor adventures', 'Hiking trails')
+    } else if (temp < 15) {
+      recommendations.push('Mountain retreats', 'Cozy cafes', 'Museums')
+    } else if (weatherData.condition.includes('rain')) {
+      recommendations.push('Indoor attractions', 'Shopping centers', 'Spa resorts')
+    }
+    
+    return recommendations
   }
 
   const handleSaveItem = async (itemId) => {
@@ -362,6 +538,132 @@ const Explore = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Main Content */}
           <div className="lg:col-span-9 min-w-0">
+            {/* Weather Widget */}
+            {weatherData && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6"
+              >
+                <div className={`p-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <CloudSun className="w-8 h-8 text-yellow-400" />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-white font-semibold">{locationName}</span>
+                          <span className="text-2xl font-bold text-white">{weatherData.temperature}</span>
+                        </div>
+                        <p className="text-sm text-gray-300">{weatherData.condition}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-300">Wind: {weatherData.windSpeed}</p>
+                      <p className="text-sm text-gray-300">Humidity: {weatherData.humidity}%</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 p-3 bg-blue-500/10 rounded-lg">
+                    <p className="text-sm text-blue-200 flex items-center">
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      {weatherData.recommendation}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* AI Recommendations */}
+            {aiRecommendations.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6"
+              >
+                <div className="flex items-center mb-4">
+                  <Bot className="w-6 h-6 text-purple-400 mr-2" />
+                  <h3 className="font-bold text-lg text-white">AI Recommendations</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {aiRecommendations.map((recommendation, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30"
+                    >
+                      <h4 className="font-semibold text-white mb-2">{recommendation.title}</h4>
+                      <p className="text-sm text-gray-300 mb-3">{recommendation.subtitle}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold text-yellow-400">{recommendation.price}</span>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-4 py-2 bg-purple-500 text-white rounded-lg text-sm hover:bg-purple-600 transition-colors"
+                        >
+                          View Details
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Weather-based Recommendations */}
+            {getWeatherBasedRecommendations().length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6"
+              >
+                <div className="flex items-center mb-4">
+                  <Compass className="w-6 h-6 text-blue-400 mr-2" />
+                  <h3 className="font-bold text-lg text-white">Perfect for Today's Weather</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {getWeatherBasedRecommendations().map((rec, index) => (
+                    <motion.span
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="px-3 py-1 bg-blue-500/20 text-blue-200 rounded-full text-sm border border-blue-500/30"
+                    >
+                      {rec}
+                    </motion.span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Nearby POIs */}
+            {pois && pois.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <Navigation className="w-6 h-6 text-green-400 mr-2" />
+                    <h3 className="font-bold text-lg text-white">Nearby Points of Interest</h3>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors"
+                  >
+                    View All
+                  </motion.button>
+                </div>
+                <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
+                  {pois.slice(0, 5).map((poi, index) => (
+                    <POICard key={poi.id || index} poi={poi} index={index} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
             {/* Category Filters */}
             <CategoryFilter 
               categories={categories}
@@ -462,7 +764,7 @@ const Explore = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-3 min-w-0">
-            {/* Quick Filters */}
+            {/* Smart Filters */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -470,9 +772,31 @@ const Explore = () => {
               className="mb-6 sm:mb-8"
             >
               <h3 className={`font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-white truncate`}>
-                Quick Filters
+                Smart Filters
               </h3>
               <div className={`p-4 sm:p-6 rounded-xl bg-navy/50 backdrop-blur-sm space-y-4`}>
+                {/* Weather-based quick filters */}
+                {weatherData && (
+                  <div>
+                    <label className={`block text-sm font-semibold mb-2 text-white`}>
+                      Weather-based Suggestions
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {getWeatherBasedRecommendations().slice(0, 4).map((rec, index) => (
+                        <motion.button
+                          key={index}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleSearch(rec)}
+                          className="p-2 text-xs bg-blue-500/20 text-blue-200 rounded-lg hover:bg-blue-500/30 transition-colors"
+                        >
+                          {rec}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className={`block text-sm font-semibold mb-2 text-white`}>
                     Price Range
@@ -500,6 +824,7 @@ const Explore = () => {
                     />
                   </div>
                 </div>
+
                 <div>
                   <label className={`block text-sm font-semibold mb-2 text-white`}>
                     Minimum Rating
@@ -522,6 +847,86 @@ const Explore = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Location-based filters */}
+                {userLocation && (
+                  <div>
+                    <label className={`block text-sm font-semibold mb-2 text-white`}>
+                      Distance from You
+                    </label>
+                    <div className="flex space-x-2">
+                      {['10km', '50km', '100km', 'Any'].map((distance) => (
+                        <motion.button
+                          key={distance}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setAppliedFilters(prev => ({ ...prev, distance }))}
+                          className={`flex-1 px-2 py-2 rounded-lg border text-xs ${
+                            appliedFilters.distance === distance
+                              ? 'bg-green-400 border-green-400 text-navy'
+                              : 'border-gray-600 text-white hover:border-green-400'
+                          } transition-colors`}
+                        >
+                          {distance}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* AI Travel Assistant */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mb-6 sm:mb-8"
+            >
+              <div className={`p-4 sm:p-6 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-purple-500/30`}>
+                <div className="flex items-center mb-3">
+                  <Bot className="w-6 h-6 text-purple-400 mr-2" />
+                  <h3 className={`font-bold text-lg text-white`}>AI Travel Assistant</h3>
+                </div>
+                <p className={`text-sm mb-4 text-gray-300`}>
+                  Get personalized recommendations based on your preferences and current location
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={async () => {
+                    setLoadingAI(true)
+                    try {
+                      const preferences = {
+                        location: locationName,
+                        budget: 'moderate',
+                        interests: ['culture', 'nature', 'adventure'],
+                        duration: '3-5 days'
+                      }
+                      const aiTrip = await generateGeminiTrip(preferences)
+                      if (aiTrip && aiTrip.trip) {
+                        setAiRecommendations([aiTrip.trip])
+                      }
+                    } catch (error) {
+                      console.error('Error generating AI recommendations:', error)
+                    } finally {
+                      setLoadingAI(false)
+                    }
+                  }}
+                  disabled={loadingAI}
+                  className={`w-full px-4 py-2 rounded-lg font-semibold text-sm ${
+                    loadingAI 
+                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
+                  } transition-all flex items-center justify-center space-x-2`}
+                >
+                  {loadingAI ? (
+                    <Loader className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4" />
+                  )}
+                  <span>{loadingAI ? 'Generating...' : 'Get AI Suggestions'}</span>
+                </motion.button>
               </div>
             </motion.div>
 
@@ -533,13 +938,31 @@ const Explore = () => {
               className="mb-6 sm:mb-8"
             >
               <h3 className={`font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-white truncate`}>
-                Travel Tips
+                Smart Travel Tips
               </h3>
               <div className={`p-4 sm:p-6 rounded-xl bg-navy/50 backdrop-blur-sm space-y-4`}>
                 {[
-                  { icon: Calendar, title: 'Best Time to Book', desc: 'Book 6-8 weeks in advance for best deals', color: 'bg-blue-500' },
-                  { icon: MapPin, title: 'Off-Season Travel', desc: 'Save up to 40% by traveling off-season', color: 'bg-green-500' },
-                  { icon: Users, title: 'Group Discounts', desc: 'Travel with 4+ people for group rates', color: 'bg-purple-500' }
+                  { 
+                    icon: Calendar, 
+                    title: 'Best Time to Book', 
+                    desc: 'Book 6-8 weeks in advance for best deals', 
+                    color: 'bg-blue-500',
+                    tip: weatherData ? `Perfect weather for ${weatherData.condition.toLowerCase()}` : 'Check weather forecasts'
+                  },
+                  { 
+                    icon: MapPin, 
+                    title: 'Local Insights', 
+                    desc: userLocation ? `${pois?.length || 0} attractions near you` : 'Enable location for personalized tips', 
+                    color: 'bg-green-500',
+                    tip: locationName ? `Currently in ${locationName}` : 'Location services disabled'
+                  },
+                  { 
+                    icon: Users, 
+                    title: 'Group Benefits', 
+                    desc: 'Travel with 4+ people for group rates', 
+                    color: 'bg-purple-500',
+                    tip: 'Save 15-25% with group bookings'
+                  }
                 ].map((tip, index) => {
                   const Icon = tip.icon
                   return (
@@ -563,6 +986,9 @@ const Explore = () => {
                         <p className={`text-xs sm:text-sm text-gray-300 leading-relaxed`}>
                           {tip.desc}
                         </p>
+                        <p className={`text-xs text-blue-300 mt-1 leading-relaxed`}>
+                          💡 {tip.tip}
+                        </p>
                       </div>
                     </motion.div>
                   )
@@ -570,19 +996,19 @@ const Explore = () => {
               </div>
             </motion.div>
 
-            {/* Newsletter */}
+            {/* Enhanced Newsletter */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
               className="mb-6 sm:mb-8"
             >
-              <div className={`p-4 sm:p-6 rounded-xl bg-yellow-400`}>
+              <div className={`p-4 sm:p-6 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-400`}>
                 <h3 className={`font-bold text-lg sm:text-xl mb-2 text-navy truncate`}>
                   Stay Updated
                 </h3>
                 <p className={`text-sm mb-4 text-navy`}>
-                  Get the latest travel deals and destination guides
+                  Get weather alerts, AI recommendations, and exclusive deals for {locationName || 'your area'}
                 </p>
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <input
@@ -593,11 +1019,19 @@ const Explore = () => {
                   <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`px-4 py-2 rounded-lg font-semibold text-sm bg-navy text-white hover:opacity-90 transition-opacity flex-shrink-0`}
+                    className={`px-4 py-2 rounded-lg font-semibold text-sm bg-navy text-white hover:opacity-90 transition-opacity flex-shrink-0 flex items-center space-x-2`}
                   >
-                    Subscribe
+                    <Sparkles className="w-4 h-4" />
+                    <span>Subscribe</span>
                   </motion.button>
                 </div>
+                {weatherData && (
+                  <div className="mt-3 p-2 bg-navy/20 rounded-lg">
+                    <p className="text-xs text-navy">
+                      🌤️ Current: {weatherData.temperature} • {weatherData.condition}
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
