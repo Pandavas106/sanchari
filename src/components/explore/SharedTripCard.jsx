@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { 
   Star, 
   Users, 
@@ -30,6 +31,7 @@ const SharedTripCard = ({
   isSaved = false,
   currentUserId
 }) => {
+  const navigate = useNavigate()
   const [isRating, setIsRating] = useState(false)
   const [userRating, setUserRating] = useState(0)
   const [ratingComment, setRatingComment] = useState('')
@@ -39,6 +41,10 @@ const SharedTripCard = ({
     if (onUse) {
       onUse(trip.id)
     }
+  }
+
+  const handleViewDetails = () => {
+    navigate(`/trip-details/${trip.id}`, { state: { trip } })
   }
 
   const handleRateTrip = async () => {
@@ -144,7 +150,7 @@ const SharedTripCard = ({
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      <span>{trip.days} days</span>
+                      <span>{trip.duration || trip.days} days</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
@@ -230,10 +236,19 @@ const SharedTripCard = ({
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={handleViewDetails}
+                    className="px-3 py-2 bg-gray-600/50 text-gray-300 rounded-lg font-medium hover:bg-gray-600/70 transition-all flex items-center gap-2 text-sm"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>View Details</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleUseTrip}
                     className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2"
                   >
-                    <span>Use This Trip</span>
+                    <span>Use Plan</span>
                     <ArrowRight className="w-4 h-4" />
                   </motion.button>
                 </div>
@@ -369,15 +384,27 @@ const SharedTripCard = ({
             </button>
           )}
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleUseTrip}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2"
-          >
-            <span>Use Trip</span>
-            <ArrowRight className="w-4 h-4" />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleViewDetails}
+              className="px-3 py-2 bg-gray-600/50 text-gray-300 rounded-lg font-medium hover:bg-gray-600/70 transition-all flex items-center gap-2 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              <span>View Details</span>
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleUseTrip}
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2"
+            >
+              <span>Use Plan</span>
+              <ArrowRight className="w-4 h-4" />
+            </motion.button>
+          </div>
         </div>
       </div>
 

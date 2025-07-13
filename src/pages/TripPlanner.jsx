@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { Navbar, LoadingSpinner } from '../components'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { generateGeminiTrip } from '../utils/geminiTripPlanner';
 import { useUserBookings } from '../hooks/useUserData'
 import { useAuth } from '../contexts/AuthContext'
@@ -118,16 +118,22 @@ const TripPlanner = () => {
   const { isDark } = useTheme()
   const { user } = useAuth()
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if we're customizing a shared trip
+  const sharedTrip = location.state?.sharedTrip || null;
+  const mode = location.state?.mode || 'create'; // 'create' or 'customize'
+  
   const [currentStep, setCurrentStep] = useState(0)
-  const [budget, setBudget] = useState(50000)
+  const [budget, setBudget] = useState(sharedTrip?.minBudget || 50000)
   const [budgetType, setBudgetType] = useState(1)
-  const [selectedDays, setSelectedDays] = useState(5)
+  const [selectedDays, setSelectedDays] = useState(sharedTrip?.duration || 5)
   const [selectedType, setSelectedType] = useState(0)
   const [selectedCompanion, setSelectedCompanion] = useState(0)
   const [adults, setAdults] = useState(1)
   const [children, setChildren] = useState(0)
   const [autoLocation, setAutoLocation] = useState(false)
-  const [currentLocation, setCurrentLocation] = useState('Bangalore')
+  const [currentLocation, setCurrentLocation] = useState(sharedTrip?.location || 'Bangalore')
   const [suggestedTrips, setSuggestedTrips] = useState([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState(null)
@@ -145,12 +151,52 @@ const TripPlanner = () => {
     }
   }, [autoLocation])
 
-  // Show recent booking if available
+  // Show recent booking if available (only for create mode, not customize mode)
   useEffect(() => {
-    if (recentBooking && !bookingsLoading) {
+    if (mode === 'create' && recentBooking && !bookingsLoading) {
       setShowRecentBooking(true)
     }
-  }, [recentBooking, bookingsLoading])
+  }, [recentBooking, bookingsLoading, mode])
+
+  // Initialize form with shared trip data if in customize mode
+  useEffect(() => {
+    if (mode === 'customize' && sharedTrip) {
+      // Set form values based on shared trip data
+      setBudget(sharedTrip.minBudget || 50000)
+      setSelectedDays(sharedTrip.duration || 5)
+      setCurrentLocation(sharedTrip.location || 'Bangalore')
+      
+      // Map category to type
+      const categoryToType = {
+        'Adventure': 0,
+        'Relaxation': 1,
+        'Spiritual': 2
+      }
+      setSelectedType(categoryToType[sharedTrip.category] || 0)
+      
+      // Map companion to type
+      const companionToType = {
+        'solo': 0,
+        'couple': 1,
+        'family': 2,
+        'friends': 2,
+        'group': 2
+      }
+      setSelectedCompanion(companionToType[sharedTrip.companion] || 0)
+      
+      // Skip to final step to show the shared trip directly
+      setCurrentStep(steps.length - 1)
+      setSuggestedTrips([{
+        ...sharedTrip,
+        type: categoryToType[sharedTrip.category] || 0,
+        companion: companionToType[sharedTrip.companion] || 0,
+        days: sharedTrip.duration || 5,
+        minBudget: sharedTrip.minBudget || 50000,
+        maxBudget: sharedTrip.maxBudget || 100000,
+        image: sharedTrip.image
+      }])
+    }
+  }, [mode, sharedTrip])
 
   function generateTripSuggestions() {
     return sampleTrips.filter(trip =>
@@ -181,23 +227,32 @@ const TripPlanner = () => {
   }
 
   const handleRegenerate = () => {
-    setShowRecentBooking(false)
-    setCurrentStep(0)
-    setBudget(50000)
-    setBudgetType(1)
-    setSelectedDays(5)
-    setSelectedType(0)
-    setSelectedCompanion(0)
-    setAdults(1)
-    setChildren(0)
-    setAutoLocation(false)
-    setCurrentLocation('Bangalore')
-    setError(null)
+    if (mode === 'customize') {
+      // For customize mode, just start the flow from step 0
+      setCurrentStep(0)
+      setSuggestedTrips([])
+      setError(null)
+    } else {
+      // For create mode, reset everything including recent booking
+      setShowRecentBooking(false)
+      setCurrentStep(0)
+      setBudget(50000)
+      setBudgetType(1)
+      setSelectedDays(5)
+      setSelectedType(0)
+      setSelectedCompanion(0)
+      setAdults(1)
+      setChildren(0)
+      setAutoLocation(false)
+      setCurrentLocation('Bangalore')
+      setError(null)
+    }
   }
 
   async function handleGenerate() {
     setIsGenerating(true)
     setError(null)
+    
     const data = {
       budget,
       budgetType,
@@ -213,10 +268,33 @@ const TripPlanner = () => {
     console.log('🚀 Starting trip generation with data:', data);
     
     try {
-      // Use Gemini utility
-      const { trip, included } = await generateGeminiTrip(data);
-      console.log('✅ Trip generated successfully:', { trip, included });
-      navigate('/trip-details', { state: { trip, included } });
+      if (mode === 'customize' && sharedTrip) {
+        // For customize mode, use the modified preferences with shared trip as base
+        const customizedTrip = {
+          ...sharedTrip,
+          duration: selectedDays,
+          minBudget: budget,
+          maxBudget: budget * 2,
+          location: currentLocation,
+          customized: true,
+          baseTrip: sharedTrip.name
+        }
+        
+        console.log('✅ Trip customized successfully:', customizedTrip);
+        navigate('/trip-details', { 
+          state: { 
+            trip: customizedTrip, 
+            included: [], 
+            isCustomized: true,
+            originalTrip: sharedTrip 
+          } 
+        });
+      } else {
+        // Use Gemini utility for new trip generation
+        const { trip, included } = await generateGeminiTrip(data);
+        console.log('✅ Trip generated successfully:', { trip, included });
+        navigate('/trip-details', { state: { trip, included } });
+      }
     } catch (e) {
       console.error('❌ Error generating trip:', e);
       setError(e.message || 'Error generating trip. Please try again.')
@@ -489,13 +567,102 @@ const TripPlanner = () => {
       {/* Breadcrumb & Hero/Header */}
       <div className="max-w-5xl mx-auto w-full px-6 pt-8 pb-2">
         <div className="mb-8">
-          <h1 className={`text-4xl font-bold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>AI Trip Planner</h1>
-          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Plan your next adventure with our AI-powered trip planner. Fill in your preferences and let us do the magic!</p>
+          <h1 className={`text-4xl font-bold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>
+            {mode === 'customize' ? 'Customize Your Trip' : 'AI Trip Planner'}
+          </h1>
+          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            {mode === 'customize' 
+              ? 'Customize this shared trip plan according to your preferences and requirements.'
+              : 'Plan your next adventure with our AI-powered trip planner. Fill in your preferences and let us do the magic!'
+            }
+          </p>
         </div>
       </div>
 
+      {/* Shared Trip Display */}
+      {mode === 'customize' && sharedTrip && (
+        <div className="max-w-5xl mx-auto w-full px-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`${isDark ? 'bg-navy/70' : 'bg-white/90'} rounded-2xl shadow p-8`}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>
+                  Customizing: {sharedTrip.name}
+                </h2>
+                <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Shared by {sharedTrip.creatorName || 'Travel Enthusiast'} • {sharedTrip.location} • {sharedTrip.duration} days
+                </p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/explore')}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                  isDark ? 'bg-gray-600 text-white hover:bg-gray-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back to Explore</span>
+              </motion.button>
+            </div>
+            
+            {/* Shared Trip Details */}
+            <div className="flex items-center gap-6 mb-6">
+              <img 
+                src={sharedTrip.image} 
+                alt={sharedTrip.name}
+                className="w-24 h-24 rounded-xl object-cover"
+              />
+              <div className="flex-1">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Duration:</span>
+                    <p className={`${isDark ? 'text-white' : 'text-gray-800'}`}>{sharedTrip.duration} days</p>
+                  </div>
+                  <div>
+                    <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Budget:</span>
+                    <p className={`${isDark ? 'text-white' : 'text-gray-800'}`}>
+                      ₹{sharedTrip.minBudget?.toLocaleString()} - ₹{sharedTrip.maxBudget?.toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Category:</span>
+                    <p className={`${isDark ? 'text-white' : 'text-gray-800'}`}>{sharedTrip.category}</p>
+                  </div>
+                  <div>
+                    <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Rating:</span>
+                    <p className={`${isDark ? 'text-white' : 'text-gray-800'}`}>{sharedTrip.averageRating?.toFixed(1) || 'N/A'} ⭐</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className={`p-4 rounded-lg ${isDark ? 'bg-blue-500/20 border border-blue-500/30' : 'bg-blue-50 border border-blue-200'}`}>
+              <div className="flex items-center justify-between">
+                <p className={`text-sm ${isDark ? 'text-blue-200' : 'text-blue-800'}`}>
+                  💡 You can modify the duration, budget, and other preferences below to customize this trip plan according to your needs.
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setCurrentStep(0)}
+                  className={`ml-4 px-4 py-2 rounded-lg font-semibold transition-all ${
+                    isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  Customize Now
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Recent Booking Display */}
-      {showRecentBooking && recentBooking && (
+      {showRecentBooking && recentBooking && mode === 'create' && (
         <div className="max-w-5xl mx-auto w-full px-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -682,7 +849,13 @@ const TripPlanner = () => {
                   onClick={nextStep}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all ${isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
               >
-                {currentStep === steps.length - 1 ? (<><Sparkles className="w-5 h-5" /><span>Generate My Trip</span></>) : (<><span>Continue</span><ArrowRight className="w-5 h-5" /></>)}
+                {currentStep === steps.length - 1 ? (
+                  mode === 'customize' ? 
+                    (<><Sparkles className="w-5 h-5" /><span>Apply Customizations</span></>) :
+                    (<><Sparkles className="w-5 h-5" /><span>Generate My Trip</span></>)
+                ) : (
+                  <><span>Continue</span><ArrowRight className="w-5 h-5" /></>
+                )}
                 </motion.button>
               </div>
           </div>
