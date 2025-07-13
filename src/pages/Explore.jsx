@@ -717,9 +717,9 @@ const Explore = () => {
                     View All
                   </motion.button>
                 </div>
-                <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
+                <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
                   {popularTrips.slice(0, 5).map((trip, index) => (
-                    <div key={trip.id} className="min-w-[280px]">
+                    <div key={trip.id} className="flex-shrink-0 w-[320px]">
                       <SharedTripCard
                         trip={trip}
                         index={index}
@@ -756,9 +756,9 @@ const Explore = () => {
                     View All
                   </motion.button>
                 </div>
-                <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
+                <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
                   {trendingTrips.slice(0, 5).map((trip, index) => (
-                    <div key={trip.id} className="min-w-[280px]">
+                    <div key={trip.id} className="flex-shrink-0 w-[320px]">
                       <SharedTripCard
                         trip={trip}
                         index={index}
@@ -845,8 +845,8 @@ const Explore = () => {
             {filteredTrips.length > 0 ? (
               <>
                 <div className={viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" 
-                  : "space-y-4 sm:space-y-6"
+                  ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr" 
+                  : "space-y-6"
                 }>
                   {paginatedTrips.map((trip, index) => (
                     <SharedTripCard

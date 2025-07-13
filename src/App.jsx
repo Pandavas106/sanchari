@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import TripPlanner from './pages/TripPlanner'
 import Explore from './pages/Explore'
 import TripDetails from './pages/TripDetails'
+import TripDetailsView from './pages/TripDetailsView'
 import Cart from './pages/Cart'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
@@ -49,6 +50,11 @@ function App() {
               <Route path="/trip-details" element={
                 <ProtectedRoute>
                   <TripDetails />
+                </ProtectedRoute>
+              } />
+              <Route path="/trip-details/:tripId" element={
+                <ProtectedRoute>
+                  <TripDetailsView />
                 </ProtectedRoute>
               } />
               <Route path="/cart" element={

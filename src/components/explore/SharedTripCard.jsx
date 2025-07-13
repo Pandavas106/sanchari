@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { 
   Star, 
   Users, 
@@ -30,6 +31,7 @@ const SharedTripCard = ({
   isSaved = false,
   currentUserId
 }) => {
+  const navigate = useNavigate()
   const [isRating, setIsRating] = useState(false)
   const [userRating, setUserRating] = useState(0)
   const [ratingComment, setRatingComment] = useState('')
@@ -39,6 +41,10 @@ const SharedTripCard = ({
     if (onUse) {
       onUse(trip.id)
     }
+  }
+
+  const handleViewDetails = () => {
+    navigate(`/trip-details/${trip.id}`, { state: { trip } })
   }
 
   const handleRateTrip = async () => {
@@ -112,8 +118,8 @@ const SharedTripCard = ({
         <div className="p-6">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Trip Image */}
-            <div className="md:w-1/3">
-              <div className="relative h-48 md:h-32 rounded-lg overflow-hidden">
+            <div className="md:w-1/3 flex-shrink-0">
+              <div className="relative h-48 md:h-40 rounded-lg overflow-hidden">
                 <img 
                   src={trip.image || '/api/placeholder/400/200'} 
                   alt={trip.name}
@@ -133,81 +139,75 @@ const SharedTripCard = ({
             </div>
 
             {/* Trip Details */}
-            <div className="md:w-2/3 space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">{trip.name}</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-300 mb-2">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{trip.location}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{trip.days} days</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      <span>{getCompanionLabel(trip.companion).label}</span>
+            <div className="md:w-2/3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{trip.name}</h3>
+                    <div className="flex items-center gap-4 text-sm text-gray-300 mb-2">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{trip.location}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        <span className="whitespace-nowrap">{trip.duration || trip.days} days</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4 flex-shrink-0" />
+                        <span className="whitespace-nowrap">{getCompanionLabel(trip.companion).label}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <button 
-                  onClick={onSave}
-                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                >
-                  <Heart className={`w-5 h-5 ${isSaved ? 'fill-red-500 text-red-500' : 'text-gray-300'}`} />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  <span className="text-white">{trip.averageRating?.toFixed(1) || 0}</span>
-                  <span className="text-gray-300">({trip.totalRatings || 0})</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4 text-blue-400" />
-                  <span className="text-gray-300">{trip.usageCount || 0} uses</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <DollarSign className="w-4 h-4 text-green-400" />
-                  <span className="text-gray-300">{formatBudget(trip.minBudget, trip.maxBudget)}</span>
-                </div>
-              </div>
-
-              <p className="text-gray-300 text-sm leading-relaxed">
-                {showFullDescription ? trip.description : `${trip.description?.substring(0, 150)}...`}
-                {trip.description?.length > 150 && (
+                  
                   <button 
-                    onClick={() => setShowFullDescription(!showFullDescription)}
-                    className="text-blue-400 ml-2 hover:text-blue-300"
+                    onClick={onSave}
+                    className="p-2 rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
                   >
-                    {showFullDescription ? 'Show less' : 'Show more'}
+                    <Heart className={`w-5 h-5 ${isSaved ? 'fill-red-500 text-red-500' : 'text-gray-300'}`} />
                   </button>
-                )}
-              </p>
-
-              {trip.tags && trip.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {trip.tags.slice(0, 3).map((tag, tagIndex) => (
-                    <span 
-                      key={tagIndex}
-                      className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                  {trip.tags.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-500/20 text-gray-300 rounded-full text-xs">
-                      +{trip.tags.length - 3} more
-                    </span>
-                  )}
                 </div>
-              )}
 
-              <div className="flex items-center justify-between pt-4">
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    <span className="text-white">{trip.averageRating?.toFixed(1) || 0}</span>
+                    <span className="text-gray-300">({trip.totalRatings || 0})</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-4 h-4 text-blue-400" />
+                    <span className="text-gray-300">{trip.usageCount || 0} uses</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <DollarSign className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-300">{formatBudget(trip.minBudget, trip.maxBudget)}</span>
+                  </div>
+                </div>
+
+                <p className="text-gray-300 text-sm leading-relaxed line-clamp-2">
+                  {trip.description}
+                </p>
+
+                {trip.tags && trip.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {trip.tags.slice(0, 4).map((tag, tagIndex) => (
+                      <span 
+                        key={tagIndex}
+                        className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                    {trip.tags.length > 4 && (
+                      <span className="px-2 py-1 bg-gray-500/20 text-gray-300 rounded-full text-xs">
+                        +{trip.tags.length - 4} more
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-gray-700/50 mt-4">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-gray-400" />
@@ -230,10 +230,19 @@ const SharedTripCard = ({
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={handleViewDetails}
+                    className="px-3 py-2 bg-gray-600/50 text-gray-300 rounded-lg font-medium hover:bg-gray-600/70 transition-all flex items-center gap-2 text-sm"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>View Details</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleUseTrip}
                     className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2"
                   >
-                    <span>Use This Trip</span>
+                    <span>Use Plan</span>
                     <ArrowRight className="w-4 h-4" />
                   </motion.button>
                 </div>
@@ -250,10 +259,10 @@ const SharedTripCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="bg-navy/30 backdrop-blur-sm rounded-xl border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 overflow-hidden group"
+      className="bg-navy/30 backdrop-blur-sm rounded-xl border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 overflow-hidden group h-full flex flex-col"
     >
       {/* Trip Image */}
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-48 overflow-hidden flex-shrink-0">
         <img 
           src={trip.image || '/api/placeholder/400/200'} 
           alt={trip.name}
@@ -300,84 +309,106 @@ const SharedTripCard = ({
       </div>
 
       {/* Trip Details */}
-      <div className="p-4 space-y-3">
-        <div>
-          <h3 className="text-lg font-bold text-white mb-1 group-hover:text-blue-300 transition-colors">
+      <div className="p-4 flex-1 flex flex-col">
+        {/* Title and Location - Fixed Height */}
+        <div className="mb-3">
+          <h3 className="text-lg font-bold text-white mb-1 group-hover:text-blue-300 transition-colors line-clamp-1">
             {trip.name}
           </h3>
           <div className="flex items-center gap-4 text-sm text-gray-300">
             <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4" />
-              <span>{trip.location}</span>
+              <MapPin className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">{trip.location}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Calendar className="w-4 h-4" />
               <span>{trip.days} days</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm">
-          <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
+        {/* Trip Type and Companion - Fixed Height */}
+        <div className="flex items-center gap-2 text-sm mb-3">
+          <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs whitespace-nowrap">
             {getTripTypeLabel(trip.type).icon} {getTripTypeLabel(trip.type).label}
           </span>
-          <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">
+          <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs whitespace-nowrap">
             {getCompanionLabel(trip.companion).icon} {getCompanionLabel(trip.companion).label}
           </span>
         </div>
 
-        <p className="text-gray-300 text-sm leading-relaxed line-clamp-2">
+        {/* Description - Fixed Height */}
+        <p className="text-gray-300 text-sm leading-relaxed line-clamp-3 mb-3 min-h-[3.75rem]">
           {trip.description}
         </p>
 
-        <div className="flex items-center justify-between text-sm">
+        {/* Budget and Creator - Fixed Height */}
+        <div className="flex items-center justify-between text-sm mb-3">
           <div className="flex items-center gap-1">
             <DollarSign className="w-4 h-4 text-green-400" />
             <span className="text-gray-300">{formatBudget(trip.minBudget, trip.maxBudget)}</span>
           </div>
           <div className="flex items-center gap-1">
             <User className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-300">{trip.creatorName || 'Anonymous'}</span>
+            <span className="text-gray-300 truncate max-w-[120px]">{trip.creatorName || 'Anonymous'}</span>
           </div>
         </div>
 
-        {trip.tags && trip.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {trip.tags.slice(0, 2).map((tag, tagIndex) => (
-              <span 
-                key={tagIndex}
-                className="px-2 py-1 bg-gray-500/20 text-gray-300 rounded-full text-xs"
+        {/* Tags - Fixed Height */}
+        <div className="min-h-[2rem] mb-3">
+          {trip.tags && trip.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {trip.tags.slice(0, 2).map((tag, tagIndex) => (
+                <span 
+                  key={tagIndex}
+                  className="px-2 py-1 bg-gray-500/20 text-gray-300 rounded-full text-xs"
+                >
+                  #{tag}
+                </span>
+              ))}
+              {trip.tags.length > 2 && (
+                <span className="px-2 py-1 bg-gray-500/20 text-gray-300 rounded-full text-xs">
+                  +{trip.tags.length - 2}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons - Fixed at Bottom */}
+        <div className="flex items-center justify-between pt-2 mt-auto">
+          <div className="flex-shrink-0">
+            {!hasUserRated && (
+              <button 
+                onClick={() => setIsRating(true)}
+                className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-lg text-sm hover:bg-yellow-500/30 transition-colors"
               >
-                #{tag}
-              </span>
-            ))}
-            {trip.tags.length > 2 && (
-              <span className="px-2 py-1 bg-gray-500/20 text-gray-300 rounded-full text-xs">
-                +{trip.tags.length - 2}
-              </span>
+                Rate
+              </button>
             )}
           </div>
-        )}
-
-        <div className="flex items-center justify-between pt-2">
-          {!hasUserRated && (
-            <button 
-              onClick={() => setIsRating(true)}
-              className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-lg text-sm hover:bg-yellow-500/30 transition-colors"
-            >
-              Rate
-            </button>
-          )}
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleUseTrip}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2"
-          >
-            <span>Use Trip</span>
-            <ArrowRight className="w-4 h-4" />
-          </motion.button>
+          <div className="flex items-center gap-2 ml-auto">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleViewDetails}
+              className="px-3 py-2 bg-gray-600/50 text-gray-300 rounded-lg font-medium hover:bg-gray-600/70 transition-all flex items-center gap-2 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              <span className="hidden sm:inline">View</span>
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleUseTrip}
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2 text-sm"
+            >
+              <span>Use Plan</span>
+              <ArrowRight className="w-4 h-4" />
+            </motion.button>
+          </div>
         </div>
       </div>
 
