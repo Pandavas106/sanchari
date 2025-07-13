@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Sun, Moon, Plane, User, Calendar, Heart, Mail, Lock, Eye, EyeOff, Phone, MapPin } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plane, User, Calendar, Heart, Mail, Lock, Eye, EyeOff, Phone, MapPin } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -92,7 +92,7 @@ const ProfileStepper = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const { signUp } = useAuth()
 
   useEffect(() => {
@@ -653,14 +653,7 @@ const ProfileStepper = () => {
               </div>
             </div>
 
-            {/* Theme Toggle */}
-            <button onClick={toggleTheme} className="p-2">
-              {isDark ? (
-                <Sun className="w-6 h-6 text-yellow-400" />
-              ) : (
-                <Moon className="w-6 h-6 text-blue-600" />
-              )}
-            </button>
+
           </div>
         </div>
       </header>

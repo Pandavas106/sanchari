@@ -117,9 +117,7 @@ const Dashboard = () => {
     return () => clearTimeout(timer)
   }, [])
 
-  const bgGradient = isDark 
-    ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
-    : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
+  const bgGradient = 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
 
   const categories = [
     { icon: Plane, label: "Flights", color: "bg-blue-500", count: "200+ deals" },

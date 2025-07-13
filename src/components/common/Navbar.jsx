@@ -6,8 +6,6 @@ import {
   Search, 
   Bell, 
   ShoppingCart, 
-  Sun, 
-  Moon,
   Menu,
   X,
   Home,
@@ -29,7 +27,7 @@ const Navbar = ({
 }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const { isAuthenticated } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showSignOutModal, setShowSignOutModal] = useState(false)
@@ -56,7 +54,7 @@ const Navbar = ({
       description: 'AI-powered trip planning'
     },
     { 
-      path: '/bookings', 
+      path: '/mybookings', 
       label: 'My Trips', 
       icon: Calendar,
       description: 'Manage bookings'
@@ -197,21 +195,7 @@ const Navbar = ({
                   <Search className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
                 </motion.button>
               )}
-              {/* Theme Toggle */}
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleTheme} 
-                className={`p-2 rounded-lg ${
-                  isDark ? 'hover:bg-white/10' : 'hover:bg-navy/10'
-                } transition-colors`}
-              >
-                {isDark ? (
-                  <Sun className="w-6 h-6 text-yellow-400" />
-                ) : (
-                  <Moon className="w-6 h-6 text-blue-600" />
-                )}
-              </motion.button>
+
               {/* Notifications */}
               {isAuthenticated && (
                 <motion.button
@@ -315,18 +299,6 @@ const Navbar = ({
 
             {/* Mobile Actions */}
             <div className="flex items-center space-x-2">
-              {/* Theme toggle */}
-              <motion.button 
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleTheme} 
-                className="p-2"
-              >
-                {isDark ? (
-                  <Sun className="w-5 h-5 text-yellow-400" />
-                ) : (
-                  <Moon className="w-5 h-5 text-blue-600" />
-                )}
-              </motion.button>
               
               {/* Location Button */}
               <button

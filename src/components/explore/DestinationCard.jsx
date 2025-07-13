@@ -66,7 +66,7 @@ const DestinationCard = ({
               <div className="flex items-start justify-between mb-2 gap-2">
                 <div className="min-w-0 flex-1">
                   <h3 className={`font-bold text-lg sm:text-xl mb-1 ${isDark ? 'text-white' : 'text-navy'} truncate`}>
-                    {destination.name}
+                    {destination.tripName || destination.name || destination.title}
                   </h3>
                   <div className="flex items-center space-x-1 mb-2">
                     <MapPin className={`w-3 h-3 sm:w-4 sm:h-4 ${isDark ? 'text-yellow-400' : 'text-blue-600'} flex-shrink-0`} />
@@ -91,7 +91,7 @@ const DestinationCard = ({
               </div>
               
               <p className={`text-xs sm:text-sm mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'} line-clamp-2`}>
-                {destination.description}
+                {destination.subtitle || destination.description}
               </p>
               
               <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
@@ -115,9 +115,9 @@ const DestinationCard = ({
                   <span className={`text-xs sm:text-sm font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
                     {destination.rating}
                   </span>
-                  <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    ({destination.reviews})
-                  </span>
+                              <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+              ({destination.reviews || 0})
+            </span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Calendar className={`w-3 h-3 sm:w-4 sm:h-4 ${isDark ? 'text-yellow-400' : 'text-blue-600'} flex-shrink-0`} />
@@ -234,7 +234,7 @@ const DestinationCard = ({
       
       <div className="p-4 sm:p-6">
         <h3 className={`font-bold text-lg sm:text-xl mb-2 ${isDark ? 'text-white' : 'text-navy'} truncate`}>
-          {destination.name}
+          {destination.tripName || destination.name || destination.title}
         </h3>
         <div className="flex items-center space-x-1 mb-3">
           <MapPin className={`w-3 h-3 sm:w-4 sm:h-4 ${isDark ? 'text-yellow-400' : 'text-blue-600'} flex-shrink-0`} />
@@ -244,7 +244,7 @@ const DestinationCard = ({
         </div>
         
         <p className={`text-xs sm:text-sm mb-4 ${isDark ? 'text-gray-300' : 'text-gray-600'} line-clamp-2`}>
-          {destination.description}
+          {destination.subtitle || destination.description}
         </p>
         
         <div className="flex flex-wrap gap-1 sm:gap-2 mb-4">
@@ -258,6 +258,15 @@ const DestinationCard = ({
               {highlight}
             </span>
           ))}
+          {destination.days && (
+            <span
+              className={`px-2 py-1 rounded-lg text-xs font-semibold ${
+                isDark ? 'bg-gray-600 text-white' : 'bg-gray-200 text-navy'
+              } truncate`}
+            >
+              {destination.days} days
+            </span>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
@@ -266,9 +275,9 @@ const DestinationCard = ({
             <span className={`text-xs sm:text-sm font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
               {destination.rating}
             </span>
-            <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} truncate`}>
-              ({destination.reviews})
-            </span>
+                      <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} truncate`}>
+            ({destination.reviews || 0})
+          </span>
           </div>
           <div className="text-right min-w-0">
             <div className="flex items-center space-x-1 sm:space-x-2">

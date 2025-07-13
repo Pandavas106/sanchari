@@ -42,6 +42,9 @@ const TripDetails = () => {
   const trip = location.state?.trip
   const included = location.state?.included
 
+  // Check if this is an existing booking (has an id and was created from a booking)
+  const isExistingBooking = trip?.id && trip?.createdAt
+
   // Fallback image if the trip image fails to load
   const fallbackImage = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80'
 
@@ -69,7 +72,7 @@ const TripDetails = () => {
 
   if (isBooking) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-navy via-gray-900 to-blue-900`}>
         <div className="text-center max-w-md mx-auto px-6">
           <LoadingSpinner size="xl" />
           <motion.div
@@ -87,7 +90,7 @@ const TripDetails = () => {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen flex flex-col bg-gradient-to-br from-navy via-gray-900 to-blue-900`}>
       {/* Navbar */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -103,7 +106,7 @@ const TripDetails = () => {
           <span>/</span>
           <button onClick={() => navigate(-1)} className={`${isDark ? 'hover:underline text-yellow-400' : 'hover:underline text-blue-600'}`}>Trips</button>
           <span>/</span>
-          <span className={`${isDark ? 'text-yellow-400' : 'text-navy'} font-semibold`}>{trip.title}</span>
+          <span className={`${isDark ? 'text-yellow-400' : 'text-navy'} font-semibold`}>{trip.tripName || trip.title}</span>
         </nav>
           </div>
 
@@ -111,14 +114,14 @@ const TripDetails = () => {
       <div className="relative w-full">
               <img
                 src={imageError || !trip.image ? fallbackImage : trip.image}
-                alt={trip.title}
+                alt={trip.tripName || trip.title}
           className="w-full h-80 object-cover object-center"
                 onError={() => setImageError(true)}
               />
         <div className={`absolute inset-0 ${isDark ? 'bg-gradient-to-t from-navy/90 via-navy/60 to-transparent' : 'bg-gradient-to-t from-black/70 to-transparent'}`} />
         <div className="absolute bottom-0 left-0 w-full px-8 py-6 flex flex-col md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className={`text-3xl md:text-4xl font-bold mb-2 drop-shadow ${isDark ? 'text-yellow-400' : 'text-white'}`}>{trip.title}</h1>
+            <h1 className={`text-3xl md:text-4xl font-bold mb-2 drop-shadow ${isDark ? 'text-yellow-400' : 'text-white'}`}>{trip.tripName || trip.title}</h1>
             <div className="flex items-center space-x-3 mb-2">
               <MapPin className={`w-5 h-5 ${isDark ? 'text-yellow-400' : 'text-yellow-400'}`} />
               <span className={`text-lg font-medium drop-shadow ${isDark ? 'text-white' : 'text-white'}`}>{trip.location}</span>
@@ -257,26 +260,36 @@ const TripDetails = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 mt-6">
-              <button
-                className={`flex-1 px-6 py-3 rounded-lg font-semibold text-lg transition-all shadow ${isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-                onClick={async () => {
-                  setIsBooking(true)
-                  try {
-                    await createBooking(user.uid, {
-                      ...trip,
-                      createdAt: new Date(),
-                    })
-                    setTimeout(() => {
-                      navigate('/mybookings')
-                    }, 1800)
-                  } catch (err) {
-                    setIsBooking(false)
-                    alert('Booking failed: ' + (err.message || err))
-                  }
-                }}
-              >
-                Book Now
-              </button>
+              {isExistingBooking ? (
+                <button
+                  className={`flex-1 px-6 py-3 rounded-lg font-semibold text-lg transition-all shadow ${isDark ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                  onClick={() => navigate('/mybookings', { state: { tripName: trip.tripName } })}
+                >
+                  View in My Bookings
+                </button>
+              ) : (
+                <button
+                  className={`flex-1 px-6 py-3 rounded-lg font-semibold text-lg transition-all shadow ${isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                  onClick={async () => {
+                    setIsBooking(true)
+                    try {
+                      await createBooking(user.uid, {
+                        ...trip,
+                        tripName: trip.tripName || trip.title, // Add trip name explicitly
+                        createdAt: new Date(),
+                      })
+                      setTimeout(() => {
+                        navigate('/mybookings', { state: { tripName: trip.tripName || trip.title } })
+                      }, 1800)
+                    } catch (err) {
+                      setIsBooking(false)
+                      alert('Booking failed: ' + (err.message || err))
+                    }
+                  }}
+                >
+                  Book Now
+                </button>
+              )}
               <button className={`p-2 rounded-full border ml-2 ${isDark ? 'border-gray-600 bg-navy/50' : 'border-gray-200 bg-gray-50'}`} aria-label="Share trip">
                 <Share className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-gray-500'}`} />
               </button>

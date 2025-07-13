@@ -36,7 +36,7 @@ import {
 
 const Settings = () => {
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const [notificationCount, setNotificationCount] = useState(3)
   const [notifications, setNotifications] = useState({
     email: true,
@@ -105,14 +105,7 @@ const Settings = () => {
     {
       title: "Preferences", 
       items: [
-        { 
-          icon: Palette, 
-          title: "Theme", 
-          subtitle: isDark ? "Dark mode" : "Light mode", 
-          color: "text-amber-600", 
-          toggle: true,
-          action: toggleTheme
-        },
+
         { 
           icon: Globe, 
           title: "Language & Currency", 
@@ -200,9 +193,7 @@ const Settings = () => {
 
   const [expandedItem, setExpandedItem] = useState(null)
 
-  const bgGradient = isDark 
-    ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
-    : 'bg-gradient-to-br from-amber-50 via-blue-50 to-purple-50'
+  const bgGradient = 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
 
   const handleNotificationChange = (type) => {
     setNotifications(prev => ({

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import { ChevronRight, Sun, Moon, Plane, Star, Users, Globe, Play, Pause, Volume2, VolumeX, ArrowDown, MapPin, Calendar, Heart, Award, Shield, Zap } from 'lucide-react'
+import { ChevronRight, Plane, Star, Users, Globe, Play, Pause, Volume2, VolumeX, ArrowDown, MapPin, Calendar, Heart, Award, Shield, Zap } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 const onboardingData = [
@@ -94,7 +94,7 @@ const WelcomeOnboarding = () => {
   const [isHovering, setIsHovering] = useState(false)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const { scrollY } = useScroll()
   const y1 = useTransform(scrollY, [0, 300], [0, -50])
   const y2 = useTransform(scrollY, [0, 300], [0, -100])
@@ -252,36 +252,6 @@ const WelcomeOnboarding = () => {
 
             {/* Right Actions */}
             <div className="flex items-center space-x-4">
-              <motion.button 
-                onClick={toggleTheme} 
-                className="p-2 relative"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <AnimatePresence mode="wait">
-                  {isDark ? (
-                    <motion.div
-                      key="sun"
-                      initial={{ rotate: -90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Sun className="w-6 h-6 text-yellow-400" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="moon"
-                      initial={{ rotate: 90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: -90, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Moon className="w-6 h-6 text-blue-600" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
               
               <motion.button 
                 onClick={() => navigate('/login')}

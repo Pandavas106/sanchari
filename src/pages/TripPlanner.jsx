@@ -14,6 +14,8 @@ import { useTheme } from '../contexts/ThemeContext'
 import { Navbar, LoadingSpinner } from '../components'
 import { useNavigate } from 'react-router-dom';
 import { generateGeminiTrip } from '../utils/geminiTripPlanner';
+import { useUserBookings } from '../hooks/useUserData'
+import { useAuth } from '../contexts/AuthContext'
 
 const tripTypes = [
   { value: 0, label: 'Adventure', icon: '🏔️' },
@@ -114,6 +116,7 @@ const steps = [
 
 const TripPlanner = () => {
   const { isDark } = useTheme()
+  const { user } = useAuth()
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0)
   const [budget, setBudget] = useState(50000)
@@ -128,6 +131,11 @@ const TripPlanner = () => {
   const [suggestedTrips, setSuggestedTrips] = useState([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState(null)
+  const [showRecentBooking, setShowRecentBooking] = useState(false)
+
+  // Fetch the most recent booking
+  const { bookings, loading: bookingsLoading } = useUserBookings()
+  const recentBooking = bookings && bookings.length > 0 ? bookings[0] : null
 
   useEffect(() => {
     if (autoLocation && navigator.geolocation) {
@@ -136,6 +144,13 @@ const TripPlanner = () => {
       })
     }
   }, [autoLocation])
+
+  // Show recent booking if available
+  useEffect(() => {
+    if (recentBooking && !bookingsLoading) {
+      setShowRecentBooking(true)
+    }
+  }, [recentBooking, bookingsLoading])
 
   function generateTripSuggestions() {
     return sampleTrips.filter(trip =>
@@ -163,6 +178,21 @@ const TripPlanner = () => {
 
   const goToStep = (stepIndex) => {
       setCurrentStep(stepIndex)
+  }
+
+  const handleRegenerate = () => {
+    setShowRecentBooking(false)
+    setCurrentStep(0)
+    setBudget(50000)
+    setBudgetType(1)
+    setSelectedDays(5)
+    setSelectedType(0)
+    setSelectedCompanion(0)
+    setAdults(1)
+    setChildren(0)
+    setAutoLocation(false)
+    setCurrentLocation('Bangalore')
+    setError(null)
   }
 
   async function handleGenerate() {
@@ -195,9 +225,7 @@ const TripPlanner = () => {
     }
   }
 
-  const bgGradient = isDark 
-    ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
-    : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
+  const bgGradient = 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -434,6 +462,25 @@ const TripPlanner = () => {
         )
   }
 
+  if (bookingsLoading) {
+    return (
+      <div className={`min-h-screen ${bgGradient} flex items-center justify-center`}>
+        <div className="text-center max-w-md mx-auto px-6">
+          <LoadingSpinner size="xl" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 space-y-4"
+          >
+            <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>Loading your recent trips...</h2>
+            <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Checking for your latest AI-generated trip plans</p>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={`min-h-screen flex flex-col ${bgGradient}`}>
       {/* Navbar */}
@@ -444,11 +491,135 @@ const TripPlanner = () => {
         <div className="mb-8">
           <h1 className={`text-4xl font-bold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>AI Trip Planner</h1>
           <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Plan your next adventure with our AI-powered trip planner. Fill in your preferences and let us do the magic!</p>
+        </div>
+      </div>
+
+      {/* Recent Booking Display */}
+      {showRecentBooking && recentBooking && (
+        <div className="max-w-5xl mx-auto w-full px-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`${isDark ? 'bg-navy/70' : 'bg-white/90'} rounded-2xl shadow p-8`}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>
+                  Your Recent Trip
+                </h2>
+                <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Here's your latest AI-generated trip plan
+                </p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleRegenerate}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                  isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>Plan New Trip</span>
+              </motion.button>
             </div>
-          </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Trip Image */}
+              <div className="relative rounded-xl overflow-hidden">
+                <img
+                  src={recentBooking.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80'}
+                  alt={recentBooking.tripName || recentBooking.title}
+                  className="w-full h-64 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-4 left-4 text-white">
+                  <h3 className="text-xl font-bold mb-1">
+                    {recentBooking.tripName || recentBooking.title}
+                  </h3>
+                  <p className="text-sm opacity-90">{recentBooking.location}</p>
+                </div>
+              </div>
+
+              {/* Trip Details */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-navy'}`}>Trip Overview</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={`p-3 rounded-lg ${isDark ? 'bg-navy/50' : 'bg-gray-50'}`}>
+                      <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Duration</div>
+                      <div className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>
+                        {recentBooking.days} days
+                      </div>
+                    </div>
+                    <div className={`p-3 rounded-lg ${isDark ? 'bg-navy/50' : 'bg-gray-50'}`}>
+                      <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Price</div>
+                      <div className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>
+                        {recentBooking.price}
+                      </div>
+                    </div>
+                    <div className={`p-3 rounded-lg ${isDark ? 'bg-navy/50' : 'bg-gray-50'}`}>
+                      <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Rating</div>
+                      <div className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-navy'}`}>
+                        {recentBooking.rating || 'N/A'}
+                      </div>
+                    </div>
+                    <div className={`p-3 rounded-lg ${isDark ? 'bg-navy/50' : 'bg-gray-50'}`}>
+                      <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Status</div>
+                      <div className={`font-semibold ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+                        {recentBooking.status || 'Booked'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-navy'}`}>Highlights</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {recentBooking.highlights?.slice(0, 4).map((highlight, idx) => (
+                      <span
+                        key={idx}
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          isDark ? 'bg-yellow-400/20 text-yellow-400' : 'bg-blue-100 text-blue-700'
+                        }`}
+                      >
+                        {highlight}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex space-x-4">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/trip-details', { state: { trip: recentBooking } })}
+                    className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+                      isDark ? 'bg-navy/50 text-white hover:bg-navy/70' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    View Details
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleRegenerate}
+                    className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+                      isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    Plan New Trip
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
           
       {/* Main Content: Two-column layout */}
-      <div className="max-w-5xl mx-auto w-full px-6 pb-16 flex flex-col md:flex-row gap-12">
+      {!showRecentBooking && (
+        <div className="max-w-5xl mx-auto w-full px-6 pb-16 flex flex-col md:flex-row gap-12">
         {/* Main Column (Form) */}
         <div className="w-full md:w-2/3">
           {/* Progress Bar */}
@@ -555,7 +726,8 @@ const TripPlanner = () => {
             <a href="mailto:help@sanchari.com" className={`${isDark ? 'text-yellow-400' : 'text-blue-600'} font-semibold hover:underline`}>help@sanchari.com</a>
                     </div>
         </aside>
-                  </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className={`${isDark ? 'bg-navy text-yellow-400' : 'bg-navy text-white'} w-full py-8 mt-auto`}>

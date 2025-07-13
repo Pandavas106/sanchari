@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeft, 
@@ -34,14 +34,18 @@ import { useUserBookings } from '../hooks/useUserData'
 
 const MyBookings = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isDark } = useTheme()
   const [notificationCount, setNotificationCount] = useState(3)
   const [expandedSteps, setExpandedSteps] = useState(new Set([0, 1])) // Start with first two steps expanded
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(true);
 
-  // Dynamic bookings
-  const { bookings, loading, error } = useUserBookings()
+  // Get trip name from navigation state (when coming from TripDetails)
+  const tripName = location.state?.tripName || null
+
+  // Dynamic bookings - fetches booking by trip name or shows the most recent booking
+  const { bookings, loading, error } = useUserBookings(tripName)
 
   // Helper to get action button info from activity text
   function getActivityAction(activity) {
@@ -113,9 +117,7 @@ const MyBookings = () => {
     }
   }, []);
 
-  const bgGradient = isDark 
-    ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
-    : 'bg-gradient-to-br from-amber-100 via-blue-50 to-purple-100'
+  const bgGradient = 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
 
   return (
     <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
@@ -145,7 +147,9 @@ const MyBookings = () => {
                 <ArrowLeft className={`w-6 h-6 ${isDark ? 'text-white' : 'text-navy'}`} />
               </button>
               <div>
-                <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>My Bookings</h1>
+                <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-navy'}`}>
+                  {tripName ? `My Booking - ${tripName}` : 'My Bookings'}
+                </h1>
               </div>
             </div>
             {/* Action Buttons (optional) */}
@@ -160,7 +164,9 @@ const MyBookings = () => {
         ) : error ? (
           <div className="text-center text-red-500 font-semibold py-12">{error}</div>
         ) : !bookings || bookings.length === 0 ? (
-          <div className="text-center text-gray-500 font-semibold py-12">No bookings found.</div>
+          <div className="text-center text-gray-500 font-semibold py-12">
+            {tripName ? `No booking found for "${tripName}".` : 'No bookings found.'}
+          </div>
         ) : (
           <div className="space-y-16">
             {bookings.map((booking, bookingIdx) => {

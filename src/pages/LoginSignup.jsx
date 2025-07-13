@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Mail, Lock, Sun, Moon, Plane } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Plane } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useGeolocation } from '../hooks/useGeolocation'
@@ -15,7 +15,7 @@ const LoginSignup = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark } = useTheme()
   const { signIn } = useAuth()
   const { location, error: locationError, requestLocation } = useGeolocation()
 
@@ -84,13 +84,6 @@ const LoginSignup = () => {
 
             {/* Right Actions */}
             <div className="flex items-center space-x-4">
-              <button onClick={toggleTheme} className="p-2">
-                {isDark ? (
-                  <Sun className="w-6 h-6 text-yellow-400" />
-                ) : (
-                  <Moon className="w-6 h-6 text-blue-600" />
-                )}
-              </button>
               {/* --- Add location button and info here --- */}
               <button
                 onClick={requestLocation}

@@ -181,7 +181,42 @@ export const createBooking = async (userId, bookingData) => {
   }
 }
 
-export const getUserBookings = async (userId) => {
+export const getUserBookings = async (userId, tripName = null) => {
+  try {
+    let conditions = [
+      { type: 'where', field: 'userId', operator: '==', value: userId },
+      { type: 'orderBy', field: 'createdAt', direction: 'desc' }
+    ]
+    
+    // If tripName is provided, filter by trip name
+    if (tripName) {
+      conditions.unshift({ type: 'where', field: 'tripName', operator: '==', value: tripName })
+    }
+    
+    const result = await getDocuments('bookings', conditions)
+    
+    if (!result.success) {
+      return result
+    }
+    
+    // Filter bookings that have itinerary data (created from trip details)
+    const filteredBookings = result.data.filter(booking => 
+      booking.itinerary && Array.isArray(booking.itinerary) && booking.itinerary.length > 0
+    )
+    
+    // If tripName is provided, return the specific booking, otherwise return the most recent
+    const bookingsToReturn = tripName 
+      ? filteredBookings 
+      : (filteredBookings.length > 0 ? [filteredBookings[0]] : [])
+    
+    return { success: true, data: bookingsToReturn }
+  } catch (error) {
+    console.error('Error getting user bookings:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+export const getAllUserBookings = async (userId) => {
   return await getDocuments('bookings', [
     { type: 'where', field: 'userId', operator: '==', value: userId },
     { type: 'orderBy', field: 'createdAt', direction: 'desc' }
