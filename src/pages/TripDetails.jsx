@@ -105,16 +105,16 @@ const TripDetails = () => {
           <span>/</span>
           <span className={`${isDark ? 'text-yellow-400' : 'text-navy'} font-semibold`}>{trip.title}</span>
         </nav>
-      </div>
+          </div>
 
       {/* Hero Section */}
       <div className="relative w-full">
-        <img
-          src={imageError || !trip.image ? fallbackImage : trip.image}
-          alt={trip.title}
+              <img
+                src={imageError || !trip.image ? fallbackImage : trip.image}
+                alt={trip.title}
           className="w-full h-80 object-cover object-center"
-          onError={() => setImageError(true)}
-        />
+                onError={() => setImageError(true)}
+              />
         <div className={`absolute inset-0 ${isDark ? 'bg-gradient-to-t from-navy/90 via-navy/60 to-transparent' : 'bg-gradient-to-t from-black/70 to-transparent'}`} />
         <div className="absolute bottom-0 left-0 w-full px-8 py-6 flex flex-col md:flex-row md:items-end md:justify-between">
           <div>
@@ -122,21 +122,21 @@ const TripDetails = () => {
             <div className="flex items-center space-x-3 mb-2">
               <MapPin className={`w-5 h-5 ${isDark ? 'text-yellow-400' : 'text-yellow-400'}`} />
               <span className={`text-lg font-medium drop-shadow ${isDark ? 'text-white' : 'text-white'}`}>{trip.location}</span>
-            </div>
+              </div>
             <p className={`text-lg drop-shadow ${isDark ? 'text-gray-200' : 'text-white/90'}`}>{trip.subtitle}</p>
-          </div>
+                  </div>
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <div className={`flex items-center space-x-2 ${isDark ? 'bg-navy/70' : 'bg-white/20'} backdrop-blur-sm px-3 py-2 rounded-lg`}>
               <Calendar className={`w-5 h-5 ${isDark ? 'text-yellow-400' : 'text-white'}`} />
               <span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-white'}`}>{trip.days} days</span>
-            </div>
+                    </div>
             <div className={`flex items-center space-x-2 ${isDark ? 'bg-navy/70' : 'bg-white/20'} backdrop-blur-sm px-3 py-2 rounded-lg`}>
               <Users className={`w-5 h-5 ${isDark ? 'text-yellow-400' : 'text-white'}`} />
               <span className={`font-semibold ${isDark ? 'text-yellow-400' : 'text-white'}`}>{trip.people} people</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto w-full px-6 py-12 flex flex-col md:flex-row gap-12">
@@ -159,18 +159,18 @@ const TripDetails = () => {
                 </button>
               ))}
             </nav>
-          </div>
+            </div>
 
-          {/* Tab Content */}
+            {/* Tab Content */}
           <div className={`${isDark ? 'bg-navy/70 text-white' : 'bg-white'} rounded-xl shadow p-8 mb-8`}>
             {activeTab === 'overview' && (
               <div>
                 <h2 className={`text-2xl font-bold mb-4 ${isDark ? 'text-yellow-400' : 'text-navy'}`}>Highlights</h2>
                 <ul className={`list-disc pl-6 space-y-2 text-lg ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
-                  {trip.highlights?.map((item, idx) => (
+                    {trip.highlights?.map((item, idx) => (
                     <li key={idx}>{item}</li>
-                  ))}
-                </ul>
+                    ))}
+                  </ul>
               </div>
             )}
 
