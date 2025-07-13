@@ -17,6 +17,7 @@ export { default as CategoryFilter } from './explore/CategoryFilter'
 export { default as TrendingCard } from './explore/TrendingCard'
 export { default as SortDropdown } from './explore/SortDropdown'
 export { default as ViewToggle } from './explore/ViewToggle'
+export { default as SharedTripCard } from './explore/SharedTripCard'
 
 // Settings Components
 export { 

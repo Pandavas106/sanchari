@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Filter, Star, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart, Grid, List, SlidersHorizontal, X, ChevronDown, Loader, CloudSun, Navigation, Sparkles, Bot, Compass } from 'lucide-react'
+import { Search, Filter, Star, MapPin, Calendar, Users, ArrowRight, TrendingUp, Heart, Grid, List, SlidersHorizontal, X, ChevronDown, Loader, CloudSun, Navigation, Sparkles, Bot, Compass, Share2, Eye, MessageCircle, Trophy, Clock, User } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -8,7 +8,9 @@ import { useAllBookings } from '../hooks/useUserData'
 import { addToSaved, removeFromSaved, getUserSavedItems } from '../firebase/firestore'
 import { useNearbyPOIs } from '../hooks/useNearbyPOIs'
 import { generateGeminiTrip } from '../utils/geminiTripPlanner'
+import { useSharedTrips, usePopularSharedTrips, useTrendingSharedTrips, useSharedTripActions } from '../hooks/useSharedTrips'
 import POICard from '../components/explore/POICard'
+import SharedTripCard from '../components/explore/SharedTripCard'
 import axios from 'axios'
 import { 
   Navbar, 
@@ -53,21 +55,34 @@ const Explore = () => {
 
   const itemsPerPage = 12
 
-  // Fetch bookings using custom hook
-  const { bookings, loading: bookingsLoading, error } = useAllBookings()
+  // Fetch shared trips using custom hooks
+  const { sharedTrips, loading: sharedTripsLoading, error: sharedTripsError } = useSharedTrips({
+    sortBy,
+    searchQuery,
+    category: activeFilter !== 'All' ? activeFilter : null,
+    ...appliedFilters
+  })
+  
+  // Fetch popular and trending trips
+  const { popularTrips, loading: popularLoading } = usePopularSharedTrips(5)
+  const { trendingTrips, loading: trendingLoading } = useTrendingSharedTrips(5)
+  
+  // Shared trip actions
+  const { useTrip, rateTrip, loading: actionLoading } = useSharedTripActions()
   
   // Use nearby POIs hook
   const { pois, loading: poisLoading, error: poisError } = useNearbyPOIs(userLocation)
 
-  const [filteredBookings, setFilteredBookings] = useState([])
+  const [filteredTrips, setFilteredTrips] = useState([])
+  const [activeTab, setActiveTab] = useState('all') // 'all', 'popular', 'trending'
 
-  const categories = ['All', 'Beach', 'Mountains', 'City', 'Culture', 'Nature', 'Adventure', 'Luxury']
+  const categories = ['All', 'Adventure', 'Relaxation', 'Spiritual', 'Cultural', 'Nature', 'Beach', 'Mountains', 'City', 'Luxury']
   const sortOptions = [
     { value: 'popular', label: 'Most Popular' },
-    { value: 'price-low', label: 'Price: Low to High' },
-    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'newest', label: 'Newest' },
     { value: 'rating', label: 'Highest Rated' },
-    { value: 'newest', label: 'Newest' }
+    { value: 'budget-low', label: 'Budget: Low to High' },
+    { value: 'budget-high', label: 'Budget: High to Low' }
   ]
 
   // Load user's saved items
@@ -214,61 +229,32 @@ const Explore = () => {
     return 'Check weather before heading out'
   }
 
-  // Filter and sort bookings
+  // Filter and sort shared trips
   useEffect(() => {
-    let filtered = [...bookings]
+    let filtered = []
+    
+    switch (activeTab) {
+      case 'popular':
+        filtered = [...popularTrips]
+        break
+      case 'trending':
+        filtered = [...trendingTrips]
+        break
+      default:
+        filtered = [...sharedTrips]
+    }
 
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(booking => 
-        booking.tripName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        booking.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        booking.subtitle?.toLowerCase().includes(searchQuery.toLowerCase())
+    // Apply additional client-side filters if needed
+    if (activeFilter !== 'All') {
+      filtered = filtered.filter(trip => 
+        trip.category === activeFilter || 
+        trip.tags?.includes(activeFilter.toLowerCase())
       )
     }
 
-    // Apply advanced filters
-    if (appliedFilters.priceRange) {
-      const [min, max] = appliedFilters.priceRange
-      filtered = filtered.filter(booking => {
-        const price = parseInt(booking.price?.replace(/[^\d]/g, '') || '0')
-        return price >= min && price <= max
-      })
-    }
-
-    if (appliedFilters.rating) {
-      filtered = filtered.filter(booking => (booking.rating || 0) >= appliedFilters.rating)
-    }
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => {
-          const priceA = parseInt(a.price?.replace(/[^\d]/g, '') || '0')
-          const priceB = parseInt(b.price?.replace(/[^\d]/g, '') || '0')
-          return priceA - priceB
-        })
-        break
-      case 'price-high':
-        filtered.sort((a, b) => {
-          const priceA = parseInt(a.price?.replace(/[^\d]/g, '') || '0')
-          const priceB = parseInt(b.price?.replace(/[^\d]/g, '') || '0')
-          return priceB - priceA
-        })
-        break
-      case 'rating':
-        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-        break
-      case 'newest':
-        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        break
-      default: // popular
-        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    }
-
-    setFilteredBookings(filtered)
+    setFilteredTrips(filtered)
     setCurrentPage(1)
-  }, [bookings, searchQuery, appliedFilters, sortBy])
+  }, [sharedTrips, popularTrips, trendingTrips, activeTab, activeFilter, appliedFilters])
 
   // Handle search query from navigation state
   useEffect(() => {
@@ -319,26 +305,26 @@ const Explore = () => {
     return recommendations
   }
 
-  const handleSaveItem = async (itemId) => {
+  const handleSaveTrip = async (tripId) => {
     if (!user?.uid) {
       navigate('/login')
       return
     }
 
     try {
-      const booking = bookings.find(b => b.id === itemId)
-      if (!booking) return
+      const trip = filteredTrips.find(t => t.id === tripId)
+      if (!trip) return
 
-      if (savedItems.has(itemId)) {
+      if (savedItems.has(tripId)) {
         // Remove from saved
         const userSavedItems = await getUserSavedItems(user.uid)
         if (userSavedItems.success) {
-          const savedItem = userSavedItems.data.find(item => item.itemId === itemId)
+          const savedItem = userSavedItems.data.find(item => item.itemId === tripId)
           if (savedItem) {
             await removeFromSaved(savedItem.id)
             setSavedItems(prev => {
               const newSet = new Set(prev)
-              newSet.delete(itemId)
+              newSet.delete(tripId)
               return newSet
             })
           }
@@ -346,24 +332,66 @@ const Explore = () => {
       } else {
         // Add to saved
         const savedItemData = {
-          itemId: itemId,
-          itemType: 'Booking',
-          title: booking.tripName || booking.title,
-          subtitle: booking.location,
-          price: booking.price,
-          image: booking.image,
-          description: booking.subtitle,
-          rating: booking.rating,
+          itemId: tripId,
+          itemType: 'SharedTrip',
+          title: trip.name,
+          subtitle: trip.location,
+          price: trip.minBudget ? `₹${trip.minBudget} - ₹${trip.maxBudget}` : 'Varies',
+          image: trip.image,
+          description: trip.description,
+          rating: trip.averageRating,
           savedDate: new Date()
         }
         
         const result = await addToSaved(user.uid, savedItemData)
         if (result.success) {
-          setSavedItems(prev => new Set([...prev, itemId]))
+          setSavedItems(prev => new Set([...prev, tripId]))
         }
       }
     } catch (error) {
-      console.error('Error saving item:', error)
+      console.error('Error saving trip:', error)
+    }
+  }
+
+  const handleUseTrip = async (tripId) => {
+    if (!user?.uid) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      const result = await useTrip(tripId, user.uid)
+      if (result.success) {
+        const trip = filteredTrips.find(t => t.id === tripId)
+        // Navigate to trip planner with the shared trip data
+        navigate('/trip-planner', { 
+          state: { 
+            sharedTrip: trip,
+            mode: 'customize' 
+          } 
+        })
+      }
+    } catch (error) {
+      console.error('Error using trip:', error)
+    }
+  }
+
+  const handleRateTrip = async (tripId, rating, comment) => {
+    if (!user?.uid) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      const result = await rateTrip(tripId, user.uid, rating, comment)
+      if (result.success) {
+        // Refresh the trips data to show updated rating
+        // The useSharedTrips hook will automatically refresh
+      }
+      return result
+    } catch (error) {
+      console.error('Error rating trip:', error)
+      return { success: false, error: error.message }
     }
   }
 
@@ -383,35 +411,46 @@ const Explore = () => {
     setCurrentPage(prev => prev + 1)
   }
 
-  const paginatedBookings = filteredBookings.slice(0, currentPage * itemsPerPage)
-  const hasMoreItems = filteredBookings.length > currentPage * itemsPerPage
+  const paginatedTrips = filteredTrips.slice(0, currentPage * itemsPerPage)
+  const hasMoreItems = filteredTrips.length > currentPage * itemsPerPage
 
   const bgGradient = 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
 
-  if (bookingsLoading || loading) {
+  if (sharedTripsLoading || loading) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center`}>
-        <LoadingSpinner size="xl" text={searchQuery ? `Searching for "${searchQuery}"...` : "Loading bookings..."} />
+        <LoadingSpinner size="xl" text={searchQuery ? `Searching for "${searchQuery}"...` : "Loading shared trips..."} />
       </div>
     )
   }
 
-  if (error) {
+  if (sharedTripsError && !sharedTrips.length) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center`}>
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto px-4">
           <h2 className={`text-2xl font-bold mb-4 text-white`}>
-            Error Loading Bookings
+            Demo Mode Active
           </h2>
-          <p className={`text-gray-300 mb-4`}>
-            {error}
+          <p className={`text-gray-300 mb-6`}>
+            Firebase permissions need to be configured for full functionality. Currently showing demo data.
           </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className={`px-6 py-3 rounded-xl font-semibold bg-yellow-400 text-navy`}
-          >
-            Try Again
-          </button>
+          <div className="space-y-3">
+            <button 
+              onClick={() => window.location.reload()}
+              className={`w-full px-6 py-3 rounded-xl font-semibold bg-yellow-400 text-navy hover:bg-yellow-500 transition-colors`}
+            >
+              Retry Connection
+            </button>
+            <button 
+              onClick={() => setError(null)}
+              className={`w-full px-6 py-3 rounded-xl font-semibold bg-blue-500 text-white hover:bg-blue-600 transition-colors`}
+            >
+              Continue with Demo
+            </button>
+          </div>
+          <p className={`text-xs text-gray-400 mt-4`}>
+            Demo data includes 6 sample trips from across India
+          </p>
         </div>
       </div>
     )
@@ -428,6 +467,27 @@ const Explore = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Demo Mode Notification */}
+        {sharedTripsError && sharedTrips.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 rounded-xl bg-yellow-400/20 border border-yellow-400/30 backdrop-blur-sm"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+              <div>
+                <p className="text-yellow-300 font-medium text-sm">
+                  Demo Mode Active
+                </p>
+                <p className="text-yellow-200 text-xs">
+                  Showing sample trips. Configure Firebase permissions for full functionality.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Page Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -437,15 +497,15 @@ const Explore = () => {
           <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0 flex-1">
               <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-white truncate`}>
-                Explore Bookings
+                Discover Shared Trips
               </h1>
               {searchQuery && (
                 <p className={`text-sm sm:text-base lg:text-lg font-normal text-gray-300 truncate`}>
-                  {filteredBookings.length} results for "{searchQuery}"
+                  {filteredTrips.length} results for "{searchQuery}"
                 </p>
               )}
               <p className={`text-sm sm:text-base lg:text-lg text-gray-300 hidden sm:block`}>
-                Discover your booked trips and itineraries
+                Explore trips created by fellow travelers and customize them for your journey
               </p>
             </div>
             
@@ -637,8 +697,8 @@ const Explore = () => {
               </motion.div>
             )}
 
-            {/* Nearby POIs */}
-            {pois && pois.length > 0 && (
+            {/* Popular Shared Trips Section */}
+            {popularTrips.length > 0 && activeTab === 'all' && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -646,23 +706,108 @@ const Explore = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
-                    <Navigation className="w-6 h-6 text-green-400 mr-2" />
-                    <h3 className="font-bold text-lg text-white">Nearby Points of Interest</h3>
+                    <Trophy className="w-6 h-6 text-yellow-400 mr-2" />
+                    <h3 className="font-bold text-lg text-white">Popular Shared Trips</h3>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
+                    onClick={() => setActiveTab('popular')}
                     className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors"
                   >
                     View All
                   </motion.button>
                 </div>
                 <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
-                  {pois.slice(0, 5).map((poi, index) => (
-                    <POICard key={poi.id || index} poi={poi} index={index} />
+                  {popularTrips.slice(0, 5).map((trip, index) => (
+                    <div key={trip.id} className="min-w-[280px]">
+                      <SharedTripCard
+                        trip={trip}
+                        index={index}
+                        viewMode="grid"
+                        onUse={handleUseTrip}
+                        onRate={handleRateTrip}
+                        onSave={() => handleSaveTrip(trip.id)}
+                        isSaved={savedItems.has(trip.id)}
+                        currentUserId={user?.uid}
+                      />
+                    </div>
                   ))}
                 </div>
               </motion.div>
             )}
+
+            {/* Trending Shared Trips Section */}
+            {trendingTrips.length > 0 && activeTab === 'all' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <TrendingUp className="w-6 h-6 text-green-400 mr-2" />
+                    <h3 className="font-bold text-lg text-white">Trending This Week</h3>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => setActiveTab('trending')}
+                    className="text-sm text-green-400 hover:text-green-300 transition-colors"
+                  >
+                    View All
+                  </motion.button>
+                </div>
+                <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100">
+                  {trendingTrips.slice(0, 5).map((trip, index) => (
+                    <div key={trip.id} className="min-w-[280px]">
+                      <SharedTripCard
+                        trip={trip}
+                        index={index}
+                        viewMode="grid"
+                        onUse={handleUseTrip}
+                        onRate={handleRateTrip}
+                        onSave={() => handleSaveTrip(trip.id)}
+                        isSaved={savedItems.has(trip.id)}
+                        currentUserId={user?.uid}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center bg-navy/50 rounded-xl p-1">
+                {[
+                  { id: 'all', label: 'All Trips', icon: Compass },
+                  { id: 'popular', label: 'Popular', icon: Trophy },
+                  { id: 'trending', label: 'Trending', icon: TrendingUp }
+                ].map(tab => {
+                  const Icon = tab.icon
+                  return (
+                    <motion.button
+                      key={tab.id}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        activeTab === tab.id
+                          ? 'bg-yellow-400 text-navy font-semibold'
+                          : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="hidden sm:inline">{tab.label}</span>
+                    </motion.button>
+                  )
+                })}
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <Eye className="w-4 h-4" />
+                <span>{filteredTrips.length} trips available</span>
+              </div>
+            </div>
 
             {/* Category Filters */}
             <CategoryFilter 
@@ -675,11 +820,11 @@ const Explore = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 min-w-0">
                 <span className={`text-sm font-medium text-gray-300 flex-shrink-0`}>
-                  {filteredBookings.length} bookings found
+                  {filteredTrips.length} shared trips found
                 </span>
-                {filteredBookings.length > 0 && (
+                {filteredTrips.length > 0 && (
                   <span className={`text-xs sm:text-sm text-gray-400 truncate`}>
-                    Showing {Math.min(currentPage * itemsPerPage, filteredBookings.length)} of {filteredBookings.length}
+                    Showing {Math.min(currentPage * itemsPerPage, filteredTrips.length)} of {filteredTrips.length}
                   </span>
                 )}
               </div>
@@ -696,22 +841,24 @@ const Explore = () => {
               </div>
             </div>
 
-            {/* Main Bookings Grid/List */}
-            {filteredBookings.length > 0 ? (
+            {/* Main Shared Trips Grid/List */}
+            {filteredTrips.length > 0 ? (
               <>
                 <div className={viewMode === 'grid' 
                   ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" 
                   : "space-y-4 sm:space-y-6"
                 }>
-                  {paginatedBookings.map((booking, index) => (
-                    <DestinationCard
-                      key={booking.id}
-                      destination={booking}
+                  {paginatedTrips.map((trip, index) => (
+                    <SharedTripCard
+                      key={trip.id}
+                      trip={trip}
                       index={index}
                       viewMode={viewMode}
-                      isSaved={savedItems.has(booking.id)}
-                      onSave={() => handleSaveItem(booking.id)}
-                      onClick={() => navigate('/trip-details', { state: { trip: booking } })}
+                      onUse={handleUseTrip}
+                      onRate={handleRateTrip}
+                      onSave={() => handleSaveTrip(trip.id)}
+                      isSaved={savedItems.has(trip.id)}
+                      currentUserId={user?.uid}
                     />
                   ))}
                 </div>
@@ -727,9 +874,9 @@ const Explore = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={loadMore}
-                                          className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base bg-yellow-400 text-navy hover:opacity-90 transition-opacity`}
+                      className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base bg-yellow-400 text-navy hover:opacity-90 transition-opacity`}
                     >
-                      Load More Bookings
+                      Load More Trips
                     </motion.button>
                   </motion.div>
                 )}
@@ -745,19 +892,30 @@ const Explore = () => {
                   <Search className={`w-8 h-8 sm:w-12 sm:h-12 text-gray-400`} />
                 </div>
                 <h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-white`}>
-                  No bookings found
+                  No shared trips found
                 </h3>
                 <p className={`text-base sm:text-lg mb-4 sm:mb-6 text-gray-300 px-4`}>
-                  Try adjusting your search or filters to find what you're looking for
+                  Try adjusting your search or filters, or be the first to share a trip!
                 </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleClearFilters}
-                  className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-yellow-400 text-navy hover:opacity-90 transition-opacity`}
-                >
-                  Clear All Filters
-                </motion.button>
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleClearFilters}
+                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-yellow-400 text-navy hover:opacity-90 transition-opacity`}
+                  >
+                    Clear All Filters
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/trip-planner')}
+                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-blue-500 text-white hover:bg-blue-600 transition-colors flex items-center gap-2`}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Create & Share Trip</span>
+                  </motion.button>
+                </div>
               </motion.div>
             )}
           </div>

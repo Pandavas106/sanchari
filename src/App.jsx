@@ -15,6 +15,7 @@ import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Saved from './pages/Saved'
 import MyBookings from './pages/MyBookings'
+import BookingManager from './pages/BookingManager'
 import NearbyPOIs from './pages/NearbyPOIs';
 
 function App() {
@@ -73,6 +74,11 @@ function App() {
               <Route path="/mybookings" element={
                 <ProtectedRoute>
                   <MyBookings />
+                </ProtectedRoute>
+              } />
+              <Route path="/bookings" element={
+                <ProtectedRoute>
+                  <BookingManager />
                 </ProtectedRoute>
               } />
               <Route path="/nearby-pois" element={<ProtectedRoute><NearbyPOIs /></ProtectedRoute>} />
