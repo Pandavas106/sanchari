@@ -385,8 +385,7 @@ const TripDetailsView = () => {
                 {[
                   { id: 'overview', label: 'Overview', icon: Compass },
                   { id: 'itinerary', label: 'Itinerary', icon: Route },
-                  { id: 'reviews', label: 'Reviews', icon: MessageCircle },
-                  { id: 'creator', label: 'Creator', icon: User }
+                  { id: 'reviews', label: 'Reviews', icon: MessageCircle }
                 ].map(tab => {
                   const Icon = tab.icon
                   return (
@@ -835,33 +834,6 @@ const TripDetailsView = () => {
                     ) : (
                       <p className="text-gray-400">No reviews yet. Be the first to review this trip!</p>
                     )}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'creator' && (
-                <div className="bg-navy/50 rounded-xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-4">Trip Creator</h3>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                      <User className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white">{trip.creatorName || 'Travel Enthusiast'}</h4>
-                      <p className="text-gray-300 text-sm">{trip.creatorBio || 'Passionate about exploring new places'}</p>
-                      <div className="flex items-center gap-4 mt-2">
-                        <span className="text-sm text-gray-400">{trip.creatorTripsCount || 1} trips shared</span>
-                        <span className="text-sm text-gray-400">{trip.creatorRating || 4.5}⭐ rating</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <button className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                      View Profile
-                    </button>
-                    <button className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                      Message
-                    </button>
                   </div>
                 </div>
               )}
