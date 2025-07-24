@@ -1,8 +1,9 @@
 // Gemini Trip Planner API utility
+
 import axios from 'axios';
 
-const GEMINI_API_KEY = 'AIzaSyCDDABUuK8I57G_EOV31lgZOIlI5rKIukE';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_URL = `${import.meta.env.VITE_GEMINI_URL}?key=${GEMINI_API_KEY}`;
 
 // Mock response for testing when API fails
 const mockTripResponse = {

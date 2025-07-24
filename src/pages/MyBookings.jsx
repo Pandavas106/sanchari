@@ -117,10 +117,12 @@ const MyBookings = () => {
     }
   }, []);
 
-  const bgGradient = 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
+  const bgGradient = isDark
+    ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
+    : 'bg-gradient-to-br from-white via-blue-100 to-blue-300'
 
   return (
-    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0`}>
+    <div className={`min-h-screen ${bgGradient} pb-20 md:pb-0 transition-colors duration-300`}>
       {/* Navigation */}
       <Navbar 
         onSearchOpen={() => {}}
@@ -129,7 +131,7 @@ const MyBookings = () => {
         cartCount={2}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className={`max-w-7xl mx-auto px-6 py-8 ${isDark ? 'bg-navy/80 rounded-2xl shadow-lg' : ''}`}> 
         {/* Page Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -259,11 +261,11 @@ const MyBookings = () => {
                 }
               })
               return (
-                <div key={booking.id || bookingIdx} className="bg-white/70 dark:bg-navy/60 rounded-2xl shadow-lg p-6">
+                <div key={booking.id || bookingIdx} className={`rounded-2xl shadow-lg p-6 transition-colors duration-300 ${isDark ? 'bg-navy/70 border border-white/10' : 'bg-white/70 border border-gray-200'}`}> 
                   {/* Booking Header */}
                   <div className="mb-8">
                     <h2 className={`text-xl font-bold ${isDark ? 'text-yellow-400' : 'text-blue-600'}`}>{booking.destinationName || booking.title}</h2>
-                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{booking.checkInDate || ''} – {booking.checkOutDate || ''} • {booking.travelers || ''} travelers</p>
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booking.checkInDate || ''} – {booking.checkOutDate || ''} • {booking.travelers || ''} travelers</p>
                   </div>
                   {/* Timeline for this booking */}
         <div className="relative">
@@ -302,8 +304,8 @@ const MyBookings = () => {
                           </div>
                   {/* Step Content */}
                   <div className={`ml-16 p-6 rounded-2xl backdrop-blur-sm transition-all duration-300 ${
-                    isDark ? 'bg-navy/50 border border-white/10' : 'bg-white/50 border border-gray-200'
-                  } ${isActive ? 'ring-2 ring-yellow-400/50' : ''}`}>
+                    isDark ? 'bg-navy/60 border border-white/10' : 'bg-white/50 border border-gray-200'
+                  } ${isActive ? 'ring-2 ring-yellow-400/50' : ''}`}> 
                     {/* Step Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4">

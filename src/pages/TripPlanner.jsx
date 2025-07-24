@@ -115,88 +115,168 @@ const steps = [
 ]
 
 const TripPlanner = () => {
-  const { isDark } = useTheme()
-  const { user } = useAuth()
+  // Inactivity timer for customize mode
+  const inactivityTimeoutRef = React.useRef(null);
+  const INACTIVITY_LIMIT = 3 * 60 * 1000; // 3 minutes
+  const { isDark } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Check if we're customizing a shared trip
   const sharedTrip = location.state?.sharedTrip || null;
   const mode = location.state?.mode || 'create'; // 'create' or 'customize'
-  
-  const [currentStep, setCurrentStep] = useState(0)
-  const [budget, setBudget] = useState(sharedTrip?.minBudget || 50000)
-  const [budgetType, setBudgetType] = useState(1)
-  const [selectedDays, setSelectedDays] = useState(sharedTrip?.duration || 5)
-  const [selectedType, setSelectedType] = useState(0)
-  const [selectedCompanion, setSelectedCompanion] = useState(0)
-  const [adults, setAdults] = useState(1)
-  const [children, setChildren] = useState(0)
-  const [autoLocation, setAutoLocation] = useState(false)
-  const [currentLocation, setCurrentLocation] = useState(sharedTrip?.location || 'Bangalore')
-  const [suggestedTrips, setSuggestedTrips] = useState([])
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [error, setError] = useState(null)
-  const [showRecentBooking, setShowRecentBooking] = useState(false)
+
+  // Store previous state for create mode
+  const prevStateRef = React.useRef({
+    currentStep: 0,
+    budget: 50000,
+    budgetType: 1,
+    selectedDays: 5,
+    selectedType: 0,
+    selectedCompanion: 0,
+    adults: 1,
+    children: 0,
+    autoLocation: false,
+    currentLocation: 'Bangalore',
+    suggestedTrips: [],
+    error: null
+  });
+
+  // State
+  const [currentStep, setCurrentStep] = useState(prevStateRef.current.currentStep);
+  const [budget, setBudget] = useState(prevStateRef.current.budget);
+  const [budgetType, setBudgetType] = useState(prevStateRef.current.budgetType);
+  const [selectedDays, setSelectedDays] = useState(prevStateRef.current.selectedDays);
+  const [selectedType, setSelectedType] = useState(prevStateRef.current.selectedType);
+  const [selectedCompanion, setSelectedCompanion] = useState(prevStateRef.current.selectedCompanion);
+  const [adults, setAdults] = useState(prevStateRef.current.adults);
+  const [children, setChildren] = useState(prevStateRef.current.children);
+  const [autoLocation, setAutoLocation] = useState(prevStateRef.current.autoLocation);
+  const [currentLocation, setCurrentLocation] = useState(prevStateRef.current.currentLocation);
+  const [suggestedTrips, setSuggestedTrips] = useState(prevStateRef.current.suggestedTrips);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState(prevStateRef.current.error);
+  const [showRecentBooking, setShowRecentBooking] = useState(false);
 
   // Fetch the most recent booking
-  const { bookings, loading: bookingsLoading } = useUserBookings()
-  const recentBooking = bookings && bookings.length > 0 ? bookings[0] : null
+  const { bookings, loading: bookingsLoading } = useUserBookings();
+  const recentBooking = bookings && bookings.length > 0 ? bookings[0] : null;
 
-  useEffect(() => {
-    if (autoLocation && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setCurrentLocation('Your Location')
-      })
-    }
-  }, [autoLocation])
-
-  // Show recent booking if available (only for create mode, not customize mode)
-  useEffect(() => {
-    if (mode === 'create' && recentBooking && !bookingsLoading) {
-      setShowRecentBooking(true)
-    }
-  }, [recentBooking, bookingsLoading, mode])
-
-  // Initialize form with shared trip data if in customize mode
+  // Unified effect for mode changes and trip initialization
   useEffect(() => {
     if (mode === 'customize' && sharedTrip) {
+      // Start inactivity timer
+      if (inactivityTimeoutRef.current) clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = setTimeout(() => {
+        // Reset to create mode and default state
+        navigate('/trip-planner', { state: { mode: 'create' } });
+      }, INACTIVITY_LIMIT);
+      // Save previous state before customizing
+      prevStateRef.current = {
+        currentStep,
+        budget,
+        budgetType,
+        selectedDays,
+        selectedType,
+        selectedCompanion,
+        adults,
+        children,
+        autoLocation,
+        currentLocation,
+        suggestedTrips,
+        error
+      };
+
       // Set form values based on shared trip data
-      setBudget(sharedTrip.minBudget || 50000)
-      setSelectedDays(sharedTrip.duration || 5)
-      setCurrentLocation(sharedTrip.location || 'Bangalore')
-      
-      // Map category to type
-      const categoryToType = {
-        'Adventure': 0,
-        'Relaxation': 1,
-        'Spiritual': 2
-      }
-      setSelectedType(categoryToType[sharedTrip.category] || 0)
-      
-      // Map companion to type
-      const companionToType = {
-        'solo': 0,
-        'couple': 1,
-        'family': 2,
-        'friends': 2,
-        'group': 2
-      }
-      setSelectedCompanion(companionToType[sharedTrip.companion] || 0)
-      
-      // Skip to final step to show the shared trip directly
-      setCurrentStep(steps.length - 1)
+      setBudget(sharedTrip.minBudget || 50000);
+      setBudgetType(1);
+      setSelectedDays(sharedTrip.duration || 5);
+      setSelectedType({ 'Adventure': 0, 'Relaxation': 1, 'Spiritual': 2 }[sharedTrip.category] || 0);
+      setSelectedCompanion({ 'solo': 0, 'couple': 1, 'family': 2, 'friends': 2, 'group': 2 }[sharedTrip.companion] || 0);
+      setAdults(1);
+      setChildren(0);
+      setAutoLocation(false);
+      setCurrentLocation(sharedTrip.location || 'Bangalore');
+      setCurrentStep(steps.length - 1);
       setSuggestedTrips([{
         ...sharedTrip,
-        type: categoryToType[sharedTrip.category] || 0,
-        companion: companionToType[sharedTrip.companion] || 0,
+        type: { 'Adventure': 0, 'Relaxation': 1, 'Spiritual': 2 }[sharedTrip.category] || 0,
+        companion: { 'solo': 0, 'couple': 1, 'family': 2, 'friends': 2, 'group': 2 }[sharedTrip.companion] || 0,
         days: sharedTrip.duration || 5,
         minBudget: sharedTrip.minBudget || 50000,
         maxBudget: sharedTrip.maxBudget || 100000,
         image: sharedTrip.image
-      }])
+      }]);
+      setError(null);
+    } else if (mode === 'create') {
+      // Clear inactivity timer if leaving customize mode
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+        inactivityTimeoutRef.current = null;
+      }
+      // If navigation state is empty (AI Planner button), reset to default
+      if (!location.state || (!location.state.sharedTrip && !location.state.mode)) {
+        setCurrentStep(0);
+        setBudget(50000);
+        setBudgetType(1);
+        setSelectedDays(5);
+        setSelectedType(0);
+        setSelectedCompanion(0);
+        setAdults(1);
+        setChildren(0);
+        setAutoLocation(false);
+        setCurrentLocation('Bangalore');
+        setSuggestedTrips([]);
+        setError(null);
+        prevStateRef.current = {
+          currentStep: 0,
+          budget: 50000,
+          budgetType: 1,
+          selectedDays: 5,
+          selectedType: 0,
+          selectedCompanion: 0,
+          adults: 1,
+          children: 0,
+          autoLocation: false,
+          currentLocation: 'Bangalore',
+          suggestedTrips: [],
+          error: null
+        };
+      } else {
+        // Restore previous state for create mode (if coming back from another page)
+        setCurrentStep(prevStateRef.current.currentStep);
+        setBudget(prevStateRef.current.budget);
+        setBudgetType(prevStateRef.current.budgetType);
+        setSelectedDays(prevStateRef.current.selectedDays);
+        setSelectedType(prevStateRef.current.selectedType);
+        setSelectedCompanion(prevStateRef.current.selectedCompanion);
+        setAdults(prevStateRef.current.adults);
+        setChildren(prevStateRef.current.children);
+        setAutoLocation(prevStateRef.current.autoLocation);
+        setCurrentLocation(prevStateRef.current.currentLocation);
+        setSuggestedTrips(prevStateRef.current.suggestedTrips);
+        setError(prevStateRef.current.error);
+      }
     }
-  }, [mode, sharedTrip])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, sharedTrip]);
+
+  // Geolocation effect
+  useEffect(() => {
+    if (autoLocation && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setCurrentLocation('Your Location');
+      });
+    }
+  }, [autoLocation]);
+
+  // Show recent booking if available (only for create mode, not customize mode)
+  useEffect(() => {
+    if (mode === 'create' && recentBooking && !bookingsLoading) {
+      setShowRecentBooking(true);
+    }
+  }, [recentBooking, bookingsLoading, mode]);
 
   function generateTripSuggestions() {
     return sampleTrips.filter(trip =>
@@ -209,29 +289,53 @@ const TripPlanner = () => {
   }
 
   const nextStep = () => {
-      if (currentStep < steps.length - 1) {
-        setCurrentStep(currentStep + 1)
-      } else {
-      handleGenerate()
+    if (mode === 'customize' && inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = setTimeout(() => {
+        navigate('/trip-planner', { state: { mode: 'create' } });
+      }, INACTIVITY_LIMIT);
+    }
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      handleGenerate();
     }
   }
 
   const prevStep = () => {
+    if (mode === 'customize' && inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = setTimeout(() => {
+        navigate('/trip-planner', { state: { mode: 'create' } });
+      }, INACTIVITY_LIMIT);
+    }
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
   }
 
   const goToStep = (stepIndex) => {
-      setCurrentStep(stepIndex)
+    if (mode === 'customize' && inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = setTimeout(() => {
+        navigate('/trip-planner', { state: { mode: 'create' } });
+      }, INACTIVITY_LIMIT);
+    }
+    setCurrentStep(stepIndex);
   }
 
   const handleRegenerate = () => {
     if (mode === 'customize') {
       // For customize mode, just start the flow from step 0
-      setCurrentStep(0)
-      setSuggestedTrips([])
-      setError(null)
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+        inactivityTimeoutRef.current = setTimeout(() => {
+          navigate('/trip-planner', { state: { mode: 'create' } });
+        }, INACTIVITY_LIMIT);
+      }
+      setCurrentStep(0);
+      setSuggestedTrips([]);
+      setError(null);
     } else {
       // For create mode, reset everything including recent booking
       setShowRecentBooking(false)
@@ -268,33 +372,23 @@ const TripPlanner = () => {
     console.log('🚀 Starting trip generation with data:', data);
     
     try {
+      // Always use Gemini API for both create and customize modes
+      let tripPayload = { ...data };
       if (mode === 'customize' && sharedTrip) {
-        // For customize mode, use the modified preferences with shared trip as base
-        const customizedTrip = {
-          ...sharedTrip,
-          duration: selectedDays,
-          minBudget: budget,
-          maxBudget: budget * 2,
-          location: currentLocation,
-          customized: true,
-          baseTrip: sharedTrip.name
-        }
-        
-        console.log('✅ Trip customized successfully:', customizedTrip);
-        navigate('/trip-details', { 
-          state: { 
-            trip: customizedTrip, 
-            included: [], 
-            isCustomized: true,
-            originalTrip: sharedTrip 
-          } 
-        });
-      } else {
-        // Use Gemini utility for new trip generation
-        const { trip, included } = await generateGeminiTrip(data);
-        console.log('✅ Trip generated successfully:', { trip, included });
-        navigate('/trip-details', { state: { trip, included } });
+        tripPayload = {
+          ...tripPayload,
+          baseTrip: sharedTrip.name,
+          category: sharedTrip.category,
+          sharedTripId: sharedTrip.id,
+          image: sharedTrip.image,
+          creatorName: sharedTrip.creatorName,
+          originalTrip: sharedTrip,
+          customized: true
+        };
       }
+      const { trip, included } = await generateGeminiTrip(tripPayload);
+      console.log('✅ Trip generated successfully:', { trip, included });
+      navigate('/trip-details', { state: { trip, included, isCustomized: mode === 'customize', originalTrip: mode === 'customize' ? sharedTrip : undefined } });
     } catch (e) {
       console.error('❌ Error generating trip:', e);
       setError(e.message || 'Error generating trip. Please try again.')
@@ -648,12 +742,12 @@ const TripPlanner = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setCurrentStep(0)}
+                  onClick={handleGenerate}
                   className={`ml-4 px-4 py-2 rounded-lg font-semibold transition-all ${
                     isDark ? 'bg-yellow-400 text-navy hover:bg-yellow-300' : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
-                  Customize Now
+                  Apply Customizations
                 </motion.button>
               </div>
             </div>

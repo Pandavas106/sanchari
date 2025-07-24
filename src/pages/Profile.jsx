@@ -30,13 +30,15 @@ const Profile = () => {
   const [notificationCount, setNotificationCount] = useState(3)
   const [showSignOutModal, setShowSignOutModal] = useState(false)
 
+  // Dynamic stats from user data (fallbacks if missing)
   const stats = [
-    { label: "Trips", value: "24", icon: Plane, color: "text-blue-500" },
-    { label: "Reviews", value: "156", icon: Star, color: "text-yellow-500" },
-    { label: "Photos", value: "89", icon: Camera, color: "text-purple-500" },
-    { label: "Countries", value: "12", icon: MapPin, color: "text-green-500" }
-  ]
+    { label: "Trips", value: user?.tripsCount ?? "-", icon: Plane, color: "text-blue-500" },
+    { label: "Reviews", value: user?.reviewsCount ?? "-", icon: Star, color: "text-yellow-500" },
+    { label: "Photos", value: user?.photosCount ?? "-", icon: Camera, color: "text-purple-500" },
+    { label: "Countries", value: user?.countriesVisited ?? "-", icon: MapPin, color: "text-green-500" }
+  ];
 
+  // Dynamic menu items (routes and titles can be customized per user if needed)
   const menuItems = [
     { icon: Calendar, title: "My Bookings", subtitle: "View and manage trips", color: "text-orange-500", route: "/bookings" },
     { icon: Heart, title: "Favorites", subtitle: "Saved places & activities", color: "text-red-500", route: "/saved" },
@@ -45,28 +47,23 @@ const Profile = () => {
     { icon: Award, title: "Achievements", subtitle: "Travel milestones & badges", color: "text-yellow-500" },
     { icon: Headphones, title: "Help & Support", subtitle: "Get assistance", color: "text-blue-500", route: "/settings" },
     { icon: Settings, title: "Settings", subtitle: "Privacy & preferences", color: "text-gray-500", route: "/settings" }
-  ]
+  ];
 
-  const recentTrips = [
-    {
-      destination: "Maldives",
-      date: "Dec 2024",
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-      status: "Upcoming"
-    },
-    {
-      destination: "Dubai",
-      date: "Oct 2024",
-      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80",
-      status: "Completed"
-    },
-    {
-      destination: "Santorini",
-      date: "Aug 2024",
-      image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=400&q=80",
-      status: "Completed"
-    }
-  ]
+  // Dynamic recent trips from user data
+  const recentTrips = user?.recentTrips && Array.isArray(user.recentTrips) && user.recentTrips.length > 0
+    ? user.recentTrips
+    : [];
+
+  // Dynamic travel preferences
+  const favoriteDestinations = user?.favoriteDestinations || ["Beach", "Mountains", "Cities"];
+  const travelStyles = user?.travelStyles || ["Luxury", "Adventure", "Culture"];
+
+  // Dynamic achievements
+  const achievements = user?.achievements || [
+    { title: "Globe Trotter", desc: "Visited 10+ countries", icon: Award, color: "bg-yellow-500" },
+    { title: "Review Master", desc: "100+ helpful reviews", icon: Star, color: "bg-blue-500" },
+    { title: "Elite Member", desc: "Premium status achieved", icon: TrendingUp, color: "bg-purple-500" }
+  ];
 
   const bgGradient = isDark 
     ? 'bg-gradient-to-br from-navy via-gray-900 to-blue-900'
@@ -271,7 +268,9 @@ const Profile = () => {
                 Recent Trips
               </h3>
               <div className="space-y-4">
-                {recentTrips.map((trip, index) => (
+                {recentTrips.length === 0 ? (
+                  <div className={`p-4 rounded-xl ${isDark ? 'bg-navy/50 text-gray-400' : 'bg-white/50 text-gray-600'} backdrop-blur-sm text-center`}>No recent trips found.</div>
+                ) : recentTrips.map((trip, index) => (
                   <div
                     key={index}
                     className={`p-4 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm flex items-center space-x-4`}
@@ -313,7 +312,7 @@ const Profile = () => {
                       Favorite Destinations
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {['Beach', 'Mountains', 'Cities'].map((pref) => (
+                      {favoriteDestinations.map((pref) => (
                         <span
                           key={pref}
                           className={`px-3 py-1 rounded-lg text-sm font-semibold ${
@@ -330,7 +329,7 @@ const Profile = () => {
                       Travel Style
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {['Luxury', 'Adventure', 'Culture'].map((style) => (
+                      {travelStyles.map((style) => (
                         <span
                           key={style}
                           className={`px-3 py-1 rounded-lg text-sm font-semibold ${
@@ -352,45 +351,22 @@ const Profile = () => {
                 Recent Achievements
               </h3>
               <div className={`p-6 rounded-xl ${isDark ? 'bg-navy/50' : 'bg-white/50'} backdrop-blur-sm space-y-4`}>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
-                    <Award className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
-                      Globe Trotter
-                    </p>
-                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                      Visited 10+ countries
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                    <Star className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
-                      Review Master
-                    </p>
-                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                      100+ helpful reviews
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>
-                      Elite Member
-                    </p>
-                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                      Premium status achieved
-                    </p>
-                  </div>
-                </div>
+                {achievements.length === 0 ? (
+                  <div className={`text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>No achievements yet.</div>
+                ) : achievements.map((ach, idx) => {
+                  const Icon = ach.icon;
+                  return (
+                    <div key={idx} className="flex items-center space-x-3">
+                      <div className={`w-10 h-10 ${ach.color} rounded-full flex items-center justify-center`}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className={`font-semibold ${isDark ? 'text-white' : 'text-navy'}`}>{ach.title}</p>
+                        <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{ach.desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
