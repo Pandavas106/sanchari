@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, Plane } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
-import googleLogo from '../assets/google_logo.png';
+import googleLogo from '../../assets/google_logo.png';
 import { useGeolocation } from '../hooks/useGeolocation'
 
 const LoginSignup = () => {
