@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, Plane } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
+import googleLogo from '../assets/google_logo.png';
 import { useGeolocation } from '../hooks/useGeolocation'
 
 const LoginSignup = () => {
@@ -365,7 +366,7 @@ const LoginSignup = () => {
                     onClick={handleGoogleSignIn}
                     className="w-full py-3 px-4 bg-white rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
-                    <img src={require('../assets/google_logo.png')} alt="Google" className="w-5 h-5 mr-2" />
+                    <img src={googleLogo} alt="Google" className="w-5 h-5 mr-2" />
                     <span>{googleLoading ? 'Signing in with Google...' : 'Continue with Google'}</span>
                   </motion.button>
                   <div className="grid grid-cols-1 gap-3">

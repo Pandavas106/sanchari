@@ -14,6 +14,7 @@ import {
   GoogleAuthProvider
 } from 'firebase/auth'
 import { auth } from './config'
+
 // Sign in with Google
 export const signInWithGoogle = async () => {
   try {
