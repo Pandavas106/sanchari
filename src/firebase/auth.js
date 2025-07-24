@@ -9,9 +9,22 @@ import {
   sendEmailVerification,
   updatePassword,
   reauthenticateWithCredential,
-  EmailAuthProvider
+  EmailAuthProvider,
+  signInWithPopup,
+  GoogleAuthProvider
 } from 'firebase/auth'
 import { auth } from './config'
+// Sign in with Google
+export const signInWithGoogle = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    return { success: true, user: result.user };
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    return { success: false, error: error.message };
+  }
+}
 
 // Sign in with email and password
 export const signInWithEmail = async (email, password) => {

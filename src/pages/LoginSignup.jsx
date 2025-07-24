@@ -16,7 +16,24 @@ const LoginSignup = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { isDark } = useTheme()
-  const { signIn } = useAuth()
+  const { signIn, signInGoogle } = useAuth()
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true)
+    setError("")
+    try {
+      const result = await signInGoogle()
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.error || 'Google sign-in failed. Please try again.')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setGoogleLoading(false)
+    }
+  }
   const { location, error: locationError, requestLocation } = useGeolocation()
 
   useEffect(() => {
@@ -342,13 +359,14 @@ const LoginSignup = () => {
                 {/* Social Login */}
                 <div className="space-y-3">
                   <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    disabled={loading}
+                    whileHover={{ scale: googleLoading ? 1 : 1.02 }}
+                    whileTap={{ scale: googleLoading ? 1 : 0.98 }}
+                    disabled={loading || googleLoading}
+                    onClick={handleGoogleSignIn}
                     className="w-full py-3 px-4 bg-white rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
-                    <span>🔍</span>
-                    <span>Continue with Google</span>
+                    <img src={require('../assets/google_logo.png')} alt="Google" className="w-5 h-5 mr-2" />
+                    <span>{googleLoading ? 'Signing in with Google...' : 'Continue with Google'}</span>
                   </motion.button>
                   <div className="grid grid-cols-1 gap-3">
                     <motion.button 

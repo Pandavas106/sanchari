@@ -8,8 +8,25 @@ import {
   resetPassword as firebaseResetPassword,
   updateUserPassword,
   deleteUserAccount as firebaseDeleteAccount,
-  sendVerificationEmail
+  sendVerificationEmail,
+  signInWithGoogle
 } from '../firebase/auth'
+  const signInGoogle = async () => {
+    try {
+      setLoading(true)
+      const result = await signInWithGoogle()
+      if (result.success) {
+        return { success: true, user: result.user }
+      } else {
+        return { success: false, error: result.error }
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error)
+      return { success: false, error: error.message }
+    } finally {
+      setLoading(false)
+    }
+  }
 import { 
   createUserProfile, 
   getUserProfile, 
@@ -367,6 +384,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated,
     signIn,
+    signInGoogle,
     signUp,
     signOut,
     updateProfile,
